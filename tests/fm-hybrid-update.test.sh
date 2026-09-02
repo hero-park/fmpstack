@@ -20,6 +20,7 @@ new_source() {
   git init -q --bare "$bare"
   git -C "$seed" remote add origin "file://$bare"
   git -C "$seed" push -q origin main
+  git -C "$bare" symbolic-ref HEAD refs/heads/main
 }
 
 new_world() {
@@ -96,7 +97,30 @@ test_refuses_wrong_existing_remote() {
   pass 'fm-hybrid-update.sh: refuses to replace a configured source'
 }
 
+test_reports_completed_source_before_later_fetch_failure() {
+  local w out rc
+  w=$(new_world partial)
+  run_update "$w" >/dev/null || fail 'initial source setup failed'
+  printf 'firstmate update\n' >> "$w/firstmate-seed/README.md"
+  git -C "$w/firstmate-seed" add README.md
+  git -C "$w/firstmate-seed" commit -qm firstmate-update
+  git -C "$w/firstmate-seed" push -q origin main
+  mv "$w/pstack.git" "$w/pstack.git.unavailable"
+
+  set +e
+  out=$(run_update "$w")
+  rc=$?
+  set -e
+  [ "$rc" -eq 1 ] || fail 'later source fetch failure was not reported'
+  case "$out" in
+    *'Firstmate source: updated'*'error: could not fetch pstack/main'*) ;;
+    *) fail 'completed Firstmate update was not reported before pstack failure' ;;
+  esac
+  pass 'fm-hybrid-update.sh: reports completed source before later fetch failure'
+}
+
 test_refreshes_sources_and_preserves_hybrid
 test_refuses_wrong_existing_remote
+test_reports_completed_source_before_later_fetch_failure
 
 echo '# all fm-hybrid-update tests passed'

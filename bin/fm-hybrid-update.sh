@@ -107,17 +107,16 @@ git -C "$ROOT" fetch --prune --quiet "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" || 
   printf 'error: could not fetch %s/%s\n' "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" >&2
   exit 1
 }
+new_firstmate=$(ref_sha "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH")
+[ -n "$new_firstmate" ] || { printf 'error: missing %s/%s after fetch\n' "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" >&2; exit 1; }
+print_source_changes Firstmate "$old_firstmate" "$new_firstmate" .
+
 git -C "$ROOT" fetch --prune --quiet "$PSTACK_REMOTE" "$PSTACK_BRANCH" || {
   printf 'error: could not fetch %s/%s\n' "$PSTACK_REMOTE" "$PSTACK_BRANCH" >&2
   exit 1
 }
-
-new_firstmate=$(ref_sha "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH")
 new_pstack=$(ref_sha "$PSTACK_REMOTE" "$PSTACK_BRANCH")
-[ -n "$new_firstmate" ] || { printf 'error: missing %s/%s after fetch\n' "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" >&2; exit 1; }
 [ -n "$new_pstack" ] || { printf 'error: missing %s/%s after fetch\n' "$PSTACK_REMOTE" "$PSTACK_BRANCH" >&2; exit 1; }
-
-print_source_changes Firstmate "$old_firstmate" "$new_firstmate" .
 print_source_changes pstack "$old_pstack" "$new_pstack" pstack
 
 base=$(git -C "$ROOT" merge-base HEAD "$FIRSTMATE_REMOTE/$FIRSTMATE_BRANCH" 2>/dev/null || true)
