@@ -1,0 +1,28 @@
+## Initial refresh
+$ FM_ROOT_OVERRIDE=<fixture>/hybrid FM_HYBRID_FIRSTMATE_URL=<fixture>/firstmate.git FM_HYBRID_PSTACK_URL=<fixture>/pstack.git bin/fm-hybrid-update.sh
+upstream remote: configured
+pstack remote: configured
+Firstmate source: initialized at 0cfadaa9daae
+pstack source: initialized at 372b3bc2e214
+hybrid Firstmate pending: 0 commit(s)
+next: review listed source changes and adapt the hybrid through its normal PR path.
+
+## Refresh after upstream changes with dirty local hybrid work
+$ FM_ROOT_OVERRIDE=<fixture>/hybrid FM_HYBRID_FIRSTMATE_URL=<fixture>/firstmate.git FM_HYBRID_PSTACK_URL=<fixture>/pstack.git bin/fm-hybrid-update.sh
+Firstmate source: updated 0cfadaa9daae..cc8313072d32
+Firstmate relevant updates: 1
+  cc83130 firstmate-update
+pstack source: updated 372b3bc2e214..0cba8c75da3e
+pstack relevant updates: 1
+  0cba8c7 pstack-update
+hybrid Firstmate pending: 1 commit(s)
+  cc83130 firstmate-update
+next: review listed source changes and adapt the hybrid through its normal PR path.
+
+Observed preservation checks: hybrid HEAD unchanged; dirty README content unchanged; working tree still reports the local modification.
+
+## Refuse a conflicting configured pstack remote
+$ FM_ROOT_OVERRIDE=<fixture>/hybrid FM_HYBRID_FIRSTMATE_URL=<fixture>/firstmate.git FM_HYBRID_PSTACK_URL=<fixture>/other.git bin/fm-hybrid-update.sh
+error: pstack remote points to file:///tmp/fm-hybrid-update-e2e.8IA9Ew/fixture/pstack.git, expected file:///tmp/fm-hybrid-update-e2e.8IA9Ew/fixture/other.git
+Observed refusal exit code: 1
+Observed protection check: configured pstack remote URL remained unchanged.
