@@ -276,6 +276,15 @@ The [`secondmate-provisioning` skill](../.agents/skills/secondmate-provisioning/
 
 The `data/secondmates.md` line contract is owned by the [`secondmate-provisioning` skill](../.agents/skills/secondmate-provisioning/SKILL.md#routing-table), and the secondmate environment variables are documented in [configuration.md](configuration.md).
 
+## The engineering inner loop stays inside workers
+
+Firstmate is the outer control plane: it routes work, creates isolation, supervises execution, and owns delivery.
+`bin/fm-brief.sh` puts one small harness-neutral engineering play inside ship and scout briefs, which every verified worker harness already receives through its normal launch path.
+The play tells workers to subtract before adding, name the data shape and blast radius before code, trace architecture only for unfamiliar areas, shared boundaries, or diagnosis, reproduce defects before changing them, and prove the real artifact before done.
+A skipped architecture walk gets a one-line reason in the worker's own response rather than a supervisor status event, and a scout report names every material verification gap.
+Secondmate charters and the primary supervisor omit the play, so it cannot become a competing task router or fleet policy.
+The play adds no review gate; the selected delivery mode remains the only owner of review and shipping.
+
 ## Delivery modes are explicit per task
 
 `no-mistakes` tasks run the full validation pipeline, `direct-PR` tasks open PRs without that pipeline, and `local-only` tasks stay local until firstmate performs an approved fast-forward merge.

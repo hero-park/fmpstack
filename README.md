@@ -1,90 +1,100 @@
-<h1 align="center">firstmate</h1>
+<h1 align="center">fmpstack</h1>
 <p align="center">
-  <a
-    href="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square"
-    ><img
-      alt="Platform"
-      src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square"
-  /></a>
-  <a href="https://x.com/kunchenguid"
-    ><img
-      alt="X"
-      src="https://img.shields.io/badge/X-@kunchenguid-black?style=flat-square"
-  /></a>
-  <a href="https://discord.gg/Wsy2NpnZDu"
-    ><img
-      alt="Discord"
-      src="https://img.shields.io/discord/1439901831038763092?style=flat-square&label=discord"
-  /></a>
+  <a href="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square">
+    <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square" />
+  </a>
+  <a href="https://github.com/kunchenguid/firstmate">
+    <img alt="Firstmate upstream" src="https://img.shields.io/badge/upstream-firstmate-5eead4?style=flat-square" />
+  </a>
+  <a href="https://github.com/cursor/plugins/tree/main/pstack">
+    <img alt="pstack inner loop" src="https://img.shields.io/badge/inner%20loop-pstack-c4f542?style=flat-square" />
+  </a>
 </p>
 
-<h3 align="center">Talk to one agent. Ship with a crew.</h3>
+<h3 align="center">Firstmate runs the fleet. pstack discipline runs inside each worker.</h3>
 
 <p align="center">
-  <img alt="firstmate - talk to one agent, ship with a crew" src="assets/banner.png" width="100%" />
+  <img alt="Firstmate fleet" src="assets/banner.png" width="100%" />
 </p>
 
 ## What it is
 
-You can run one coding agent easily.
-But the moment you want three project tasks done in parallel - fixes, investigations, plans, audits - you become a tab-juggler: babysitting sessions, copy-pasting context between repos, forgetting which terminal had the failing test.
+[fmpstack](https://github.com/hero-park/fmpstack) combines [Firstmate](https://github.com/kunchenguid/firstmate) fleet orchestration with a small, harness-neutral engineering loop inspired by [pstack](https://github.com/cursor/plugins/tree/main/pstack).
 
-firstmate flips the model.
-You talk to a single agent - the first mate - and it runs the crew for you: spawning autonomous agents in a visible session backend, giving each a clean git worktree, supervising them to completion, and handing you finished PRs, approved local merges, or standalone investigation reports.
-For larger fleets, you can opt in to persistent secondmates: second mates that are still ordinary direct reports, but run from their own isolated firstmate homes on this machine or another SSH-reachable host.
+You still talk to one first mate.
+The first mate still chooses work, creates isolated worktrees, dispatches agents, supervises the fleet, and owns delivery.
+The pstack-inspired discipline begins only after a ship or scout worker receives its brief.
 
-firstmate is not a model, not a harness, not a skill, not an MCP server, and not a CLI.
-firstmate is an agent distro for running a crew of agents.
-An agent distro is a portable directory of instructions, skills, tooling, policies, and state conventions that turns a general-purpose agent into a specialized one.
-There is no app to install: the cloned repo is the distro - `AGENTS.md`, bundled firstmate skills, and helper scripts that any terminal coding agent can follow.
-Launching a supported harness inside it instantiates your first mate - and makes you the captain.
+That separation is the point.
+Two routers would compete over work, isolation, and shipping.
+fmpstack keeps one router and nests the engineering loop inside the worker that is doing the task.
+
+The loop is delivered through the same generated brief used by every supported worker adapter.
+It does not require Cursor, a Cursor plugin, a second orchestrator, or harness-specific prompt wiring.
+Claude Code, Codex, OpenCode, Pi, `pi-signed`, Grok, Kimi, Cursor Agent CLI, and Muse workers all receive the same contract through their existing Firstmate launch path.
+
+fmpstack is not a model, a harness, an MCP server, or a separate fleet application.
+It is an agent distro: a portable directory of instructions, skills, scripts, policies, and state conventions that turns a supported terminal coding agent into a first mate with a disciplined crew.
+
+## What changes from Firstmate
+
+Firstmate remains the outer control plane.
+fmpstack adds one engineering inner loop to generated ship and scout briefs.
+
+Each worker must:
+
+1. **Subtract before adding.** Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. **Name the shape and blast radius.** Before code, identify the input, state, output, files, and boundaries likely to change.
+3. **Walk only when needed.** Trace architecture for an unfamiliar area, a shared boundary, or diagnosis. Skip ordinary local work with a one-line reason instead of turning every task into research.
+4. **Reproduce defects first.** Exercise the affected surface and trace the root cause before changing code. Name the gap when access, cost, or safety prevents reproduction.
+5. **Prove the artifact.** Finish with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+
+Scout reports also name every material verification gap so inference cannot masquerade as evidence.
+The selected Firstmate delivery mode remains the only owner of review and shipping.
+fmpstack does not add a second review ceremony.
+
+The detailed boundary lives in [The engineering inner loop stays inside workers](docs/architecture.md#the-engineering-inner-loop-stays-inside-workers).
 
 ## Features
 
-- **One liaison** - you talk only to the first mate; it dispatches, supervises, escalates only real decisions, and reports plain outcomes.
-- **A visible crew** - every crewmate works in its own tmux window, experimental herdr/zellij tab, cmux workspace, or Orca terminal you can watch or type into; the first mate reconciles.
-- **Disposable worktrees** - each task runs in a clean [treehouse](https://github.com/kunchenguid/treehouse) git worktree, or an Orca-managed worktree when `backend=orca`, so parallel work on one repo never collides.
-- **Two task shapes** - ship tasks deliver authorized changes; scout tasks leave standalone investigation reports when the intake contract warrants separate research.
-- **Explicit project modes** - each project ships via `no-mistakes`, `direct-PR`, or `local-only`, with an optional `+yolo` merge-autonomy flag.
-- **Optional secondmates** - opt in to persistent second mates that run from isolated firstmate homes with their own `FM_HOME`, state, projects, and session lock, either locally or as a whole home on an SSH-reachable host, with guarded updates and recovery that never turns an unavailable remote route into a local replacement.
-- **Event-driven, zero-token supervision** - a bash watcher sleeps on the fleet and wakes the first mate only when something needs you; verified primary harnesses also get a turn-end backstop that blocks or follows up on a blind stop when work is under way and supervision is not live.
-- **Optional Relay** - opt in with one local `.env` pairing token so firstmate can answer your public mentions on X and Discord alike, act on normal reversible mention requests through the same lifecycle as chat requests, acknowledge spawned work, and post up to three public-safe completion follow-ups within seven days for genuine milestones and the final outcome without changing non-Relay behavior; a final reply promised in a thread becomes durable state that is reconciled from disk, so a restart or a compacted conversation cannot lose it; dry-run preview records would-be replies and dismissals locally before go-live.
-- **Strict project boundary** - the first mate is read-only over your projects except for the narrow guarded and captain-approved operations authorized by [hard rule 1](AGENTS.md#1-identity-and-prime-directives), including fleet sync's guarded safe branch pruning; crewmates make every other project change behind the configured merge authority.
-- **Restart-proof** - all state lives on disk and in the active session backend (tmux by hard default, herdr or cmux when selected or auto-detected, zellij/orca when explicitly selected); kill the session anytime and the next one reconciles, including confirmed-dead secondmate agents, and carries on.
-
-Full detail on every feature lives in [docs/architecture.md](docs/architecture.md).
+- **One liaison** - you talk only to the first mate, which dispatches, supervises, escalates real decisions, and reports outcomes.
+- **One router** - Firstmate alone owns task selection, isolation, fleet supervision, and delivery.
+- **A harness-neutral inner loop** - every ship and scout worker gets the same engineering play through its generated brief.
+- **Conditional architecture walks** - workers inspect system shape only when unfamiliarity, shared boundaries, or diagnosis justify it.
+- **Real-artifact proof** - workers verify the changed command, flow, record, or local artifact instead of treating tests-exist as done.
+- **Visible workers** - each crewmate runs in its own tmux window, Herdr or Zellij tab, cmux workspace, or Orca terminal.
+- **Disposable worktrees** - each task uses a clean Treehouse worktree or an Orca-managed worktree so parallel agents do not collide.
+- **Two task shapes** - ship tasks deliver authorized changes, while scout tasks leave standalone evidence-backed reports.
+- **Explicit delivery modes** - projects ship through `no-mistakes`, `direct-PR`, or `local-only`, with optional `+yolo` merge authority.
+- **Optional secondmates** - persistent second mates run isolated Firstmate homes locally or on SSH-reachable hosts.
+- **Event-driven supervision** - a zero-token watcher sleeps on the fleet and wakes the first mate only when action is needed.
+- **Strict project boundaries** - the first mate remains read-only over project work while crewmates make changes in isolated copies.
+- **Restart-proof state** - durable records and backend inventory let a restarted first mate reconcile and continue.
+- **Optional Relay** - an opted-in fleet can receive and answer supported public mentions through the normal task lifecycle.
 
 ## Quick Start
 
 ### Requirements
 
-- A verified primary agent harness: Claude Code, Grok, Pi, `pi-signed`, Codex, OpenCode, or Cursor Agent CLI.
-- Git and the GitHub CLI, authenticated through `gh auth login`.
-- The CLI and dependencies for your selected runtime backend; tmux is the reference default.
+- A verified primary harness: Claude Code, Grok, Pi, `pi-signed`, Codex, OpenCode, or Cursor Agent CLI.
+- Git and the GitHub CLI, authenticated with `gh auth login`.
+- The CLI and dependencies for the selected runtime backend.
+- tmux for the reference default backend, or the documented setup for Herdr, Zellij, Orca, or cmux.
 
-The first mate detects and offers to install supported missing tools after you approve.
-Backend-specific setup is linked in [Documentation](#documentation).
+The first mate detects missing supported tools and asks before installing them.
 
-### Recommended harnesses
-
-**Claude Code, Grok, and Pi are equal co-primary recommendations** for running the primary firstmate session, with `pi-signed` supported as Pi's distinct signed-wrapper identity.
-Claude Code uses a tracked Stop hook for tokenless watcher re-arm and rewake, Grok uses background-notify wake cycles, and Pi uses its tracked primary watcher extension.
-All three have verified turn-end guard paths when launched with their documented setup.
-Pick whichever one matches your subscription and workflow.
-
-Codex and OpenCode are also verified and supported as primary harnesses; Codex uses bounded foreground checkpoints, and OpenCode uses a TUI plugin, so both carry more harness-specific supervision tradeoffs than the three co-primaries.
-Cursor Agent CLI is verified as a primary too, using a tracked project-scope `.cursor/hooks.json` whose `stop` hook parks on the watcher between turns, closest in shape to Claude Code's.
-Launch it with `--trust`, or none of its project hooks load; it also has no turn-end hook in headless `cursor-agent -p`, so run the primary session interactively.
-
-### Install and launch
+### Install
 
 ```sh
 gh auth login
-git clone https://github.com/kunchenguid/firstmate
-cd firstmate
+git clone git@github.com:hero-park/fmpstack.git
+cd fmpstack
 ```
 
-Then launch one of the co-primary harnesses; AGENTS.md takes over from there:
+### Launch
+
+Launch one supported primary harness from the repository root.
+`AGENTS.md` takes over from there.
 
 **Claude Code**
 
@@ -102,129 +112,174 @@ grok --trust
 
 ```sh
 pi
-# or, when the signed wrapper is installed
+# Or use the signed wrapper when installed.
 FM_PI_HARNESS=pi-signed pi-signed
 ```
 
-For Grok, `--trust` is needed once per clone so project hooks and the turn-end guard load; `/hooks-trust` inside Grok works too.
-For Pi, approve the project trust prompt once per clone on first launch so the tracked `.pi/extensions/*.ts` files auto-load.
-Pi's `/calm` toggle hides supported transcript chrome, including canonically classified Firstmate operational user rows, and uses a Calm-only animated working boat during active runs while preserving all model context and session data.
-Those Calm-hidden operational inputs remain ordinary user-role messages with unchanged delivery, ordering, authority, persistence, and exports.
-The preference persists for the effective Firstmate home, and toggling it off restores ordinary rendering.
-[Calm's current behavior and supported limits](docs/calm.md) are separate from its [version-scoped maintainer evidence](docs/calm-mode-feasibility.md).
-Pi's `/supervision-model` command pins a cheaper model and a shallower reasoning effort for the supervision branch alone, from the eligible models and thinking levels Pi itself reports, and with no pin the branch normally follows your own conversation's model and effort; see the [configuration schema](docs/configuration.md#pi-supervision-branch-model-and-effort-configsupervision-branch-model-configsupervision-branch-effort).
+For Grok, `--trust` is required once per clone so project hooks load.
+For Pi, approve the project trust prompt once so the tracked `.pi/extensions/*.ts` files load.
+Cursor Agent CLI must be launched interactively with `--trust` so project hooks run.
 
-### Talk to it
+### Ask for work
 
-```sh
-> ahoy! look at my github project xyz, then fix the flaky login test and add dark mode
-
-# firstmate checks its toolchain (asking your consent before installing anything),
-# clones the project under projects/ and spawns two isolated workers in the active backend.
-# Minutes later:
-
-  PR ready for review, captain: https://github.com/you/xyz/pull/42
-  (fix flaky login test - risk: low - CI green)
-
-> alright merge it
+```text
+> ahoy! fix the flaky login test and add dark mode to project xyz
 ```
 
-### More backends
-
-Setup guides for tmux (the default) and every other supported backend (herdr, zellij, Orca, cmux) are linked in [Documentation](#documentation) below.
+The first mate resolves the project and delivery posture, creates separate task briefs, and dispatches isolated workers.
+Each worker follows the fmpstack inner loop inside its own task.
+The first mate continues to supervise and returns finished PRs, approved local branches, or scout reports.
 
 ## How It Works
 
-```
-            you (the captain)
-                  │  chat: requests, decisions, "merge it"
-                  ▼
- ┌─────────────────────────────────────┐
- │ firstmate            (this repo)    │
- │ reads projects/ + firstmate routes  │
- │ writes guarded backlog/briefs/state │
- └──┬──────────────┬───────────────┬───┘
-    │ backend sends / status files │
-    ▼              ▼               ▼
- ┌────────┐   ┌────────┐      ┌────────┐
- │fm-task1│   │fm-task2│  ... │fm-taskN│   tmux windows, herdr/zellij tabs, cmux workspaces, or Orca terminals
- │crewmate│   │crewmate│      │crewmate│   one autonomous agent each
- └───┬────┘   └───┬────┘      └───┬────┘
-     ▼            ▼               ▼
-  treehouse worktree, Orca worktree, or isolated secondmate home
-     │
-     ├─ ship: project mode ► PR/local merge ► teardown
-     │
-     └─ scout: report at data/<id>/report.md ► decision inventory ► relay findings ► teardown
+```text
+                 you, the captain
+                        |
+                        | requests and decisions
+                        v
+        +--------------------------------+
+        | fmpstack first mate            |
+        | route, isolate, supervise, ship|
+        +---------------+----------------+
+                        |
+             one brief per isolated task
+          +-------------+-------------+
+          |                           |
+          v                           v
+ +------------------+       +------------------+
+ | ship crewmate    |       | scout crewmate   |
+ | pstack inner loop|       | pstack inner loop|
+ +--------+---------+       +--------+---------+
+          |                           |
+          v                           v
+ smallest change              evidence + gaps
+ real-artifact proof          standalone report
+          |                           |
+          +-------------+-------------+
+                        |
+                        v
+       Firstmate delivery mode and teardown
 ```
 
-You chat with the first mate.
-It routes each request to a crewmate in its own session endpoint and git worktree, supervises the fleet with a zero-token event-driven watcher, and brings you finished PRs, approved local merges, or investigation reports.
-Optional secondmates extend this to persistent local or whole-home remote second mates, dispatch profiles let you steer which harness handles which task, and opt-in Relay lets the same fleet answer public mentions.
-`codex-app` is not a runtime backend yet; [docs/codex-app-backend.md](docs/codex-app-backend.md) owns the Codex App boundary.
+The control hierarchy is deliberate:
 
-Full architecture - the supervision engine, worktree isolation, secondmates, dispatch profiles, project modes, optional Relay, fleet sync, and self-update - is in [docs/architecture.md](docs/architecture.md).
+1. The captain owns product decisions, credentials, destructive actions, and merge authority unless an explicit standing posture says otherwise.
+2. Firstmate owns routing, isolation, supervision, and delivery.
+3. Ship and scout crewmates own the task-local engineering loop.
+4. The selected delivery path owns review and shipping rigor.
+
+The primary first mate and persistent secondmates do not receive the worker inner-loop dump as an always-loaded policy.
+They remain fleet operators rather than code-face workers.
+
+## Runtime and harness independence
+
+The runtime backend and agent harness are separate choices.
+
+The runtime backend decides where worktrees and terminals live:
+
+- tmux
+- Herdr
+- Zellij
+- Orca
+- cmux
+
+The worker harness decides which coding agent runs inside that endpoint:
+
+- Claude Code
+- Codex
+- OpenCode
+- Pi and `pi-signed`
+- Grok
+- Kimi
+- Cursor Agent CLI
+- Muse for crewmates and scouts
+
+`bin/fm-brief.sh` generates the engineering contract before either choice matters.
+Every adapter consumes that same brief, which is why the hybrid does not need per-harness pstack integration.
+
+## Delivery modes
+
+fmpstack preserves Firstmate's explicit task delivery modes.
+
+- **`no-mistakes`** - the worker implements and commits, then the no-mistakes pipeline owns review, tests, lint, documentation, push, PR creation, and CI.
+- **`direct-PR`** - the worker implements, commits, pushes its task branch, and opens a PR without the no-mistakes pipeline.
+- **`local-only`** - the worker leaves a clean task branch and Firstmate performs the guarded local fast-forward after approval.
+
+The pstack-inspired loop ends by proving the artifact.
+It does not replace or duplicate these delivery gates.
 
 ## Built-in skills
 
-Firstmate ships these user-invocable built-in skills.
-Claude and grok use the slash form shown here; codex uses the same names with `$`, such as `$afk`.
+fmpstack inherits Firstmate's user-invocable skills.
+Claude Code and Grok use the slash spelling shown below, while Codex uses `$`, such as `$afk`.
 
-| Skill              | What it does                                                                                                                                  |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/afk`             | Enter away-mode supervision: the sub-supervisor self-handles routine notifications in bash, escalates captain-relevant events and bounded declared-external-wait rechecks as batched digests, and actively alerts if delivery gets stuck while you step away |
-| `/ahoy`            | Recap visible session events since the prior real captain message plus visibly unanswered captain decisions, then guide the captain through any open decisions one at a time in agent-judged impact order; fall back to Bearings when invoked as the session's first real captain message |
-| `/bearings`        | Generate a concise four-section chat digest from bounded fleet state, including registered remote-home ledgers; use `/bearings file` to also replace today's dated report in `data/`, and add `include PRs` for live GitHub enrichment |
-| `/updatefirstmate` | Self-update the running firstmate and its secondmates to the latest from origin with fast-forward-only pulls, then re-read instructions and nudge secondmates |
-| `/stow`            | Sweep the session for uncaptured durable knowledge, persist the open work records this session knows are unfiled or now wrong, curate tiered startup memory with decay and cold archival, enforce each home's budget or surface the required decision, cascade to registered second mates, and report what is safe to reset |
+| Skill | What it does |
+| --- | --- |
+| `/afk` | Enters away-mode supervision and escalates only captain-relevant events or bounded external waits. |
+| `/ahoy` | Recaps visible fleet events and walks through open captain decisions. |
+| `/bearings` | Produces a bounded four-section fleet digest, with optional file output and live PR enrichment. |
+| `/updatefirstmate` | Fast-forwards the running distro and registered secondmate homes, then refreshes their instructions. |
+| `/stow` | Persists durable session knowledge, curates startup memory, and reports what is safe to reset. |
 
-Bearings invocation examples:
+The inherited `/updatefirstmate` name is retained for compatibility with Firstmate's scripts and skills.
 
-- `/bearings` returns the fresh four-section digest in chat only.
-- `/bearings include PRs` keeps chat-only mode and opts into live PR enrichment.
-- `/bearings file` replaces today's `data/status-report-<YYYY-MM-DD>.md` from scratch and links it from the four-section chat digest.
-- `/bearings file include PRs` combines the dated report with live PR enrichment.
+Agent-only reference skills live under `.agents/skills/` and load only at the trigger points named in [`AGENTS.md`](AGENTS.md).
+Standalone installer-facing skills live under `skills/`.
 
-Agent-only reference skills live under `.agents/skills/` and are loaded by firstmate at the trigger points named in [`AGENTS.md`](AGENTS.md).
+## Repository layout
 
-### Two-tier skill layout
+```text
+AGENTS.md          first mate operating contract
+bin/               fleet, brief, backend, watcher, and lifecycle helpers
+.agents/skills/    internal Firstmate skills
+skills/            standalone installer-facing skills
+docs/              architecture, configuration, backend, and verification guides
+config/            local operating choices, gitignored
+data/              durable private fleet records, gitignored
+state/             runtime records and watcher state, gitignored
+projects/          project clones, gitignored
+```
 
-Firstmate's skills live in two separate places with different audiences:
-
-- `.agents/skills/` - agent-loaded skills (this section's table, plus firstmate's agent-only reference skills). Every one of these assumes a live firstmate home and is meaningless, or actively misleading, installed anywhere else, so each carries `metadata.internal: true` in its frontmatter. That flag hides them from installer discovery (tools like the [skills.sh](https://skills.sh) `npx skills add` installer) without affecting how firstmate itself loads them - frontmatter metadata is inert to the agent's own skill loader.
-- `skills/` - public, installer-facing skills meant to be installed standalone into any project, independent of firstmate.
-  Each one is a self-contained skill with no dependency on firstmate's paths, tools, or vocabulary.
-  Today that is `skills/stow`, a generic session-knowledge-sweep skill that routes findings by explicit instruction first, then existing local conventions, then a private `.stow-notes.md` fallback, and curates tiered entries through decay, local archival, and user-approved on-demand offload proposals.
-  It intentionally shares no code with the firstmate-internal `.agents/skills/stow` it is named after, so the two can evolve independently.
+The fmpstack-specific worker behavior is intentionally small.
+Its executable owner is `bin/fm-brief.sh`, its behavioral coverage is in `tests/fm-brief.test.sh`, and its architecture boundary is documented in `docs/architecture.md`.
 
 ## Documentation
 
-- [docs/architecture.md](docs/architecture.md) - maintainer architecture for the crew, supervision, worktrees, secondmates, and project modes.
-- [docs/configuration.md](docs/configuration.md) - environment variables, `FM_HOME`, runtime backend selection, optional Relay and its X and Discord setup steps, trusted external process-event adapter setup, the files you set, and harness support.
-- [docs/extension-bindings.md](docs/extension-bindings.md) - maintainer architecture for the narrow trusted external `process-event-adapter/1` package, binding, handshake, and evidence boundary.
-- [docs/remote-secondmates.md](docs/remote-secondmates.md) - current setup, routing, transfer, recovery, and safety behavior for whole-home remote second mates.
-- [docs/calm.md](docs/calm.md) - current Pi `/calm` behavior and supported presentation limits.
-- [docs/voice-relay.md](docs/voice-relay.md) - the optional spoken interface: setup on both machines, measured round-trip cost, what a spoken answer may read, and what this build does not do yet.
-- [docs/wedge-alarm.md](docs/wedge-alarm.md) - configure the active alert for an away-mode escalation delivery that gets stuck.
-- [docs/tmux-backend.md](docs/tmux-backend.md) - current setup and limits for the tmux reference backend.
-- [docs/herdr-backend.md](docs/herdr-backend.md) - current setup, safety boundaries, and limits for the experimental Herdr backend.
-- [docs/zellij-backend.md](docs/zellij-backend.md) - current setup and limits for the experimental Zellij backend.
-- [docs/orca-backend.md](docs/orca-backend.md) - current setup and limits for the experimental Orca backend.
-- [docs/cmux-backend.md](docs/cmux-backend.md) - current setup, socket security, and limits for the experimental cmux backend.
-- [docs/codex-app-backend.md](docs/codex-app-backend.md) - the current blocked Codex App backend boundary and rollout contract.
-- [docs/verification/runtime-backends.md](docs/verification/runtime-backends.md) - active maintainer verification for runtime backend guarantees.
-- [docs/gitlab-merge-watch.md](docs/gitlab-merge-watch.md) - maintainer verification for watching and merging GitLab merge requests on arbitrary instances.
-- [docs/turnend-guard.md](docs/turnend-guard.md) - the primary session's current "no turn ends blind" backstop, scope, loop safety, and compatibility limits.
-- [docs/verification/supervision.md](docs/verification/supervision.md) - active maintainer verification for session-start, guard, continuity, and wedge integrations.
-- [docs/supervision-protocols/](docs/supervision-protocols/) - rendered primary-harness watcher protocols for Claude, Codex, OpenCode, Pi and `pi-signed`, Grok, Cursor, and unknown harness fallback.
-- [docs/scripts.md](docs/scripts.md) - the `bin/` toolbelt reference.
-- [docs/documentation-audiences.md](docs/documentation-audiences.md) - documentation audiences and the machine-checked placement boundary.
-- [`AGENTS.md`](AGENTS.md) - the distro's always-loaded operating contract and routing index for conditional procedures.
-- [CONTRIBUTING.md](CONTRIBUTING.md) - how to contribute, including the dev/test commands.
+- [Architecture](docs/architecture.md) - fleet architecture, worker isolation, delivery modes, and the fmpstack inner-loop boundary.
+- [Configuration](docs/configuration.md) - `FM_HOME`, harness dispatch, runtime backend selection, Relay, and local configuration files.
+- [Extension bindings](docs/extension-bindings.md) - trusted external process-event package and evidence boundaries.
+- [Remote secondmates](docs/remote-secondmates.md) - persistent local and remote secondmate operation.
+- [Pi Calm](docs/calm.md) - supported Pi `/calm` behavior and presentation limits.
+- [Voice Relay](docs/voice-relay.md) - optional spoken interface setup and current limits.
+- [Wedge alarms](docs/wedge-alarm.md) - active alerts for stuck away-mode escalation delivery.
+- [tmux backend](docs/tmux-backend.md) - reference backend setup and operation.
+- [Herdr backend](docs/herdr-backend.md) - experimental Herdr backend setup and safety boundaries.
+- [Zellij backend](docs/zellij-backend.md) - experimental Zellij backend setup and limits.
+- [Orca backend](docs/orca-backend.md) - setup and current Orca backend limits.
+- [cmux backend](docs/cmux-backend.md) - experimental cmux backend setup and socket security.
+- [Codex App boundary](docs/codex-app-backend.md) - current blocked backend boundary and rollout contract.
+- [Runtime backend verification](docs/verification/runtime-backends.md) - active evidence for runtime backend guarantees.
+- [GitLab merge watch](docs/gitlab-merge-watch.md) - watching and merging GitLab merge requests.
+- [Turn-end guard](docs/turnend-guard.md) - the no-blind-stop supervision backstop.
+- [Supervision verification](docs/verification/supervision.md) - active session, guard, continuity, and wedge evidence.
+- [Supervision protocols](docs/supervision-protocols/) - generated watcher protocols for supported primary harnesses.
+- [Scripts](docs/scripts.md) - helper command reference.
+- [Documentation audiences](docs/documentation-audiences.md) - maintained prose classification and placement rules.
+- [AGENTS.md](AGENTS.md) - the distro's always-loaded operating contract.
+- [Contributing](CONTRIBUTING.md) - development workflow and tests.
+
+## Upstream and credits
+
+fmpstack is built from [Firstmate](https://github.com/kunchenguid/firstmate) by Kun Chen.
+Its worker discipline is inspired by [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan.
+
+This repository deliberately does not vendor pstack's Cursor plugin, model router, or full playbook catalog.
+It translates the linked inner-loop architecture onto Firstmate's existing brief boundary so the behavior remains portable across worker harnesses.
 
 ## Contributing
 
-Contributions are welcome - see [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, repo conventions, and how to run the tests.
+Changes should preserve the central boundary: Firstmate routes the fleet, and the pstack-inspired loop stays task-local inside ship and scout workers.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the inherited development workflow, repository conventions, and test commands.
 
 ## License
 

@@ -52,6 +52,10 @@
 # Every scaffold also carries the steering-inbox receive-and-ack section:
 # process state/<id>.inbox/*.msg in order and acknowledge each by moving it to
 # handled/ (record, doorbell, and ladder owned by bin/fm-task-inbox-lib.sh).
+# Ship and scout briefs include one harness-neutral engineering inner loop:
+# Firstmate remains the only router, workers subtract before adding, walk the
+# subsystem only when a boundary or diagnosis warrants it, and prove the real
+# artifact before done. Secondmate charters deliberately omit this worker play.
 # Ship tasks include a project-memory section so durable project-intrinsic
 # learnings can be committed to AGENTS.md through the project's delivery path;
 # it carries the AGENTS.md authoring bar (widely useful knowledge only, pointers
@@ -289,6 +293,22 @@ fi
 
 REPO=${POS[1]}
 
+# One inner loop reaches every verified worker harness through the brief they
+# already receive. Keep it here instead of adding a harness plugin, second task
+# router, or always-loaded supervisor rule. Its own gates make the architecture
+# walk conditional, so ordinary local work does not become a research program.
+IFS= read -r -d '' INNER_LOOP_SECTION <<'EOF' || true
+# Engineering inner loop
+Firstmate owns task routing, isolation, supervision, and delivery. Do not start a competing task router or take over fleet operations.
+1. Subtract before adding. Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. Before writing code, name the input, state, and output shape plus the blast radius: files and boundaries likely affected.
+3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
+4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
+5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
+EOF
+INNER_LOOP_SECTION=${INNER_LOOP_SECTION%$'\n'}
+
 if [ "$HERDR_LAB" -eq 1 ]; then
 HERDR_LAB_HELPER=$(shell_quote "$FM_ROOT/bin/fm-herdr-lab.sh")
 # shellcheck disable=SC2016  # single quotes are deliberate: these lines are literal brief text whose backtick-wrapped $(...) and "$HERDR_LAB_SESSION" snippets must reach the reading agent verbatim, not expand at scaffold time; only the '"$VAR"' break-outs interpolate.
@@ -336,6 +356,8 @@ This is a SCOUT task: the deliverable is a written report, not a PR.
 The worktree is your laboratory - install, run, edit, and make scratch commits freely; all of it is discarded at teardown.
 The report is the only thing that survives, so anything worth keeping must be in it.
 
+$INNER_LOOP_SECTION
+
 # Rules
 1. Never push to any remote and never open a PR.
 2. Stay inside this worktree; the only files you may write outside it are the report and the status file below.
@@ -364,6 +386,7 @@ $INBOX_SECTION
 # Definition of done
 Write your findings to \`$DATA/$ID/report.md\`.
 The report must stand alone: what you did, what you found, the evidence (commands run, output, file:line references), and what you recommend.
+Name every material gap you did not verify; a scout result must not blur inference into evidence.
 If your deliverable is a visual artifact the captain will review and iterate on, you may host the Lavish review loop yourself (poll, revise, re-serve, staying alive) instead of handing it back to firstmate.
 Before reporting done, read and follow \`$FM_ROOT/.agents/skills/captain-hold-lifecycle/SKILL.md\` and pass its shared completion gate for the report and any visual review.
 When the report is complete, append \`done: {one-line conclusion}\` to the status file and stop.
@@ -411,6 +434,8 @@ The path check is authoritative: \`git rev-parse --git-dir\` and \`git rev-parse
 If the top-level path is the primary checkout or not the worktree you were launched in, STOP - do not branch or commit here - append \`blocked: launched in primary checkout, not an isolated worktree\` to the status file and stop.
 
 1. First action: create your branch: \`git checkout -b fm/$ID\`$SETUP2
+
+$INNER_LOOP_SECTION
 
 # Rules
 $RULE1

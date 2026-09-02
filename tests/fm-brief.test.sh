@@ -217,6 +217,53 @@ test_ship_modes_generate_clean_briefs() {
   pass "fm-brief.sh: no-mistakes/direct-PR/local-only briefs generate cleanly"
 }
 
+# The common brief is the adapter boundary shared by every worker harness.
+# The engineering play belongs in both worker shapes, stays out of the
+# persistent supervisor charter, and carries conditional exploration rather
+# than a second task router or mandatory architecture ceremony.
+test_engineering_inner_loop_is_worker_only_and_harness_neutral() {
+  local home ship scout charter
+  home="$TMP_ROOT/engineering-inner-loop-home"
+  mkdir -p "$home/data"
+
+  FM_HOME="$home" "$ROOT/bin/fm-brief.sh" inner-loop-ship sample --mode direct-PR >/dev/null 2>&1 \
+    || fail "ship inner-loop brief did not scaffold"
+  FM_HOME="$home" "$ROOT/bin/fm-brief.sh" inner-loop-scout sample --scout >/dev/null 2>&1 \
+    || fail "scout inner-loop brief did not scaffold"
+  FM_HOME="$home" FM_SECONDMATE_CHARTER='Supervise sample work.' \
+    "$ROOT/bin/fm-brief.sh" inner-loop-mate --secondmate sample >/dev/null 2>&1 \
+    || fail "secondmate charter did not scaffold"
+
+  ship="$home/data/inner-loop-ship/brief.md"
+  scout="$home/data/inner-loop-scout/brief.md"
+  charter="$home/data/inner-loop-mate/brief.md"
+  for brief in "$ship" "$scout"; do
+    assert_grep "# Engineering inner loop" "$brief" \
+      "worker brief did not receive the shared engineering inner loop"
+    assert_grep "Firstmate owns task routing, isolation, supervision, and delivery." "$brief" \
+      "worker brief allowed a competing router"
+    assert_grep "Subtract before adding." "$brief" \
+      "worker brief lost smallest-change discipline"
+    assert_grep "blast radius: files and boundaries likely affected" "$brief" \
+      "worker brief did not name the pre-code blast radius"
+    assert_grep "unfamiliar area, a shared boundary, or diagnosis" "$brief" \
+      "worker brief made architecture exploration unconditional or lost its triggers"
+    assert_grep 'Walk skipped: <reason>' "$brief" \
+      "worker brief did not require a visible reason for skipping the walk"
+    assert_grep "prove the result against the real artifact" "$brief" \
+      "worker brief lost real-artifact verification"
+    assert_grep "Do not add a second review ceremony." "$brief" \
+      "worker brief added review authority outside the selected delivery path"
+    assert_no_grep "/poteto-mode" "$brief" \
+      "worker brief leaked a Cursor-specific router command"
+  done
+  assert_grep "Name every material gap you did not verify" "$scout" \
+    "scout brief did not require explicit verification gaps"
+  assert_no_grep "# Engineering inner loop" "$charter" \
+    "secondmate supervisor charter received the worker-only engineering play"
+  pass "fm-brief.sh: engineering inner loop reaches worker briefs without a second router"
+}
+
 # A ship task's delivery mode is firstmate's per-task decision, so a missing or
 # unusable value must stop the scaffold instead of silently defaulting. The
 # no-mistakes-prod-only row is the conditional registry policy: it is never a task
@@ -766,6 +813,7 @@ test_script_parses
 test_no_heredoc_in_command_substitution
 test_help_includes_entire_header
 test_ship_modes_generate_clean_briefs
+test_engineering_inner_loop_is_worker_only_and_harness_neutral
 test_ship_mode_is_required_and_closed_set
 test_ship_mode_is_explicit_not_registry
 test_delivery_flags_are_refused_where_they_do_not_apply
