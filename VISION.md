@@ -41,7 +41,7 @@ Every added capability must earn its place by improving reliable outcomes or red
 ## What fmpstack is not
 
 fmpstack does not vendor pstack or reproduce its plugin, model router, or broader playbook catalog.
-It does not add a second router, a second review ceremony, or a second shipping authority.
+It does not add a second router, review ceremony, shipping ceremony, or shipping authority.
 It does not depend on one worker harness, model, runtime, or session manager.
 It is not a model, plugin, MCP server, or hosted fleet application.
 It is not a replacement for Firstmate's operating contract, delivery paths, supervision, or merge policy.
