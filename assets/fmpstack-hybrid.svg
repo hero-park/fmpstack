@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1080" role="img" aria-labelledby="title desc">
+  <title id="title">fmpstack hybrid command hierarchy</title>
+  <desc id="desc">The captain directs Firstmate, the sole outer router for dispatch, isolation, supervision, and delivery. Firstmate sends ship and scout workers into isolated copies. Each worker contains the pstack-inspired inner loop: subtract first, name shape and blast radius, walk warranted boundaries, reproduce and trace defects, and prove the real artifact. The supervisor does not receive the inner-loop dump. The hybrid intentionally has no Cursor UI dependency, no second router, and no extra review or shipping ceremony.</desc>
+  <defs>
+    <marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64e6d4"/>
+    </marker>
+    <marker id="arrow-lime" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d6f76a"/>
+    </marker>
+    <style>
+      .bg { fill: #0b1320; }
+      .panel { fill: #111f30; stroke: #30475b; stroke-width: 2; }
+      .outer { fill: #102b36; stroke: #64e6d4; stroke-width: 2.5; }
+      .worker { fill: #151f2d; stroke: #4d6478; stroke-width: 2; }
+      .inner { fill: #1d2a25; stroke: #d6f76a; stroke-width: 2; stroke-dasharray: 8 6; }
+      .omit { fill: #211f2a; stroke: #856a8e; stroke-width: 2; }
+      .captain { fill: #efe5c6; stroke: #f3c86a; stroke-width: 2; }
+      .chip-teal { fill: #174f58; stroke: #64e6d4; stroke-width: 1.5; }
+      .chip-lime { fill: #33411e; stroke: #d6f76a; stroke-width: 1.5; }
+      .chip-muted { fill: #1a2b3c; stroke: #50677b; stroke-width: 1.5; }
+      .title { fill: #f6f8fb; font: 700 32px Arial, Helvetica, sans-serif; letter-spacing: -0.5px; }
+      .subtitle { fill: #a9bac8; font: 400 17px Arial, Helvetica, sans-serif; }
+      .eyebrow { fill: #8ba4b5; font: 700 13px Arial, Helvetica, sans-serif; letter-spacing: 2px; }
+      .label { fill: #f6f8fb; font: 700 19px Arial, Helvetica, sans-serif; }
+      .label-teal { fill: #64e6d4; font: 700 19px Arial, Helvetica, sans-serif; }
+      .label-lime { fill: #d6f76a; font: 700 17px Arial, Helvetica, sans-serif; }
+      .body { fill: #c5d2dd; font: 400 15px Arial, Helvetica, sans-serif; }
+      .body-strong { fill: #f6f8fb; font: 700 15px Arial, Helvetica, sans-serif; }
+      .body-muted { fill: #9fb0bf; font: 400 14px Arial, Helvetica, sans-serif; }
+      .step-num { fill: #0b1320; font: 700 13px Arial, Helvetica, sans-serif; }
+      .step-title { fill: #e7f6a4; font: 700 14px Arial, Helvetica, sans-serif; }
+      .step-body { fill: #b9c9b0; font: 400 13px Arial, Helvetica, sans-serif; }
+      .omit-title { fill: #f2d8ee; font: 700 16px Arial, Helvetica, sans-serif; }
+      .omit-body { fill: #c5b5c5; font: 400 13px Arial, Helvetica, sans-serif; }
+      .line { stroke: #607b8f; stroke-width: 2; fill: none; }
+      .line-teal { stroke: #64e6d4; stroke-width: 2.5; fill: none; }
+      .line-lime { stroke: #d6f76a; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="1080" rx="24"/>
+
+  <text x="60" y="62" class="eyebrow">FMPSTACK / THE HYBRID BOUNDARY</text>
+  <text x="60" y="103" class="title">Firstmate outside. Worker discipline inside.</text>
+  <text x="60" y="133" class="subtitle">One command hierarchy, with a pstack-inspired engineering loop nested only where code work happens.</text>
+
+  <!-- captain authority -->
+  <rect x="390" y="165" width="420" height="68" rx="34" class="captain"/>
+  <text x="600" y="194" text-anchor="middle" fill="#182331" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">CAPTAIN AUTHORITY</text>
+  <text x="600" y="216" text-anchor="middle" fill="#46515c" font-family="Arial, Helvetica, sans-serif" font-size="14">intent, product decisions, credentials, merge</text>
+  <path d="M600 233 V260" class="line-teal" marker-end="url(#arrow-teal)"/>
+
+  <!-- outer control plane -->
+  <rect x="40" y="260" width="1120" height="226" rx="18" class="outer"/>
+  <text x="66" y="290" class="eyebrow" fill="#8fece0">OUTER CONTROL PLANE / ONE ROUTER</text>
+
+  <rect x="68" y="306" width="704" height="151" rx="12" class="panel"/>
+  <text x="96" y="340" class="label-teal">FIRSTMATE</text>
+  <text x="96" y="366" class="body">The sole outer router for the fleet.</text>
+  <rect x="96" y="388" width="142" height="40" rx="20" class="chip-teal"/>
+  <text x="167" y="413" text-anchor="middle" class="body-strong">DISPATCH</text>
+  <rect x="250" y="388" width="142" height="40" rx="20" class="chip-teal"/>
+  <text x="321" y="413" text-anchor="middle" class="body-strong">ISOLATE</text>
+  <rect x="404" y="388" width="164" height="40" rx="20" class="chip-teal"/>
+  <text x="486" y="413" text-anchor="middle" class="body-strong">SUPERVISE</text>
+  <rect x="580" y="388" width="164" height="40" rx="20" class="chip-teal"/>
+  <text x="662" y="413" text-anchor="middle" class="body-strong">DELIVER</text>
+  <text x="96" y="449" class="body-muted">Writes the task brief, assigns the isolated copy, watches the fleet, and owns the delivery path.</text>
+
+  <rect x="796" y="306" width="336" height="151" rx="12" class="panel"/>
+  <text x="824" y="340" class="label">SUPERVISOR</text>
+  <text x="824" y="366" class="body">Fleet view, not code-face work.</text>
+  <rect x="824" y="388" width="278" height="40" rx="20" class="chip-muted"/>
+  <text x="963" y="413" text-anchor="middle" class="body-strong">NO PSTACK DUMP HERE</text>
+  <text x="824" y="449" class="body-muted">No pstack playbook enters always-on rules.</text>
+
+  <!-- split into task workers -->
+  <path d="M600 486 V510 H320 V534" class="line" marker-end="url(#arrow-lime)"/>
+  <path d="M600 486 V510 H880 V534" class="line" marker-end="url(#arrow-lime)"/>
+
+  <!-- ship worker -->
+  <rect x="60" y="534" width="520" height="396" rx="16" class="worker"/>
+  <text x="88" y="570" class="label">SHIP WORKER</text>
+  <text x="88" y="595" class="body">Changes the product in one isolated copy.</text>
+  <rect x="82" y="616" width="476" height="254" rx="12" class="inner"/>
+  <text x="106" y="647" class="label-lime">WORKER-LOCAL / PSTACK-INSPIRED INNER LOOP</text>
+  <circle cx="112" cy="680" r="13" fill="#d6f76a"/><text x="112" y="685" text-anchor="middle" class="step-num">1</text>
+  <text x="138" y="678" class="step-title">SUBTRACT FIRST</text>
+  <text x="138" y="697" class="step-body">Smallest logical change that meets the task.</text>
+  <circle cx="112" cy="720" r="13" fill="#d6f76a"/><text x="112" y="725" text-anchor="middle" class="step-num">2</text>
+  <text x="138" y="718" class="step-title">NAME SHAPE + BLAST RADIUS</text>
+  <text x="138" y="737" class="step-body">Input, state, output, files, and boundaries.</text>
+  <circle cx="112" cy="760" r="13" fill="#d6f76a"/><text x="112" y="765" text-anchor="middle" class="step-num">3</text>
+  <text x="138" y="758" class="step-title">WALK IF WARRANTED</text>
+  <text x="138" y="777" class="step-body">Shared or unfamiliar boundary, or diagnosis.</text>
+  <circle cx="112" cy="800" r="13" fill="#d6f76a"/><text x="112" y="805" text-anchor="middle" class="step-num">4</text>
+  <text x="138" y="798" class="step-title">REPRODUCE + TRACE</text>
+  <text x="138" y="817" class="step-body">Reproduce defects before changing; trace causes.</text>
+  <circle cx="112" cy="840" r="13" fill="#d6f76a"/><text x="112" y="845" text-anchor="middle" class="step-num">5</text>
+  <text x="138" y="838" class="step-title">PROVE THE REAL ARTIFACT</text>
+  <text x="138" y="857" class="step-body">Live command, flow, record, or focused verifier.</text>
+  <rect x="82" y="886" width="476" height="28" rx="14" class="chip-lime"/>
+  <text x="106" y="905" class="body-strong" fill="#e7f6a4">OUTPUT: code + commit &#8594; selected delivery path</text>
+
+  <!-- scout worker -->
+  <rect x="620" y="534" width="520" height="396" rx="16" class="worker"/>
+  <text x="648" y="570" class="label">SCOUT WORKER</text>
+  <text x="648" y="595" class="body">Finds the truth in one isolated copy, without shipping code.</text>
+  <rect x="642" y="616" width="476" height="254" rx="12" class="inner"/>
+  <text x="666" y="647" class="label-lime">WORKER-LOCAL / PSTACK-INSPIRED INNER LOOP</text>
+  <circle cx="672" cy="680" r="13" fill="#d6f76a"/><text x="672" y="685" text-anchor="middle" class="step-num">1</text>
+  <text x="698" y="678" class="step-title">SUBTRACT FIRST</text>
+  <text x="698" y="697" class="step-body">Smallest investigation that answers the ask.</text>
+  <circle cx="672" cy="720" r="13" fill="#d6f76a"/><text x="672" y="725" text-anchor="middle" class="step-num">2</text>
+  <text x="698" y="718" class="step-title">NAME SHAPE + BLAST RADIUS</text>
+  <text x="698" y="737" class="step-body">Input, state, output, files, and boundaries.</text>
+  <circle cx="672" cy="760" r="13" fill="#d6f76a"/><text x="672" y="765" text-anchor="middle" class="step-num">3</text>
+  <text x="698" y="758" class="step-title">WALK IF WARRANTED</text>
+  <text x="698" y="777" class="step-body">Shared or unfamiliar boundary, or diagnosis.</text>
+  <circle cx="672" cy="800" r="13" fill="#d6f76a"/><text x="672" y="805" text-anchor="middle" class="step-num">4</text>
+  <text x="698" y="798" class="step-title">REPRODUCE + TRACE</text>
+  <text x="698" y="817" class="step-body">Reproduce defects before changing; trace causes.</text>
+  <circle cx="672" cy="840" r="13" fill="#d6f76a"/><text x="672" y="845" text-anchor="middle" class="step-num">5</text>
+  <text x="698" y="838" class="step-title">PROVE THE REAL ARTIFACT</text>
+  <text x="698" y="857" class="step-body">Commands, records, and focused evidence.</text>
+  <rect x="642" y="886" width="476" height="28" rx="14" class="chip-lime"/>
+  <text x="666" y="905" class="body-strong" fill="#e7f6a4">OUTPUT: report + gaps &#8594; never permission to build</text>
+
+  <!-- intentional omissions -->
+  <text x="60" y="970" class="eyebrow">INTENTIONAL OMISSIONS / THE BOUNDARY STAYS SMALL</text>
+  <rect x="60" y="990" width="344" height="64" rx="12" class="omit"/>
+  <text x="82" y="1017" class="omit-title">NO CURSOR UI DEPENDENCY</text>
+  <text x="82" y="1038" class="omit-body">The worker loop is harness-neutral.</text>
+  <rect x="428" y="990" width="344" height="64" rx="12" class="omit"/>
+  <text x="450" y="1017" class="omit-title">NO SECOND ROUTER</text>
+  <text x="450" y="1038" class="omit-body">Firstmate alone chooses and delivers work.</text>
+  <rect x="796" y="990" width="344" height="64" rx="12" class="omit"/>
+  <text x="818" y="1017" class="omit-title">NO EXTRA REVIEW OR SHIPPING</text>
+  <text x="818" y="1038" class="omit-body">The selected delivery path owns both.</text>
+</svg>
