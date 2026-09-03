@@ -11,10 +11,17 @@
   </a>
 </p>
 
-<h3 align="center">Firstmate runs the fleet. pstack discipline runs inside each worker.</h3>
+<h3 align="center">Firstmate runs the fleet. A pstack-inspired loop runs inside each worker.</h3>
 
 <p align="center">
-  <img alt="Firstmate fleet" src="assets/banner.png" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/fmpstack-hybrid-narrow.svg" />
+    <img alt="Diagram of the fmpstack hybrid: the captain directs Firstmate as the sole outer router for dispatch, isolation, supervision, and delivery; ship and scout workers each contain the pstack-inspired inner loop, while the supervisor stays outside it. The boundary has no Cursor UI dependency, no second router, and no extra review or shipping ceremony." src="assets/fmpstack-hybrid.svg" width="100%" />
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://claude.ai/code/artifact/f96649d5-b82c-4199-b155-2a8c691a7eda?via=auto_preview">Open the interactive companion</a>
 </p>
 
 ## What it is
@@ -27,7 +34,10 @@ The pstack-inspired discipline begins only after a ship or scout worker receives
 
 That separation is the point.
 Two routers would compete over work, isolation, and shipping.
-fmpstack keeps one router and nests the engineering loop inside the worker that is doing the task.
+fmpstack keeps Firstmate as the sole outer router and nests the engineering loop inside the worker that is doing the task.
+
+The static diagram above is complete on its own.
+The interactive companion expands the same boundary without being required to understand or use fmpstack.
 
 The loop is delivered through the same generated brief used by every supported worker adapter.
 It does not require Cursor, a Cursor plugin, a second orchestrator, or harness-specific prompt wiring.
@@ -36,10 +46,10 @@ Claude Code, Codex, OpenCode, Pi, `pi-signed`, Grok, Kimi, Cursor Agent CLI, and
 fmpstack is not a model, a harness, an MCP server, or a separate fleet application.
 It is an agent distro: a portable directory of instructions, skills, scripts, policies, and state conventions that turns a supported terminal coding agent into a first mate with a disciplined crew.
 
-## What changes from Firstmate
+## The hybrid boundary
 
 Firstmate remains the outer control plane.
-fmpstack adds one engineering inner loop to generated ship and scout briefs.
+fmpstack adds one engineering inner loop to generated ship and scout briefs, and nowhere else.
 
 Each worker must:
 
@@ -51,7 +61,7 @@ Each worker must:
 
 Scout reports also name every material verification gap so inference cannot masquerade as evidence.
 The selected Firstmate delivery mode remains the only owner of review and shipping.
-fmpstack does not add a second review ceremony.
+The intentional omissions are part of the design: no Cursor UI dependency, no second router, and no extra review or shipping ceremony.
 
 The detailed boundary lives in [The engineering inner loop stays inside workers](docs/architecture.md#the-engineering-inner-loop-stays-inside-workers).
 
@@ -132,34 +142,7 @@ The first mate continues to supervise and returns finished PRs, approved local b
 
 ## How It Works
 
-```text
-                 you, the captain
-                        |
-                        | requests and decisions
-                        v
-        +--------------------------------+
-        | fmpstack first mate            |
-        | route, isolate, supervise, ship|
-        +---------------+----------------+
-                        |
-             one brief per isolated task
-          +-------------+-------------+
-          |                           |
-          v                           v
- +------------------+       +------------------+
- | ship crewmate    |       | scout crewmate   |
- | pstack inner loop|       | pstack inner loop|
- +--------+---------+       +--------+---------+
-          |                           |
-          v                           v
- smallest change              evidence + gaps
- real-artifact proof          standalone report
-          |                           |
-          +-------------+-------------+
-                        |
-                        v
-       Firstmate delivery mode and teardown
-```
+The diagram above is the command map: the captain directs Firstmate, Firstmate alone routes and supervises isolated ship and scout workers, and the pstack-inspired loop stays nested inside those workers.
 
 The control hierarchy is deliberate:
 
@@ -230,6 +213,7 @@ Standalone installer-facing skills live under `skills/`.
 
 ```text
 AGENTS.md          first mate operating contract
+assets/            repository-owned README visuals
 bin/               fleet, brief, backend, watcher, and lifecycle helpers
 .agents/skills/    internal Firstmate skills
 skills/            standalone installer-facing skills
@@ -270,11 +254,11 @@ Its executable owner is `bin/fm-brief.sh`, its behavioral coverage is in `tests/
 
 ## Upstream and credits
 
-fmpstack is built from [Firstmate](https://github.com/kunchenguid/firstmate) by Kun Chen.
-Its worker discipline is inspired by [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan.
+fmpstack builds on [Firstmate](https://github.com/kunchenguid/firstmate) by Kun Chen.
+Its worker discipline is inspired by [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan, the engineering playbook from Cursor's plugin repository.
 
-This repository deliberately does not vendor pstack's Cursor plugin, model router, or full playbook catalog.
-It translates the linked inner-loop architecture onto Firstmate's existing brief boundary so the behavior remains portable across worker harnesses.
+This repository deliberately does not vendor pstack, its Cursor plugin, its model router, or its full playbook catalog.
+It translates the linked inner-loop habits onto Firstmate's existing brief boundary, so the behavior remains portable across worker harnesses rather than claiming full pstack parity.
 
 ## Contributing
 
