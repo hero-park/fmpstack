@@ -14,7 +14,10 @@
 <h3 align="center">Firstmate runs the fleet. A pstack-inspired loop runs inside each worker.</h3>
 
 <p align="center">
-  <img alt="Diagram of the fmpstack hybrid: the captain directs Firstmate as the sole outer router for dispatch, isolation, supervision, and delivery; ship and scout workers each contain the pstack-inspired inner loop, while the supervisor stays outside it. The boundary omits Cursor UI dependency, a second router, and an extra review ceremony." src="assets/fmpstack-hybrid.svg" width="100%" />
+  <picture>
+    <source media="(max-width: 600px)" srcset="assets/fmpstack-hybrid-narrow.svg" />
+    <img alt="Diagram of the fmpstack hybrid: the captain directs Firstmate as the sole outer router for dispatch, isolation, supervision, and delivery; ship and scout workers each contain the pstack-inspired inner loop, while the supervisor stays outside it. The boundary has no Cursor UI dependency, no second router, and no extra review or shipping ceremony." src="assets/fmpstack-hybrid.svg" width="100%" />
+  </picture>
 </p>
 
 <p align="center">
