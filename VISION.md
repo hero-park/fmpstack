@@ -7,7 +7,8 @@ This is a product boundary and a test for future choices, not a changelog of inh
 ## One captain and one router
 
 The captain has one interface and one point of accountability: Firstmate.
-Firstmate alone owns intake, project selection, task shape, isolation, supervision, delivery, and merge authority.
+Firstmate alone owns intake, project selection, task shape, isolation, supervision, delivery, and enforcement of the merge-authority boundary under captain-configured policy.
+The captain retains merge authority unless explicit autonomy has been granted, and Firstmate may merge only within that explicit policy.
 Workers report through Firstmate, while captain-facing communication stays focused on outcomes, consequences, decisions, and risks.
 Authority is explicit rather than inferred, and evidence or recommendations never become permission by themselves.
 
