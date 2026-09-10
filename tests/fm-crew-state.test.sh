@@ -753,6 +753,7 @@ test_live_run_preferred_to_terminal_record() {
       foreign=$(printf 'unrelated history\n' | git -C "$d/wt" commit-tree 'HEAD^{tree}')
       make_fakebin "$d" >/dev/null
       fm_write_meta "$d/state/live.meta" "window=fm:fm-live" "worktree=$d/wt" "kind=ship"
+      printf 'done: PR https://github.com/o/r/pull/9 checks green\n' > "$d/state/live.status"
       older_head=$child older_status=running older_branch=fm/live-preference expected=failed
       case "$scenario" in
         descendant) expected=working ;;
