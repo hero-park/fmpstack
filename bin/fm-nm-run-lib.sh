@@ -86,6 +86,19 @@ fm_nm_head_resolvable() {  # <worktree> <head>
   git -C "$1" rev-parse --verify --quiet "$2^{commit}" >/dev/null 2>&1
 }
 
+# Classify a recorded run so callers can prefer a live run over a terminal one
+# when multiple runs bind to one worktree; a failed run touched last must not
+# hide current validation. Same-class and unknown-status candidates retain the
+# caller's ordering.
+# This preference never relaxes branch/head attribution or teardown authority.
+fm_nm_run_status_class() {  # <status-word> -> live|terminal|unknown
+  case "${1:-}" in
+    completed|failed|cancelled) printf 'terminal' ;;
+    running)                    printf 'live' ;;
+    *)                          printf 'unknown' ;;
+  esac
+}
+
 # branch_sync.state from captured `axi status` TOON $1: the scalar directly
 # under the top-level `branch_sync:` block. The first `state:` inside the
 # block is the direct child (the nested local/pipeline/target/remote

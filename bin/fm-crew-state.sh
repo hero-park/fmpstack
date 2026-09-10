@@ -27,7 +27,8 @@
 #      unreachable or unreadable remote reports unknown-remote, never a false
 #      gone/dead.
 #   2. Attribute an active or terminal no-mistakes run under the branch, head,
-#      pipeline-custody, and newest-first rules owned by bin/fm-nm-run-lib.sh.
+#      and pipeline-custody rules shared from bin/fm-nm-run-lib.sh, applying
+#      live-over-terminal selection to the bounded ledger fallback.
 #      The run-step is AUTHORITATIVE: running/fixing -> working, ci -> working,
 #      awaiting_approval/fix_review -> parked (with gate findings), terminal
 #      passed/checks-passed -> done, failed/cancelled -> failed. EXCEPT: while
@@ -74,10 +75,8 @@ META="$STATE/$ID.meta"
 LOG="$STATE/$ID.status"
 NM_TIMEOUT=${FM_CREW_STATE_NM_TIMEOUT:-10}
 case "$NM_TIMEOUT" in ''|*[!0-9]*) NM_TIMEOUT=10 ;; esac
-# How many of the most recent `no-mistakes runs` rows the cross-branch fallback
-# (nm_runs_status_for_branch, below) scans. Generous enough to still find a
-# branch's own run on a busy multi-crew fleet without listing the entire
-# history every call.
+# Bound on each runs-ledger read: cross-branch fallback or the live-sibling
+# probe behind a terminal answer. docs/configuration.md owns the setting.
 FM_CREW_STATE_RUNS_LIMIT=${FM_CREW_STATE_RUNS_LIMIT:-200}
 case "$FM_CREW_STATE_RUNS_LIMIT" in ''|*[!0-9]*) FM_CREW_STATE_RUNS_LIMIT=200 ;; esac
 SEP=' · '
@@ -373,11 +372,12 @@ nm_ci_checks_state() {
 # "<status> <branch> <short-sha> <date> [<pr-url>]" separated by runs of
 # spaces (verified: no quoting, so splitting on the first two whitespace runs
 # is exact) - but branch + coarse status is exactly what this predicate needs:
-# is a run for THIS branch active right now. Echoes the first (most recent)
-# matching row's status word (running/completed/cancelled/failed), or empty
-# when the branch has no run within FM_CREW_STATE_RUNS_LIMIT rows.
-nm_runs_status_for_branch() {  # <branch>
-  local branch=$1 out row st rest br sha
+# is a run for THIS branch active right now. Echoes the newest matching row's
+# status and whether a live row displaced a terminal row, or empty when the
+# branch has no attributable run within FM_CREW_STATE_RUNS_LIMIT rows.
+# A terminal axi answer also consults this reader for a proven live sibling.
+nm_runs_resolution_for_branch() {  # <branch>
+  local branch=$1 out row st rest br sha decided='' source=coarse
   out=$(nm_run runs --limit "$FM_CREW_STATE_RUNS_LIMIT")
   [ -n "$out" ] || return 0
   while IFS= read -r row; do
@@ -397,13 +397,20 @@ nm_runs_status_for_branch() {  # <branch>
         # An UNRESOLVABLE head is unknown attribution, not a proven
         # mismatch. Stop instead of surfacing an older, superseded row;
         # the caller's pane/log fallback can answer without misattribution.
-        fm_nm_head_resolvable "$WT" "$sha" || return 0
+        fm_nm_head_resolvable "$WT" "$sha" || break
         continue
       fi
-      printf '%s' "$st"
-      return 0
+      if [ -z "$decided" ]; then
+        decided=$st
+        [ "$(fm_nm_run_status_class "$st")" = terminal ] || break
+      elif [ "$(fm_nm_run_status_class "$st")" = live ]; then
+        decided=$st
+        source=live-sibling
+        break
+      fi
     fi
   done <<< "$out"
+  printf '%s|%s' "$decided" "$source"
   return 0
 }
 
@@ -430,8 +437,9 @@ nm_coarse_head_matches_worktree() {  # <short-sha>
 HAVE_RUN=0
 # RUN_SOURCE distinguishes the two ways HAVE_RUN=1 can happen: "full" means
 # $RUN_OUT is real `axi status` TOON with step/gate detail; "coarse" means only
-# a bare status word came back from the runs-list fallback above, so the
-# run-step block below skips the TOON field parsing entirely for this crew.
+# a bare status word came back from the runs-list fallback above, and
+# "live-sibling" preserves when that status displaced a terminal answer. Both
+# coarse sources skip the TOON field parsing entirely for this crew.
 RUN_SOURCE=full
 COARSE_STATUS=""
 # Scouts and secondmates never drive a no-mistakes validation of their own
@@ -447,6 +455,17 @@ if [ "$KIND" = ship ] && [ -n "$CREW_BRANCH" ] && command -v no-mistakes >/dev/n
     if [ -n "$run_branch" ] && [ "$run_branch" = "$CREW_BRANCH" ] \
       && { nm_run_head_matches_worktree || fm_nm_run_is_pipeline_owned_active "$RUN_OUT"; }; then
       HAVE_RUN=1
+      # A terminal answer can be the last-touched record of a failed attempt.
+      # Only a proven live sibling replaces its full step/gate detail; keep
+      # the original terminal verdict if the bounded ledger read is inconclusive.
+      if ! fm_nm_run_is_active "$RUN_OUT"; then
+        live_resolution=$(nm_runs_resolution_for_branch "$CREW_BRANCH")
+        live_status=${live_resolution%%|*}
+        if [ "$(fm_nm_run_status_class "$live_status")" = live ]; then
+          COARSE_STATUS=$live_status
+          RUN_SOURCE=live-sibling
+        fi
+      fi
     else
       # The active-or-most-recent run is for another branch, or its same-branch
       # attribution failed (the CLI is alive and answered) - try the coarse
@@ -455,10 +474,11 @@ if [ "$KIND" = ship ] && [ -n "$CREW_BRANCH" ] && command -v no-mistakes >/dev/n
       # primary call means the CLI itself did not respond, so retrying it
       # immediately with a second bounded call would just double the wait
       # for no better answer.
-      COARSE_STATUS=$(nm_runs_status_for_branch "$CREW_BRANCH")
+      coarse_resolution=$(nm_runs_resolution_for_branch "$CREW_BRANCH")
+      COARSE_STATUS=${coarse_resolution%%|*}
       if [ -n "$COARSE_STATUS" ]; then
         HAVE_RUN=1
-        RUN_SOURCE=coarse
+        RUN_SOURCE=${coarse_resolution#*|}
       fi
     fi
   fi
@@ -472,7 +492,7 @@ if [ "$HAVE_RUN" = 1 ]; then
   CI_STEP_STATUS=""
   CI_LOG_STATE=""
   RUN_STATUS=""
-  if [ "$RUN_SOURCE" = coarse ]; then
+  if [ "$RUN_SOURCE" = coarse ] || [ "$RUN_SOURCE" = live-sibling ]; then
     # No step/gate detail is available from the plain runs list - only ever
     # true/working, done, or failed. A crew genuinely parked at a gate still
     # gets full detail once `axi status` reports its own branch again (e.g.
@@ -548,7 +568,7 @@ if [ "$HAVE_RUN" = 1 ]; then
     fi
   fi
 
-  if [ "$RUN_STATE" = working ] && log_reports_ci_ready; then
+  if [ "$RUN_STATE" = working ] && [ "$RUN_SOURCE" != live-sibling ] && log_reports_ci_ready; then
     if [ "$RUN_SOURCE" = coarse ]; then
       emit "done" status-log "$(status_line_note "$LOG_LINE")${SEP}run still monitoring PR"
     fi

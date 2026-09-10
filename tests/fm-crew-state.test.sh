@@ -738,6 +738,78 @@ EOF
   pass "cross-branch attribution picks the branch's most recent row"
 }
 
+# A terminal record touched most recently must not hide an independently
+# attributable live run. Exercise the CLI with real commit graphs, not source
+# text. Unfetched and unrelated heads deliberately retain baseline refusal.
+test_live_run_preferred_to_terminal_record() {
+  local route scenario d base child foreign older_head older_status older_branch out expected
+  for route in direct fallback; do
+    for scenario in descendant equal unfetched unrelated other-branch terminal unknown; do
+      reset_fakes
+      d=$(new_case "live-preference-$route-$scenario")
+      make_repo_on_branch "$d/wt" fm/live-preference
+      base=$(git -C "$d/wt" rev-parse HEAD)
+      child=$(printf 'pipeline fix\n' | git -C "$d/wt" commit-tree 'HEAD^{tree}' -p "$base")
+      foreign=$(printf 'unrelated history\n' | git -C "$d/wt" commit-tree 'HEAD^{tree}')
+      make_fakebin "$d" >/dev/null
+      fm_write_meta "$d/state/live.meta" "window=fm:fm-live" "worktree=$d/wt" "kind=ship"
+      printf 'done: PR https://github.com/o/r/pull/9 checks green\n' > "$d/state/live.status"
+      older_head=$child older_status=running older_branch=fm/live-preference expected=failed
+      case "$scenario" in
+        descendant) expected=working ;;
+        equal) older_head=$base; expected=working ;;
+        unfetched)
+          older_head=0123abc
+          if git -C "$d/wt" rev-parse --verify --quiet "$older_head^{commit}" >/dev/null; then
+            fail 'unfetched test head unexpectedly resolves'
+          fi ;;
+        unrelated) older_head=$foreign ;;
+        other-branch) older_branch=fm/another-task ;;
+        terminal) older_status=completed ;;
+        unknown) older_status=quarantined ;;
+      esac
+      if [ "$route" = direct ]; then
+        FM_FAKE_AXI_STATUS=$(run_failed fm/live-preference)
+      else
+        FM_FAKE_AXI_STATUS=$(run_running fm/another-task)
+      fi
+      FM_FAKE_RUNS_LIST="failed fm/live-preference $base 2026-09-09 11:20
+$older_status $older_branch $older_head 2026-09-09 10:05"
+      out=$(run_crew_state "$d" live)
+      assert_contains "$out" "state: $expected" "$route/$scenario must select only a proven live sibling"
+      assert_contains "$out" 'source: run-step' "$route/$scenario keeps the run as its source"
+      if [ "$route/$expected" = direct/failed ]; then
+        assert_contains "$out" 'run failed' 'without a proven live sibling the full terminal detail remains'
+      fi
+    done
+  done
+  reset_fakes
+  d=$(new_case live-preference-direct-first)
+  make_repo_on_branch "$d/wt" fm/live-preference
+  base=$(git -C "$d/wt" rev-parse HEAD)
+  make_fakebin "$d" >/dev/null
+  fm_write_meta "$d/state/live.meta" "window=fm:fm-live" "worktree=$d/wt" "kind=ship"
+  printf 'done: PR https://github.com/o/r/pull/9 checks green\n' > "$d/state/live.status"
+  FM_FAKE_AXI_STATUS=$(run_failed fm/live-preference)
+  FM_FAKE_RUNS_LIST=$(printf 'running fm/live-preference %s 2026-09-10 11:20\nfailed fm/live-preference %s 2026-09-10 11:05\n' "$base" "$base")
+  out=$(run_crew_state "$d" live)
+  assert_contains "$out" 'state: working' 'a live-first ledger result replaces a terminal axi answer'
+  assert_contains "$out" 'source: run-step' 'a live-first replacement remains run-step sourced'
+  assert_not_contains "$out" 'state: done' 'a stale green log must not override the live-first replacement'
+
+  # Same-class precedence and unknown newest status are not overwritten.
+  FM_FAKE_AXI_STATUS=$(run_running fm/another-task)
+  FM_FAKE_RUNS_LIST="cancelled fm/live-preference $base 2026-09-09 11:20
+completed fm/live-preference $child 2026-09-09 10:05"
+  out=$(run_crew_state "$d" live)
+  assert_contains "$out" 'run cancelled' 'two terminal rows retain newest-first ordering'
+  FM_FAKE_RUNS_LIST="quarantined fm/live-preference $base 2026-09-09 11:20
+running fm/live-preference $child 2026-09-09 10:05"
+  out=$(run_crew_state "$d" live)
+  assert_contains "$out" 'state: unknown' 'an unknown newest row is not displaced by an older live row'
+  pass 'live runs outrank terminal records without widening branch/head attribution'
+}
+
 test_coarse_run_does_not_probe_other_branch_ci_log_for_ready_status() {
   reset_fakes
   local d short; d=$(new_case coarse-ready-other-log)
@@ -1570,6 +1642,7 @@ test_terminal_passed
 test_terminal_failed
 test_cross_branch_attribution_via_runs_list
 test_cross_branch_attribution_picks_most_recent_row
+test_live_run_preferred_to_terminal_record
 test_coarse_run_does_not_probe_other_branch_ci_log_for_ready_status
 test_other_branch_run_ignored
 test_no_run_busy_pane

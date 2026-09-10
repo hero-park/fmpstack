@@ -9,6 +9,11 @@
 # pstack commits that changed the pstack source tree since the previous fetch.
 # It never merges, copies, resets, rebases, stashes, commits, or changes tracked
 # files, so source adaptation remains an explicit reviewed change.
+# Each fetched source prints its URL/ref, full commit, commit date, and UTC
+# observation time; pstack also prints its subtree object. These are inspected
+# source snapshots, not a claim that the hybrid contains every upstream change.
+# Keep this receipt with the task/PR scope note, including selected changes and
+# exclusions, so the next update can compare against the last inspected snapshot.
 #
 # The public source URLs can be replaced with FM_HYBRID_FIRSTMATE_URL and
 # FM_HYBRID_PSTACK_URL for a mirror or a deterministic local test repository.
@@ -31,6 +36,8 @@ usage() {
     '' \
     'Refresh the Firstmate and pstack source refs and report adaptation work.' \
     'The command never changes the checked-out hybrid files or branch.' \
+    'Prints full source revisions, dates, URLs/refs, and observation times.' \
+    'Keep this receipt in the task/PR scope note; inspected is not integrated.' \
     '' \
     'Environment:' \
     '  FM_ROOT_OVERRIDE             fmpstack repository root' \
@@ -97,6 +104,13 @@ print_source_changes() {
   fi
 }
 
+print_snapshot() {  # <label> <url> <branch> <commit>
+  local label=$1 url=$2 branch=$3 commit=$4
+  printf '%s snapshot: %s %s\n' "$label" "$commit" "$(git -C "$ROOT" show -s --format=%cI "$commit")"
+  printf '%s origin: %s refs/heads/%s\n' "$label" "$url" "$branch"
+  printf '%s checked-at: %s\n' "$label" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+
 ensure_remote "$FIRSTMATE_REMOTE" "$FIRSTMATE_URL"
 ensure_remote "$PSTACK_REMOTE" "$PSTACK_URL"
 
@@ -110,6 +124,7 @@ git -C "$ROOT" fetch --prune --quiet "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" || 
 new_firstmate=$(ref_sha "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH")
 [ -n "$new_firstmate" ] || { printf 'error: missing %s/%s after fetch\n' "$FIRSTMATE_REMOTE" "$FIRSTMATE_BRANCH" >&2; exit 1; }
 print_source_changes Firstmate "$old_firstmate" "$new_firstmate" .
+print_snapshot Firstmate "$FIRSTMATE_URL" "$FIRSTMATE_BRANCH" "$new_firstmate"
 
 git -C "$ROOT" fetch --prune --quiet "$PSTACK_REMOTE" "$PSTACK_BRANCH" || {
   printf 'error: could not fetch %s/%s\n' "$PSTACK_REMOTE" "$PSTACK_BRANCH" >&2
@@ -118,6 +133,12 @@ git -C "$ROOT" fetch --prune --quiet "$PSTACK_REMOTE" "$PSTACK_BRANCH" || {
 new_pstack=$(ref_sha "$PSTACK_REMOTE" "$PSTACK_BRANCH")
 [ -n "$new_pstack" ] || { printf 'error: missing %s/%s after fetch\n' "$PSTACK_REMOTE" "$PSTACK_BRANCH" >&2; exit 1; }
 print_source_changes pstack "$old_pstack" "$new_pstack" pstack
+print_snapshot pstack "$PSTACK_URL" "$PSTACK_BRANCH" "$new_pstack"
+pstack_tree=$(git -C "$ROOT" rev-parse --verify "$new_pstack:pstack") || {
+  printf 'error: fetched pstack source has no pstack subtree\n' >&2
+  exit 1
+}
+printf 'pstack tree: %s\n' "$pstack_tree"
 
 base=$(git -C "$ROOT" merge-base HEAD "$FIRSTMATE_REMOTE/$FIRSTMATE_BRANCH" 2>/dev/null || true)
 if [ -z "$base" ]; then
