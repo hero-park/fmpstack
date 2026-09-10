@@ -252,6 +252,10 @@ test_engineering_inner_loop_is_worker_only_and_harness_neutral() {
       "worker brief did not require a visible reason for skipping the walk"
     assert_grep "prove the result against the real artifact" "$brief" \
       "worker brief lost real-artifact verification"
+    assert_grep "put evidence or an explicit inferred/guess label beside each claim" "$brief" \
+      "emitted worker contract lost evidence-labelled reporting"
+    assert_grep "Run available safe checks yourself and name what remains unverified" "$brief" \
+      "emitted worker contract delegated runnable verification or hid its gaps"
     assert_grep "Do not add a second review ceremony." "$brief" \
       "worker brief added review authority outside the selected delivery path"
     assert_no_grep "/poteto-mode" "$brief" \
@@ -261,6 +265,8 @@ test_engineering_inner_loop_is_worker_only_and_harness_neutral() {
     "scout brief did not require explicit verification gaps"
   assert_no_grep "# Engineering inner loop" "$charter" \
     "secondmate supervisor charter received the worker-only engineering play"
+  assert_no_grep "inferred/guess label" "$charter" \
+    "worker reporting guidance leaked into the secondmate charter"
   pass "fm-brief.sh: engineering inner loop reaches worker briefs without a second router"
 }
 

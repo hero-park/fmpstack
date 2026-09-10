@@ -46,7 +46,7 @@ run_update() {
 }
 
 test_refreshes_sources_and_preserves_hybrid() {
-  local w out before
+  local w out before firstmate_head pstack_head firstmate_date pstack_date start end checked
   w=$(new_world refresh)
   out=$(run_update "$w") || fail "initial source refresh failed"
   assert_contains "$out" 'upstream remote: configured' 'Firstmate remote was configured'
@@ -65,7 +65,22 @@ test_refreshes_sources_and_preserves_hybrid() {
   git -C "$w/pstack-seed" commit -qm pstack-update
   git -C "$w/pstack-seed" push -q origin main
 
+  start=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   out=$(run_update "$w") || fail "source update failed"
+  end=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  firstmate_head=$(git -C "$w/firstmate-seed" rev-parse HEAD)
+  pstack_head=$(git -C "$w/pstack-seed" rev-parse HEAD)
+  firstmate_date=$(git -C "$w/firstmate-seed" show -s --format=%cI HEAD)
+  pstack_date=$(git -C "$w/pstack-seed" show -s --format=%cI HEAD)
+  assert_contains "$out" "Firstmate snapshot: $firstmate_head $firstmate_date" 'full Firstmate revision and date are reproducible'
+  assert_contains "$out" "pstack snapshot: $pstack_head $pstack_date" 'full plugins revision and date are reproducible'
+  assert_contains "$out" "Firstmate origin: file://$w/firstmate.git refs/heads/main" 'Firstmate source identity is explicit'
+  assert_contains "$out" "pstack origin: file://$w/pstack.git refs/heads/main" 'pstack source identity is explicit'
+  assert_contains "$out" "pstack tree: $(git -C "$w/pstack-seed" rev-parse HEAD:pstack)" 'pstack subtree is distinguished from the plugins repository'
+  for checked in $(printf '%s\n' "$out" | awk '$2 == "checked-at:" { print $3 }'); do
+    [[ "$checked" < "$start" || "$checked" > "$end" ]] && fail 'snapshot timestamp is outside the actual observation window'
+  done
+  [ "$(printf '%s\n' "$out" | grep -c ' checked-at: ')" -eq 2 ] || fail 'each fetched source needs a timestamp'
   assert_contains "$out" 'Firstmate source: updated' 'Firstmate source update was reported'
   assert_contains "$out" 'pstack source: updated' 'pstack source update was reported'
   assert_contains "$out" 'pstack relevant updates: 1' 'pstack path update was identified'
@@ -76,6 +91,15 @@ test_refreshes_sources_and_preserves_hybrid() {
     || fail 'source refresh changed the hybrid branch'
   [ -z "$(git -C "$w/hybrid" status --porcelain)" ] \
     || fail 'source refresh changed hybrid working files'
+  # A repeat still emits the full receipt, but never overwrites local work.
+  printf 'local work\n' >> "$w/hybrid/README.md"
+  printf 'untracked work\n' > "$w/hybrid/local.txt"
+  out=$(run_update "$w") || fail 'repeat source inspection failed'
+  assert_contains "$out" "Firstmate snapshot: $firstmate_head $firstmate_date" 'unchanged source still produces a receipt'
+  [ "$(git -C "$w/hybrid" rev-parse HEAD)" = "$before" ] || fail 'repeat refresh moved HEAD'
+  [ "$(git -C "$w/hybrid" branch --show-current)" = main ] || fail 'refresh switched branches'
+  [ "$(git -C "$w/hybrid" diff --numstat README.md)" = $'1\t0\tREADME.md' ] || fail 'refresh changed local edits'
+  [ "$(<"$w/hybrid/local.txt")" = 'untracked work' ] || fail 'refresh changed untracked work'
   pass 'fm-hybrid-update.sh: refreshes both sources and preserves the hybrid'
 }
 

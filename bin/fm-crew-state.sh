@@ -27,7 +27,7 @@
 #      unreachable or unreadable remote reports unknown-remote, never a false
 #      gone/dead.
 #   2. Attribute an active or terminal no-mistakes run under the branch, head,
-#      pipeline-custody, and newest-first rules owned by bin/fm-nm-run-lib.sh.
+#      pipeline-custody, and live-over-terminal rules owned by bin/fm-nm-run-lib.sh.
 #      The run-step is AUTHORITATIVE: running/fixing -> working, ci -> working,
 #      awaiting_approval/fix_review -> parked (with gate findings), terminal
 #      passed/checks-passed -> done, failed/cancelled -> failed. EXCEPT: while
@@ -74,10 +74,8 @@ META="$STATE/$ID.meta"
 LOG="$STATE/$ID.status"
 NM_TIMEOUT=${FM_CREW_STATE_NM_TIMEOUT:-10}
 case "$NM_TIMEOUT" in ''|*[!0-9]*) NM_TIMEOUT=10 ;; esac
-# How many of the most recent `no-mistakes runs` rows the cross-branch fallback
-# (nm_runs_status_for_branch, below) scans. Generous enough to still find a
-# branch's own run on a busy multi-crew fleet without listing the entire
-# history every call.
+# Bound on each runs-ledger read: cross-branch fallback or the live-sibling
+# probe behind a terminal answer. docs/configuration.md owns the setting.
 FM_CREW_STATE_RUNS_LIMIT=${FM_CREW_STATE_RUNS_LIMIT:-200}
 case "$FM_CREW_STATE_RUNS_LIMIT" in ''|*[!0-9]*) FM_CREW_STATE_RUNS_LIMIT=200 ;; esac
 SEP=' · '
@@ -373,11 +371,12 @@ nm_ci_checks_state() {
 # "<status> <branch> <short-sha> <date> [<pr-url>]" separated by runs of
 # spaces (verified: no quoting, so splitting on the first two whitespace runs
 # is exact) - but branch + coarse status is exactly what this predicate needs:
-# is a run for THIS branch active right now. Echoes the first (most recent)
-# matching row's status word (running/completed/cancelled/failed), or empty
-# when the branch has no run within FM_CREW_STATE_RUNS_LIMIT rows.
+# is a run for THIS branch active right now. Echoes the newest matching row's
+# status, except for fm-nm-run-lib.sh's live-over-terminal preference, or empty
+# when the branch has no attributable run within FM_CREW_STATE_RUNS_LIMIT rows.
+# A terminal axi answer also consults this reader for a proven live sibling.
 nm_runs_status_for_branch() {  # <branch>
-  local branch=$1 out row st rest br sha
+  local branch=$1 out row st rest br sha decided=''
   out=$(nm_run runs --limit "$FM_CREW_STATE_RUNS_LIMIT")
   [ -n "$out" ] || return 0
   while IFS= read -r row; do
@@ -397,13 +396,19 @@ nm_runs_status_for_branch() {  # <branch>
         # An UNRESOLVABLE head is unknown attribution, not a proven
         # mismatch. Stop instead of surfacing an older, superseded row;
         # the caller's pane/log fallback can answer without misattribution.
-        fm_nm_head_resolvable "$WT" "$sha" || return 0
+        fm_nm_head_resolvable "$WT" "$sha" || break
         continue
       fi
-      printf '%s' "$st"
-      return 0
+      if [ -z "$decided" ]; then
+        decided=$st
+        [ "$(fm_nm_run_status_class "$st")" = terminal ] || break
+      elif [ "$(fm_nm_run_status_class "$st")" = live ]; then
+        decided=$st
+        break
+      fi
     fi
   done <<< "$out"
+  printf '%s' "$decided"
   return 0
 }
 
@@ -447,6 +452,16 @@ if [ "$KIND" = ship ] && [ -n "$CREW_BRANCH" ] && command -v no-mistakes >/dev/n
     if [ -n "$run_branch" ] && [ "$run_branch" = "$CREW_BRANCH" ] \
       && { nm_run_head_matches_worktree || fm_nm_run_is_pipeline_owned_active "$RUN_OUT"; }; then
       HAVE_RUN=1
+      # A terminal answer can be the last-touched record of a failed attempt.
+      # Only a proven live sibling replaces its full step/gate detail; keep
+      # the original terminal verdict if the bounded ledger read is inconclusive.
+      if ! fm_nm_run_is_active "$RUN_OUT"; then
+        live_status=$(nm_runs_status_for_branch "$CREW_BRANCH")
+        if [ "$(fm_nm_run_status_class "$live_status")" = live ]; then
+          COARSE_STATUS=$live_status
+          RUN_SOURCE=coarse
+        fi
+      fi
     else
       # The active-or-most-recent run is for another branch, or its same-branch
       # attribution failed (the CLI is alive and answered) - try the coarse

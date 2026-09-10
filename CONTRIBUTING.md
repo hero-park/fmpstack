@@ -16,9 +16,9 @@ GitHub Actions and Dependabot are exempt so their automation keeps working, but 
 
 ## Workflow
 
-1. Fork the repo, then clone the parent repo or set your local `origin` back to the parent (`git@github.com:kunchenguid/firstmate.git`).
+1. Fork fmpstack, then clone the parent repo or set your local `origin` back to the parent (`git@github.com:hero-park/fmpstack.git`).
 2. Create a branch and make your changes.
-3. Initialize the gate with your fork as the push target: `no-mistakes init --fork-url git@github.com:<you>/firstmate.git` (contributing to firstmate requires **no-mistakes v1.46.0+** for structured attestation; without a fork, plain `no-mistakes init` still works for maintainers with push access).
+3. Initialize the gate with your fork as the push target: `no-mistakes init --fork-url git@github.com:<you>/fmpstack.git` (contributing to fmpstack requires **no-mistakes v1.46.0+** for structured attestation; without a fork, plain `no-mistakes init` still works for maintainers with push access).
 4. Commit your changes.
 5. Push through the gate instead of pushing to `origin`:
 
@@ -31,6 +31,20 @@ GitHub Actions and Dependabot are exempt so their automation keeps working, but 
 7. Once the pipeline passes, it pushes the branch to your fork and opens the PR against the parent repo for you.
 
 See the [no-mistakes quick start](https://kunchenguid.github.io/no-mistakes/start-here/quick-start/) for the full first-run walkthrough.
+
+## Selective upstream updates
+
+1. Start from a clean fmpstack default-branch base on a feature branch, then run `bin/fm-hybrid-update.sh`.
+   Its header and `--help` own source URLs, fetch mechanics, and the full-revision receipt; it does not change the hybrid's files.
+2. Keep that receipt and the clean base in the task/PR scope note, distinguishing inspected snapshots from incorporated changes.
+   Compare relevant paths against the last inspected revisions in that note, not just the previous fetch, since fetching is not acceptance.
+3. Select changes with a concrete app-building benefit or compatibility need and record why the rest are excluded.
+   Keep Firstmate as the sole fleet router and pstack guidance inside the existing worker loop; do not wholesale merge either source or add an update-management layer.
+4. Prove changed behavior locally, then use the normal no-mistakes path for review, applicable tests, and delivery.
+   Keep existing dependency pins unless a selected change requires an explicitly justified update; do not relax safety or required validation to shorten an update.
+
+Fresh direct interactive Claude workers may require a person to accept Claude's native workspace-trust dialog.
+The hybrid does not pre-register trust by writing the user's shared Claude configuration; Pi workers and independent no-mistakes validation do not need that convenience.
 
 ## Repo conventions
 
