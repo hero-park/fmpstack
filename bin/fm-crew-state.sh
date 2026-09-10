@@ -27,7 +27,8 @@
 #      unreachable or unreadable remote reports unknown-remote, never a false
 #      gone/dead.
 #   2. Attribute an active or terminal no-mistakes run under the branch, head,
-#      pipeline-custody, and live-over-terminal rules owned by bin/fm-nm-run-lib.sh.
+#      and pipeline-custody rules shared from bin/fm-nm-run-lib.sh, applying
+#      live-over-terminal selection to the bounded ledger fallback.
 #      The run-step is AUTHORITATIVE: running/fixing -> working, ci -> working,
 #      awaiting_approval/fix_review -> parked (with gate findings), terminal
 #      passed/checks-passed -> done, failed/cancelled -> failed. EXCEPT: while

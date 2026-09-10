@@ -86,9 +86,10 @@ fm_nm_head_resolvable() {  # <worktree> <head>
   git -C "$1" rev-parse --verify --quiet "$2^{commit}" >/dev/null 2>&1
 }
 
-# When multiple recorded runs bind to one worktree, prefer a live run over a
-# terminal one; a failed run touched last must not hide current validation.
-# Same-class and unknown-status candidates retain the caller's ordering.
+# Classify a recorded run so callers can prefer a live run over a terminal one
+# when multiple runs bind to one worktree; a failed run touched last must not
+# hide current validation. Same-class and unknown-status candidates retain the
+# caller's ordering.
 # This preference never relaxes branch/head attribution or teardown authority.
 fm_nm_run_status_class() {  # <status-word> -> live|terminal|unknown
   case "${1:-}" in

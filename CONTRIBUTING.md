@@ -43,8 +43,8 @@ See the [no-mistakes quick start](https://kunchenguid.github.io/no-mistakes/star
 4. Prove changed behavior locally, then use the normal no-mistakes path for review, applicable tests, and delivery.
    Keep existing dependency pins unless a selected change requires an explicitly justified update; do not relax safety or required validation to shorten an update.
 
-Fresh direct interactive Claude workers may require a person to accept Claude's native workspace-trust dialog.
-The hybrid does not pre-register trust by writing the user's shared Claude configuration; Pi workers and independent no-mistakes validation do not need that convenience.
+Fresh direct interactive Claude workers may require manual acceptance of Claude's native workspace-trust dialog; the [Claude harness reference](.agents/skills/harness-adapters/references/harness/claude.md) owns the dialog and scoped-launch details.
+The hybrid does not pre-register trust by writing the user's shared Claude configuration, and Pi workers plus independent no-mistakes validation do not need that convenience.
 
 ## Repo conventions
 

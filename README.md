@@ -57,7 +57,7 @@ Each worker must:
 2. **Name the shape and blast radius.** Before code, identify the input, state, output, files, and boundaries likely to change.
 3. **Walk only when needed.** Trace architecture for an unfamiliar area, a shared boundary, or diagnosis. Skip ordinary local work with a one-line reason instead of turning every task into research.
 4. **Reproduce defects first.** Exercise the affected surface and trace the root cause before changing code. Name the gap when access, cost, or safety prevents reproduction.
-5. **Prove the artifact.** Finish with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+5. **Prove and label the result.** Finish with a live command, user flow, record, or focused local verifier, label each claim with evidence or an explicit inference/guess, run available safe checks, and name what remains unverified.
 
 Scout reports also name every material verification gap so inference cannot masquerade as evidence.
 The selected Firstmate delivery mode remains the only owner of review and shipping.

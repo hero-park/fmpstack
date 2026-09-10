@@ -54,8 +54,10 @@
 # handled/ (record, doorbell, and ladder owned by bin/fm-task-inbox-lib.sh).
 # Ship and scout briefs include one harness-neutral engineering inner loop:
 # Firstmate remains the only router, workers subtract before adding, walk the
-# subsystem only when a boundary or diagnosis warrants it, and prove the real
-# artifact before done. Secondmate charters deliberately omit this worker play.
+# subsystem only when a boundary or diagnosis warrants it, prove the real
+# artifact before done, label claims with evidence or an explicit inferred or
+# guess marker, run available safe checks, and name unverified gaps. Secondmate
+# charters deliberately omit this worker play.
 # Ship tasks include a project-memory section so durable project-intrinsic
 # learnings can be committed to AGENTS.md through the project's delivery path;
 # it carries the AGENTS.md authoring bar (widely useful knowledge only, pointers
