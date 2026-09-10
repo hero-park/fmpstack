@@ -783,6 +783,20 @@ $older_status $older_branch $older_head 2026-09-09 10:05"
       fi
     done
   done
+  reset_fakes
+  d=$(new_case live-preference-direct-first)
+  make_repo_on_branch "$d/wt" fm/live-preference
+  base=$(git -C "$d/wt" rev-parse HEAD)
+  make_fakebin "$d" >/dev/null
+  fm_write_meta "$d/state/live.meta" "window=fm:fm-live" "worktree=$d/wt" "kind=ship"
+  printf 'done: PR https://github.com/o/r/pull/9 checks green\n' > "$d/state/live.status"
+  FM_FAKE_AXI_STATUS=$(run_failed fm/live-preference)
+  FM_FAKE_RUNS_LIST=$(printf 'running fm/live-preference %s 2026-09-10 11:20\nfailed fm/live-preference %s 2026-09-10 11:05\n' "$base" "$base")
+  out=$(run_crew_state "$d" live)
+  assert_contains "$out" 'state: working' 'a live-first ledger result replaces a terminal axi answer'
+  assert_contains "$out" 'source: run-step' 'a live-first replacement remains run-step sourced'
+  assert_not_contains "$out" 'state: done' 'a stale green log must not override the live-first replacement'
+
   # Same-class precedence and unknown newest status are not overwritten.
   FM_FAKE_AXI_STATUS=$(run_running fm/another-task)
   FM_FAKE_RUNS_LIST="cancelled fm/live-preference $base 2026-09-09 11:20

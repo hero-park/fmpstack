@@ -462,7 +462,7 @@ if [ "$KIND" = ship ] && [ -n "$CREW_BRANCH" ] && command -v no-mistakes >/dev/n
         live_status=${live_resolution%%|*}
         if [ "$(fm_nm_run_status_class "$live_status")" = live ]; then
           COARSE_STATUS=$live_status
-          RUN_SOURCE=${live_resolution#*|}
+          RUN_SOURCE=live-sibling
         fi
       fi
     else
