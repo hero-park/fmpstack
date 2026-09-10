@@ -1,0 +1,35 @@
+Targeted validation for fc90b8fd75500d1b3d33f386c3f1cb74d1be64e6
+
+Commands:
+- tests/fm-crew-state.test.sh
+- tests/fm-hybrid-update.test.sh
+- tests/fm-brief.test.sh
+
+All three focused executable test scripts completed successfully.
+
+Manual `bin/fm-hybrid-update.sh` CLI smoke check against isolated local bare sources:
+
+upstream remote: configured
+pstack remote: configured
+Firstmate source: initialized at 93b8da507405
+Firstmate snapshot: 93b8da50740558f00a3cad0e4ecfd6f55c78c8e6 2026-09-10T00:48:24-07:00
+Firstmate origin: file:///tmp/fmpstack-cli-evidence.CYDlFz/firstmate.git refs/heads/main
+Firstmate checked-at: 2026-09-10T07:48:24Z
+pstack source: initialized at 6c32b4e429db
+pstack snapshot: 6c32b4e429dbe90695ad98a53fc72340ab017e13 2026-09-10T00:48:24-07:00
+pstack origin: file:///tmp/fmpstack-cli-evidence.CYDlFz/pstack.git refs/heads/main
+pstack checked-at: 2026-09-10T07:48:24Z
+pstack tree: abca60ae769c0afb5e39663241d68031f3e15334
+hybrid Firstmate pending: 0 commit(s)
+next: review listed source changes and adapt the hybrid through its normal PR path.
+worktree-after:
+
+The isolated CLI receipt demonstrates full commit IDs, commit dates, source ref identity, UTC observation times, pstack subtree identity, and no hybrid worktree changes. The local-source URLs are test fixtures, not the authoritative upstream snapshot.
+
+Manual `bin/fm-crew-state.sh live` behavioral check with a real temporary git worktree, a terminal AXI answer, a stale `checks green` status event, and an independently attributable live ledger row:
+
+state: working · source: run-step · validating (background run)
+--- counterfactual without live sibling ---
+state: failed · source: run-step · run failed
+
+This demonstrates the live sibling is visible as working and the stale green event does not override it; removing the live sibling preserves the terminal failure.
