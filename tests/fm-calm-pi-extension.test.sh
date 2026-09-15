@@ -104,7 +104,7 @@ test_captured_ship_cells() {
   sail=$(visible_cells "$capture" '◿│◣')
   [ "$hull" -eq 41 ] || fail "multibyte water shifted the captured hull column to $hull"
   [ "$sail" -eq $((hull + 1)) ] || fail "captured sail was not centered over the hull"
-  [ "$(visible_cells "$water╲▁▁▁╱")" -eq 45 ] || fail "captured row width counted Unicode bytes"
+  [ "$(visible_cells "${water}╲▁▁▁╱")" -eq 45 ] || fail "captured row width counted Unicode bytes"
   [ "$(visible_cells '界é╲▁▁▁╱' '╲▁▁▁╱')" -eq 4 ] || fail "captured column ignored wide or combining cells"
   [ -z "$(visible_cells "$capture" 'absent')" ] || fail "missing sprite acquired a column"
   pass "captured ship positions and widths use terminal cells with multibyte water and a centered sail"
@@ -3224,8 +3224,6 @@ test_interactive_terminal_e2e() {
   cp "$WORKING_SHIP" "$project/.pi/extensions/lib/fm-calm-working-ship.ts"
   cp "$ROOT/.pi/extensions/lib/fm-operational-input.ts" "$project/.pi/extensions/lib/fm-operational-input.ts"
   cp "$ROOT/.pi/extensions/lib/fm-branch-dispatch.ts" "$project/.pi/extensions/lib/fm-branch-dispatch.ts"
-  cp "$ROOT/.pi/extensions/lib/fm-native-contract.ts" "$project/.pi/extensions/lib/fm-native-contract.ts"
-  cp "$ROOT/.pi/extensions/lib/fm-async-exec.ts" "$project/.pi/extensions/lib/fm-async-exec.ts"
   cp "$WATCH_EXT" "$project/.pi/extensions/fm-primary-pi-watch.ts"
   cp "$ROOT/.pi/extensions/fm-primary-turnend-guard.ts" "$project/.pi/extensions/fm-primary-turnend-guard.ts"
   cp \
