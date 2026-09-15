@@ -109,7 +109,14 @@ case "${1:-}" in
       esac
     done
     printf 'fakepane\n'; exit 0 ;;
-  capture-pane) printf '╭────╮\n│    │\n╰────╯\n'; exit 0 ;;
+  capture-pane)
+    [ ! -e "$D/composer-read-fail" ] || exit 1
+    if [ -f "$D/composer-screen" ]; then
+      cat "$D/composer-screen"
+    else
+      printf '╭────╮\n│    │\n╰────╯\n'
+    fi
+    exit 0 ;;
   list-windows) [ -f "$D/windows" ] && cat "$D/windows"; exit 0 ;;
 esac
 exit 0
@@ -305,6 +312,39 @@ test_same_harness_relaunch_keeps_identity_and_reuses_the_endpoint() {
   assert_grep "/exit" "$dir/fake/literal" "the previous agent should have been exited"
   assert_grep "encode launch-brief" "$dir/fake/literal" "the replacement should have been launched"
   pass "fm-control relaunch: a same-harness relaunch replaces the agent in the same endpoint and worktree"
+}
+
+test_exit_and_relaunch_preserve_unproven_composers() {
+  local dir out rc verb shape
+  for verb in exit relaunch; do
+    for shape in pending pending-unproven unknown unreadable; do
+      dir=$(new_case "$verb-$shape" rl45)
+      add_ship_task "$dir" rl45 claude
+      cp "$dir/home/state/rl45.meta" "$dir/meta-before"
+      case "$shape" in
+        pending) printf '╭────╮\n│ i  │\n╰────╯\n' > "$dir/fake/composer-screen" ;;
+        pending-unproven) printf '╭────╮\n│ i  │\n' > "$dir/fake/composer-screen" ;;
+        unknown) printf '> \n' > "$dir/fake/composer-screen" ;;
+        unreadable) : > "$dir/fake/composer-read-fail" ;;
+      esac
+      if [ "$verb" = relaunch ]; then
+        out=$(run_control "$dir" rl45 relaunch --note 'preserve the draft'); rc=$?
+      else
+        out=$(run_control "$dir" rl45 exit); rc=$?
+      fi
+      expect_code 1 "$rc" "$verb/$shape: must refuse before typing an exit command"
+      if [ "$shape" = pending ]; then
+        assert_contains "$out" 'composer visibly holds pending text' "$verb: name observed pending text"
+      else
+        assert_contains "$out" 'not proven empty' "$verb/$shape: name the unproven read"
+        assert_not_contains "$out" 'visibly holds pending text' "$verb/$shape: do not claim observed pending text"
+      fi
+      [ "$(cat "$dir/fake/command")" = claude ] || fail "$verb/$shape: old agent stopped"
+      [ ! -s "$dir/fake/literal" ] || fail "$verb/$shape: typed into an unproven composer"
+      cmp -s "$dir/meta-before" "$dir/home/state/rl45.meta" || fail "$verb/$shape: metadata changed"
+    done
+  done
+  pass 'fm-control: exit and relaunch preserve pending, unproven, and unreadable composers'
 }
 
 test_relaunch_preserves_durable_task_metadata() {
@@ -1477,6 +1517,7 @@ test_relaunch_moves_a_drifted_item_back_in_flight() {
   pass "relaunch heals an item that drifted out of In flight while the task stayed live"
 }
 
+test_exit_and_relaunch_preserve_unproven_composers
 test_same_harness_relaunch_keeps_identity_and_reuses_the_endpoint
 test_relaunch_preserves_durable_task_metadata
 test_relaunch_serializes_concurrent_durable_metadata_publication

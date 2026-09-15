@@ -338,6 +338,40 @@ test_unwritable_inbox_fails_loudly() {
   pass "fm-send inbox: an unwritable record is a loud local failure that leaves no false expectation"
 }
 
+test_empty_message_refused() {
+  local dir err rc form target kind
+  for kind in ship secondmate explicit remote; do
+    for form in missing empty whitespace; do
+      dir=$(setup_case "empty-$kind-$form"); err="$dir/send.err"
+      target=t1
+      case "$kind" in
+        secondmate|remote)
+          fm_write_secondmate_meta "$dir/home/state/domain.meta" "$dir/home" "sess:fm-domain"
+          target=domain
+          if [ "$kind" = remote ]; then
+            printf 'remote_host=example.invalid\n' >> "$dir/home/state/domain.meta"
+          fi
+          ;;
+        explicit) target=sess:win ;;
+      esac
+      case "$form" in
+        missing) run_send "$dir" "$err" -- "$target"; rc=$? ;;
+        empty) run_send "$dir" "$err" -- "$target" ''; rc=$? ;;
+        whitespace) run_send "$dir" "$err" -- "$target" $' \t\r\n '; rc=$? ;;
+      esac
+      [ "$rc" -ne 0 ] || fail "$kind/$form: an empty text steer should refuse"
+      assert_contains "$(cat "$err")" 'nonempty message' "$kind/$form: refusal should name the missing text"
+      [ -z "$(find "$dir/home/state" -name '*.msg' -print)" ] \
+        || fail "$kind/$form: empty text created an inbox record"
+      [ -z "$(find "$dir/home/state/pending-replies" -type f -not -name '.*' 2>/dev/null)" ] \
+        || fail "$kind/$form: empty text created a reply expectation"
+      [ ! -s "$dir/send.log" ] || fail "$kind/$form: empty text was typed"
+    done
+  done
+  pass 'fm-send: empty text refuses before marking, recording, or typing on every text plane'
+}
+
+test_empty_message_refused
 test_text_steer_rides_inbox
 test_multiline_steer_is_legal
 test_resend_enqueues_new_sequence

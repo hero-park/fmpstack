@@ -71,6 +71,19 @@ $TASK_IDS
 EOF
 [ -n "$TAB_ID" ] && [ -n "$PANE_ID" ] || fail "create_task did not return tab/pane ids"
 
+# Host prompt themes can draw an agent glyph such as `❯`; make this plain-shell
+# fixture deterministic so it exercises the unproven-composer boundary.
+fm_backend_herdr_send_text_line "$SESSION:$PANE_ID" "exec env PS1='> ' /bin/bash --noprofile --norc" \
+  || fail "could not start the plain-shell fixture"
+attempt=0
+while [ "$attempt" -lt 5 ]; do
+  [ "$(fm_backend_herdr_composer_state "$SESSION:$PANE_ID")" = unknown ] && break
+  sleep 0.2
+  attempt=$((attempt + 1))
+done
+[ "$(fm_backend_herdr_composer_state "$SESSION:$PANE_ID")" = unknown ] \
+  || fail "the plain-shell fixture did not reach an unproven composer"
+
 {
   echo "window=$SESSION:$PANE_ID"
   echo "endpoint_task_id=hsmoke"
@@ -134,16 +147,17 @@ herdr pane get "$PANE_ID" --session "$SESSION" >/dev/null 2>&1 \
 [ -d "$WT" ] || fail "the control plane must never remove the task's local copy"
 pass "real herdr: no control verb removed the endpoint or the task's local copy"
 
-# Last, because it deliberately types a harness command into a pane that hosts
-# a plain shell: the registered agent cannot actually be stopped that way, and
-# the control plane must say so rather than report a stop it did not achieve.
+# A registered agent on a plain shell is not a proven empty agent composer.
+# Refuse before typing the exit command, rather than submitting it to the shell.
 if OUT=$(run_control hsmoke exit 2>&1); then
-  fail "exit should fail closed when the agent does not stop: $OUT"
+  fail "exit should refuse an unproven composer: $OUT"
 fi
 case "$OUT" in
-  *"did not stop"*) : ;;
-  *) fail "the exit failure should say the agent did not stop, got: $OUT" ;;
+  *"not proven empty"*) : ;;
+  *) fail "the exit refusal should name the unproven composer, got: $OUT" ;;
 esac
-pass "real herdr: an agent that does not stop fails closed instead of being reported as stopped"
+SCREEN=$(fm_backend_herdr_capture "$SESSION:$PANE_ID") || fail "could not read the preserved shell"
+case "$SCREEN" in *'/exit'*) fail "an exit command reached the unproven composer" ;; esac
+pass "real herdr: an unproven composer refuses before the exit command is typed"
 
 fm_backend_herdr_kill "$SESSION:$PANE_ID" 2>/dev/null || true
