@@ -7,6 +7,9 @@
 #   target. fm-send refuses unresolved guesses rather than falling back to a
 #   tmux window search, because a "successful" send to the wrong endpoint is
 #   worse than a loud failure.
+# Empty or whitespace-only text is refused before marking, recording, or
+# typing, so a secondmate cannot receive only routing/correlation bytes and
+# leave the parent waiting for a reply to nothing.
 # Special keys instead of text: fm-send.sh <target> --key Enter
 # Key support is backend-specific: tmux/herdr support Escape, Enter, and C-c;
 # Orca currently supports Enter and C-c only, and rejects Escape.
@@ -674,6 +677,10 @@ if [ "${1:-}" = "--key" ]; then
   fm_send_record_interrupt "$semantic_key" || exit 1
 else
   MESSAGE=$*
+  if [ -z "${MESSAGE//[[:space:]]/}" ]; then
+    echo "error: a text steer requires a nonempty message; nothing was sent" >&2
+    exit 1
+  fi
   if [ "$TARGET_BACKEND" = remote ]; then
     FM_SEND_REMOTE_BUDGET=${FM_SEND_REMOTE_BUDGET:-30}
     case "$FM_SEND_REMOTE_BUDGET" in

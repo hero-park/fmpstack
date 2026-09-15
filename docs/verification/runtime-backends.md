@@ -635,7 +635,10 @@ Polling remained active and is covered as the fallback for capability, connect, 
 
 ### Agent lifecycle control
 
-Herdr is one of the two backends whose recovery-grade agent-state classifier the control plane may trust ([agent-control.md](../agent-control.md)), so its lifecycle gating is measured against the real binary; reverified 2026-08-08 on Herdr 0.8.0, and first measured 2026-08-02 on Herdr 0.7.5 with identical results:
+Herdr is one of the two backends whose recovery-grade agent-state classifier the control plane may trust ([agent-control.md](../agent-control.md)), so its lifecycle gating is measured against the real binary.
+On 2026-09-15, the smoke assertions passed on macOS with Herdr 0.9.0, protocol 22, including exit refusal on an unproven composer.
+The run used the lab helper for outer provisioning and teardown, and a session-checking CLI shim routed all remaining calls through that helper's `run` command; the default-session tripwire passed after cleanup.
+The maintained refresh command is:
 
 ```sh
 tests/fm-control-herdr-smoke.test.sh
@@ -648,10 +651,13 @@ ok - real herdr: exit on a pane with no registered agent is idempotent success
 ok - real herdr: interrupt refuses when herdr's own agent registry reports no agent
 ok - real herdr: interrupt delivers the harness's key and proves the agent survived it
 ok - real herdr: no control verb removed the endpoint or the task's local copy
-ok - real herdr: an agent that does not stop fails closed instead of being reported as stopped
+ok - real herdr: an unproven composer refuses before the exit command is typed
 ```
 
 The registry read through `herdr pane report-agent` is the same source `fm_backend_herdr_agent_state` classifies, so registering and not registering an agent on a plain shell pane exercises exactly the gate every lifecycle verb depends on, with no real agent launched.
+The fixture uses a clean Bash shell with a plain `>` prompt rather than inheriting a host theme that could draw an agent-like glyph.
+This proves control routing and refusal through the real backend, not any vendor agent's current rendering or exit behavior.
+`tests/fm-control.test.sh` and `tests/fm-control-relaunch.test.sh` cover the supported adapter matrix and pending/unreadable inputs with terminal fixtures.
 That command is the guard that refreshes this record; run it after every Herdr upgrade rather than trusting the version above.
 
 ### Away-mode transport
