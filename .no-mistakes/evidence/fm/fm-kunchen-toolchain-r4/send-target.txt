@@ -1,0 +1,19 @@
+CLI: fm-send.sh domain <whitespace-only>
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  2 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the requested message WILL still be sent.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+error: a text steer requires a nonempty message; nothing was sent
+Exit status: 1
+Persisted inbox records: 0
+Terminal text bytes: 0
+
+CLI: fm-send.sh domain "please summarize fleet health"
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+Persisted instruction body:
+[fm-from-firstmate]⁣corr=46b7ae28468be24a please summarize fleet health
+Terminal delivery:
+Firstmate instruction waiting: list /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-send-inbox.gSEQfH/evidence/home/state/domain.inbox/*.msg and, in numeric order, read and act on each, then mv each handled file to /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-send-inbox.gSEQfH/evidence/home/state/domain.inbox/handled/.

@@ -1,0 +1,29 @@
+
+CLI: fm-control.sh evidence exit (composer=pending)
+error: task evidence's composer visibly holds pending text; refusing to type the /exit exit command because it would concatenate onto that text. Clear or submit the pending text, then retry 'exit'
+Exit status: 1
+Agent process: claude
+Typed text:
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=unknown)
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'exit'
+Exit status: 1
+Agent process: claude
+Typed text:
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=unreadable)
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'exit'
+Exit status: 1
+Agent process: claude
+Typed text:
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=empty)
+stopped evidence harness=claude backend=tmux endpoint=fmses:fm-evidence worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-control-relaunch.raZTqo/evidence-empty-3008/wt
+Exit status: 0
+Agent process: zsh
+Typed text:
+/exit
+Task metadata preserved

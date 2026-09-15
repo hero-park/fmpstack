@@ -1,0 +1,32 @@
+
+CLI: fm-control.sh evidence exit (composer=pending)
+stopped evidence harness=claude backend=tmux endpoint=fmses:fm-evidence worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-control-relaunch.Ceje1B/evidence-pending-6779/wt
+Exit status: 0
+Agent process: zsh
+Typed text:
+/exit
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=unknown)
+stopped evidence harness=claude backend=tmux endpoint=fmses:fm-evidence worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-control-relaunch.Ceje1B/evidence-unknown-7852/wt
+Exit status: 0
+Agent process: zsh
+Typed text:
+/exit
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=unreadable)
+stopped evidence harness=claude backend=tmux endpoint=fmses:fm-evidence worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-control-relaunch.Ceje1B/evidence-unreadable-23499/wt
+Exit status: 0
+Agent process: zsh
+Typed text:
+/exit
+Task metadata preserved
+
+CLI: fm-control.sh evidence exit (composer=empty)
+stopped evidence harness=claude backend=tmux endpoint=fmses:fm-evidence worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-control-relaunch.Ceje1B/evidence-empty-26983/wt
+Exit status: 0
+Agent process: zsh
+Typed text:
+/exit
+Task metadata preserved
