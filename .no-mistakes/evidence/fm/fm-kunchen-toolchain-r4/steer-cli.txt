@@ -1,0 +1,20 @@
+
+$ fm-send.sh t1 ''
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the requested message WILL still be sent.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+error: a text steer requires a nonempty message; nothing was sent
+exit=1; transport bytes=0; inbox records=0
+
+$ fm-send.sh t1 $' \t\r\n '
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+error: a text steer requires a nonempty message; nothing was sent
+exit=1; transport bytes=0; inbox records=0
+
+$ fm-send.sh t1 "please rebase onto main"
+Persisted inbox body: please rebase onto main
+Transport output: Firstmate instruction waiting: list /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-send-inbox.SECYK5/transcript/home/state/t1.inbox/*.msg and, in numeric order, read and act on each, then mv each handled file to /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-send-inbox.SECYK5/transcript/home/state/t1.inbox/handled/.

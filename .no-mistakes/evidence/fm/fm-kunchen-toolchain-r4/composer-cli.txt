@@ -1,0 +1,33 @@
+
+Composer fixture: pending
+$ fm-control.sh evidence exit
+error: task evidence's composer visibly holds pending text; refusing to type the /exit exit command because it would concatenate onto that text. Clear or submit the pending text, then retry 'exit'
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
+
+Composer fixture: unknown
+$ fm-control.sh evidence exit
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'exit'
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
+
+Composer fixture: unreadable
+$ fm-control.sh evidence exit
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'exit'
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
+
+Composer fixture: pending
+$ fm-control.sh evidence relaunch --note "preserve draft"
+error: task evidence's composer visibly holds pending text; refusing to type the /exit exit command because it would concatenate onto that text. Clear or submit the pending text, then retry 'relaunch'
+error: relaunch of evidence failed while stopping the old agent, which is still running; its original instructions were restored
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
+
+Composer fixture: unknown
+$ fm-control.sh evidence relaunch --note "preserve draft"
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'relaunch'
+error: relaunch of evidence failed while stopping the old agent, which is still running; its original instructions were restored
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
+
+Composer fixture: unreadable
+$ fm-control.sh evidence relaunch --note "preserve draft"
+error: task evidence's composer state is 'unknown', not proven empty; refusing to type the /exit exit command because it could concatenate onto existing text. Clear the composer, then retry 'relaunch'
+error: relaunch of evidence failed while stopping the old agent, which is still running; its original instructions were restored
+exit=1; agent=claude; typed bytes=0; metadata=unchanged
