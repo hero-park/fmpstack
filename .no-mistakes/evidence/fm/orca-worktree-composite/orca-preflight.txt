@@ -1,0 +1,3 @@
+$ . bin/backends/orca.sh; fm_backend_orca_runtime_check
+error: backend=orca selected but the 'orca' CLI is not installed
+exit_code=1

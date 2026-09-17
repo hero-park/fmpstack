@@ -1,0 +1,72 @@
+[
+  {
+    "case": "separatorless",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "empty-repo",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "relative-path",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "empty-path",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "tab",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "carriage-return",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "REFUSED: Orca endpoint metadata for task guard is malformed or inconsistent; preserving task state.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Rejected malformed endpoint before cleanup"
+  },
+  {
+    "case": "newline",
+    "command": "bash bin/fm-teardown.sh guard",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "\u25cf\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u25cf  WATCHER DOWN - SUPERVISION IS OFF\n\u25cf  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).\n\u25cf  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.\n\u25cf  This is a supervision warning only; the guarded operation WILL still run.\n\u25cf  repair missing watcher supervision with a foreground checkpoint: bin/fm-watch-checkpoint.sh --seconds 180.\n\u25cf\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nREFUSED: scout task guard has no report at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RNM2F0HNPZWFAT7W60346B/.phase-test-tmp/live-newline/data/guard/report.md.\nThe report is the work product. Have the crewmate write it, or use --force after explicit discard approval.\n",
+    "metadata_preserved": true,
+    "worktree_preserved": true,
+    "observation": "Embedded newline becomes a separate metadata line; the scout report gate refused cleanup. This does not demonstrate newline-value validation."
+  }
+]
