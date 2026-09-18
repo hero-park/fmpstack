@@ -61,7 +61,8 @@ A scout still requires its report and completed decision inventory.
 A ship still refuses dirty or unlanded work.
 Before release, cleanup resolves the recorded Orca worktree id and verifies its path matches the recorded worktree path.
 A missing, unreadable, or mismatched identity preserves metadata and stops rather than deleting anything.
-After those checks, Firstmate closes the exact terminal and releases the exact worktree with Orca's worktree command.
+After those checks, Firstmate attempts to close the exact terminal and releases the exact worktree with Orca's worktree command.
+The terminal close remains best-effort without a verified presence re-read; a missing Orca CLI is a reported failure, governed by [the teardown header's record-preservation contract](../bin/fm-teardown.sh).
 It never raw-deletes an Orca worktree.
 
 ## Active limits

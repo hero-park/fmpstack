@@ -60,7 +60,7 @@ The hybrid does not pre-register trust by writing the user's shared Claude confi
 - Helper scripts in `bin/` are plain bash.
   Each starts with a usage header comment; keep it accurate when you change behavior.
   Test scripts and helpers in `tests/` are plain bash too.
-  `bin/fm-lint.sh` must pass: it is the single owner of the lint definition (the shellcheck file set, config, pinned shellcheck version, and pinned actionlint workflow lint), and both CI and the no-mistakes pre-push gate run its no-argument full-analysis path.
+  `bin/fm-lint.sh` must pass: it is the single owner of the lint definition (the shellcheck file set, config, pinned shellcheck version, and pinned actionlint workflow lint), and both CI and the no-mistakes pre-push gate use its full-analysis path.
   Its header and `--help` output own the exact local lint modes and flags.
   A malformed `.github/workflows/*.yml`, including a self-broken `ci.yml`, fails that local lint path before merge because a broken workflow cannot report its own breakage.
   It pins one exact shellcheck version and one exact actionlint version and refuses to run under any other.
@@ -83,7 +83,7 @@ A crewmate picking up such a brief should load the skill even if the brief preda
 When supervising live crewmates, keep firstmate's own long validation or build commands in the background so watcher wakes can still be handled.
 Crewmate validation follows the installed no-mistakes version's SKILL.md and live `axi` help instead of duplicating gate mechanics in firstmate docs.
 Firstmate's wrapper still matters: crewmates route every `ask-user` finding to firstmate, which applies `ask-user-authority`, and crewmates never pass `--yes` or `-y` because either flag bypasses that check and any required captain escalation.
-`.no-mistakes.yaml` publishes test evidence to the orphan `no-mistakes/evidence` branch, which shares no history with code branches, and pins the gate's lint command to `bin/fm-lint.sh`, matching the Linux CI lint job.
+`.no-mistakes.yaml` publishes test evidence to the orphan `no-mistakes/evidence` branch, which shares no history with code branches, and pins the gate's lint command to `bin/fm-lint.sh`; [the Linux CI workflow](.github/workflows/ci.yml) owns its CI worker-count override.
 Local no-mistakes Test is intent-targeted and must not re-run every `tests/*.test.sh`; `.github/workflows/ci.yml` owns the broad behavior suite plus platform-specific compatibility lanes.
 The pipeline publishes that evidence itself, so never hand-commit `.no-mistakes/` paths onto a feature branch; CI rejects them as tracked personal fleet paths.
 
