@@ -1164,7 +1164,10 @@ test_hook_claude_mode_allows_read_only_foreign_owner() {
   bash -c 'exec -a claude sleep 60' &
   pid=$!
   printf '%s\n' "$pid" > "$dir/state/.lock"
-  out=$(FM_CLAUDE_AUTOARM_SYNC_WAIT_MS=200 run_hook_claude "$dir" true); status=$?
+  ln -s /bin/bash "$dir/claude"
+  out=$(printf '{"stop_hook_active":true,"session_id":"sess-claude-mode"}' \
+    | CLAUDECODE=1 FM_HOME="$dir" FM_CLAUDE_AUTOARM_SYNC_WAIT_MS=200 \
+      "$dir/claude" -c 'bash "$FM_HOME/bin/fm-turnend-guard.sh" --claude; exit $?' 2>&1); status=$?
   kill "$pid" 2>/dev/null || true
   wait "$pid" 2>/dev/null || true
   expect_code 0 "$status" "a Claude stop with a live foreign session owner must end safely"
