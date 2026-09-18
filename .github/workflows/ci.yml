@@ -29,23 +29,7 @@ jobs:
       # and GitHub workflow lint). Do not re-spell the checks here; keep CI
       # and the pre-push gate on this script so a self-broken ci.yml still
       # fails locally before merge.
-      # EXPERIMENTAL: one hosted concurrency/memory diagnostic, not a production fix.
-      # --jobs 1 retains both existing shards; only their execution is serialized.
-      - name: Lint with temporary memory evidence
-        run: |
-          mkdir -p "$RUNNER_TEMP/lint-diagnostic/tmp"
-          export TMPDIR="$RUNNER_TEMP/lint-diagnostic/tmp"
-          python3 -u .github/lint-memory-diagnostic.py "$RUNNER_TEMP/lint-diagnostic" &
-          monitor=$!
-          trap 'kill "$monitor" 2>/dev/null || true; wait "$monitor" || true' EXIT
-          bin/fm-lint.sh --jobs 1 --telemetry "$RUNNER_TEMP/lint-diagnostic/telemetry.tsv"
-      - name: Upload experimental lint evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-memory-diagnostic
-          path: ${{ runner.temp }}/lint-diagnostic
-          if-no-files-found: warn
+      - run: bin/fm-lint.sh --jobs 1
 
   # Deterministic proof that portable parallel shards + portable serial + Herdr
   # equal the complete tests/*.test.sh inventory with no missing or duplicates,
