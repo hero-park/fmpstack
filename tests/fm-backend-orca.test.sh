@@ -344,6 +344,18 @@ test_kill_is_best_effort_close() {
   pass "fm_backend_orca_kill: calls terminal close and stays best-effort"
 }
 
+test_kill_refuses_when_orca_cli_is_missing() {
+  local out status
+  orca_case kill-missing-cli
+  out=$(PATH="/usr/bin:/bin" FM_ORCA_LOG="$LOG" FM_ORCA_RESPONSES="$RESP" \
+    bash -c '. "$0/bin/backends/orca.sh"; fm_backend_orca_kill term-123' "$ROOT" 2>&1)
+  status=$?
+  [ "$status" -ne 0 ] || fail "kill should refuse when the Orca CLI is unavailable"
+  assert_contains "$out" "the 'orca' CLI is not installed" "missing Orca CLI should explain why close was not attempted"
+  [ ! -s "$LOG" ] || fail "missing Orca CLI should not invoke the adapter"
+  pass "fm_backend_orca_kill: missing CLI is not reported as a successful close"
+}
+
 test_remove_worktree_refuses_empty_id() {
   local out status
   orca_case remove-empty
@@ -1323,6 +1335,7 @@ test_send_key_enter_and_interrupt
 test_send_key_refuses_unknown_key
 test_send_key_refuses_escape_until_supported
 test_kill_is_best_effort_close
+test_kill_refuses_when_orca_cli_is_missing
 test_remove_worktree_refuses_empty_id
 test_remove_worktree_rejects_orca_error_json
 test_worktree_path_resolves_id

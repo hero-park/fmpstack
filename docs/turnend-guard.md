@@ -71,6 +71,8 @@ Both payloads carry `stop_hook_active`.
 In the default Codex mode, a true value lets the second stop finish after one forced continuation.
 
 Claude runs the guard with `--claude`, which ignores `stop_hook_active` and cooperates with the Stop-owned auto-arm.
+If the session lock identifies a verified live harness outside the stopping process's verified harness ancestry, the guard allows Stop with a system message assigning supervision repair to that owner, without claiming its lock.
+Missing, malformed, dead, or ancestry-uncertain locks do not qualify for this exception; `bin/fm-session-lock-lib.sh` owns the identity predicate.
 Claude Code sets `stop_hook_active=true` on every stop after any stop-hook continuation, including `asyncRewake` rewakes, which re-opened the 2026-07-21 blind window under the default one-shot behavior.
 The Claude mode waits up to `FM_CLAUDE_AUTOARM_SYNC_WAIT_MS` (default 800 milliseconds) and allows the stop when the watcher is healthy, the auto-arm's generation claim is open, or `state/.claude-autoarm-epoch` contains a fresh actionable rewake owned by this event epoch.
 The claim is the ledger entry itself: the epoch sequence in `state/.claude-autoarm-epoch` is a monotonic claim generation, line 1 is the classic epoch record, and line 2 records the claiming process's mandatory pid-identity (`fm_autoarm_claim_open` and `fm_autoarm_claim_next` in `bin/fm-wake-lib.sh` own the contract).

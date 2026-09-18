@@ -175,6 +175,7 @@ case "${1:-}" in
     [ "$_print" = 1 ] && printf 'fakepane\n'
     exit 0 ;;
   list-windows)
+    [ "${FM_FAKE_TMUX_PANE_ALIVE:-1}" = 1 ] && printf '0\n'
     [ -n "${FM_FAKE_TMUX_WINDOW:-}" ] && printf '%s\n' "$FM_FAKE_TMUX_WINDOW"
     exit 0 ;;
   capture-pane)
@@ -263,7 +264,7 @@ case "${1:-}" in
     [ "$print" = 1 ] && printf 'fakepane\n'
     exit 0 ;;
   capture-pane) cat "$COMPOSER" 2>/dev/null; exit 0 ;;
-  list-windows) exit 0 ;;
+  list-windows) printf '%s\n' 0 win; exit 0 ;;
   send-keys)
     shift
     text=""; is_enter=0; lit=0

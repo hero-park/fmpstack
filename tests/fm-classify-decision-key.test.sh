@@ -276,6 +276,31 @@ test_key_only_before_colon_still_opens_no_regression
 test_blocked_and_resolved_are_tag_order_independent
 test_incremental_agrees_with_full_fold_across_appends
 
+test_latest_status_event_ignores_continuation_prose() {
+  local dir f latest i
+  dir=$(case_dir latest-event)
+  f="$dir/a.status"
+  printf 'done: report ready\n' > "$f"
+  printf 'the report contains no further status transition\n' >> "$f"
+  latest=$(last_status_line "$f")
+  [ "$latest" = "done: report ready" ] \
+    || fail "continuation prose hid the latest status event: '$latest'"
+  for ((i=0; i<220; i++)); do
+    printf 'continuation prose\n' >> "$f"
+  done
+  latest=$(last_status_line "$f")
+  [ "$latest" = "done: report ready" ] \
+    || fail "full-scan fallback lost the buried event: '$latest'"
+  printf 'working: resumed\n' >> "$f"
+  printf 'still describing the resumed work\n' >> "$f"
+  latest=$(last_status_line "$f")
+  [ "$latest" = "working: resumed" ] \
+    || fail "latest-event reader lost event chronology: latest='$latest'"
+  pass "latest status event survives trailing continuation prose"
+}
+
+test_latest_status_event_ignores_continuation_prose
+
 # status_key_closing_verb reports HOW the status side currently reads one key,
 # which is what lets a consumer tell a settled key from a key handed to a
 # durable captain-held task. The two closing verbs must stay distinguishable:
@@ -338,3 +363,37 @@ EOF
 
 test_closing_verb_separates_resolution_from_durable_transfer
 test_closing_verb_tracks_the_last_transition_in_both_positions
+
+test_terminal_events_preserve_unanswered_keys() {
+  local kind event dir f expected cursor
+  expected=$'api\tneeds-decision\tchoose interface'
+  for kind in ship scout; do
+    for event in 'done' 'failed'; do
+      dir=$(case_dir "$kind-$event")
+      f="$dir/a.status"
+      printf 'kind=%s\n' "$kind" > "$dir/a.meta"
+      printf 'needs-decision [key=api]: choose interface\n' > "$f"
+      assert_fold "$f" "$expected" "$kind before $event"
+      printf '%s: unrelated outcome\n' "$event" >> "$f"
+      assert_fold "$f" "$expected" "$kind after $event"
+      [ "$(status_key_closing_verb "$f" api)" = needs-decision ] \
+        || fail "$kind $event closed the unanswered key"
+      [ "$(status_current_line "$f")" = 'needs-decision [key=api]: choose interface' ] \
+        || fail "$kind $event hid the unanswered key"
+      cursor=$(_fm_open_decisions_cursor_path "$f")
+      {
+        printf 'version=6:%s\n' "$kind"
+        printf 'offset=%s\n' "$(wc -c < "$f" | tr -d ' ')"
+        printf 'ident=%s\n' "$(_fm_open_decisions_file_ident "$f")"
+      } > "$cursor"
+      assert_fold "$f" "$expected" "$kind rebuild old cursor after $event"
+      printf 'resolved [key=api]: answered: REST\n' >> "$f"
+      assert_fold "$f" '' "$kind explicit resolution after $event"
+      [ "$(status_key_closing_verb "$f" api)" = resolved ] \
+        || fail "$kind resolution did not close the key"
+    done
+  done
+  pass "ship/scout done/failed preserve unanswered keys until explicit resolution"
+}
+
+test_terminal_events_preserve_unanswered_keys

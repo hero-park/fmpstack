@@ -83,6 +83,9 @@ SH
 #!/usr/bin/env bash
 set -u
 case "${1:-}" in
+  list-windows)
+    [ "${FM_FAKE_TMUX_MISSING:-0}" = 1 ] && exit 1
+    sed -n 's/^window=[^:]*://p' "${FM_STATE_OVERRIDE:?}"/*.meta ;;
   display-message)
     [ "${FM_FAKE_TMUX_MISSING:-0}" = 1 ] && exit 1
     printf '%%1\n' ;;
@@ -669,6 +672,29 @@ test_terminal_passed() {
   assert_contains "$out" "state: done" "passed run -> done"
   assert_contains "$out" "source: run-step" "passed -> run-step source"
   pass "terminal passed run is authoritative"
+}
+
+test_passed_run_reports_verified_pr_state() {
+  reset_fakes
+  local d out
+  d=$(new_case passed-pr-state)
+  make_repo_on_branch "$d/wt" fm/feat-d
+  make_fakebin "$d" >/dev/null
+  cat > "$d/fakebin/gh-axi" <<'SH'
+#!/usr/bin/env bash
+set -u
+[ "${1:-}" = pr ] && [ "${2:-}" = view ] || exit 1
+printf 'state: %s\n' "${FM_FAKE_PR_STATE:-OPEN}"
+SH
+  chmod +x "$d/fakebin/gh-axi"
+  fm_write_meta "$d/state/feat-d.meta" "window=fm:fm-feat-d" "worktree=$d/wt" "kind=ship"
+  FM_FAKE_AXI_STATUS="$(run_passed fm/feat-d)"
+  out=$(FM_FAKE_PR_STATE=OPEN run_crew_state "$d" feat-d)
+  assert_contains "$out" "run passed: PR open" "an open PR must not be reported as merged"
+  assert_not_contains "$out" "merged/closed" "passed output must not use the old invented merged/closed detail"
+  out=$(FM_FAKE_PR_STATE=MERGED run_crew_state "$d" feat-d)
+  assert_contains "$out" "run passed: PR merged" "a verified merged PR should be reported as merged"
+  pass "passed run: crew state reports forge-verified PR state"
 }
 
 test_terminal_failed() {
@@ -1620,6 +1646,54 @@ test_missing_run_head_falls_back_to_current_state() {
   pass "missing run head falls back instead of matching by branch"
 }
 
+# Real tmux is essential here: display-message may succeed on a missing target.
+test_closed_tmux_endpoint_ignores_stale_busy_record() (
+  local d real_tmux out neighbor pane index
+  real_tmux=$(command -v tmux) || { echo "skip - tmux not installed"; return; }
+  d=$(new_case closed-tmux)
+  mkdir -p "$d/wt" "$d/fakebin"
+  cd "$d" || exit 1
+  trap '"$real_tmux" -S test.sock kill-server 2>/dev/null || true' EXIT
+  cat > "$d/fakebin/tmux" <<SH
+#!/usr/bin/env bash
+cd '$d' || exit 1
+exec '$real_tmux' -S test.sock "\$@"
+SH
+  chmod +x "$d/fakebin/tmux"
+  export PATH="$d/fakebin:$PATH"
+  unset TMUX TMUX_PANE
+  tmux -f /dev/null new-session -d -s crew -n control 'sleep 120' || fail "start isolated tmux"
+  fm_write_meta "$d/state/worker.meta" "window=crew:fm-worker" \
+    "worktree=$d/wt" "kind=scout" "harness=claude"
+  "$ROOT/bin/fm-busy-event.sh" arm "$d/state" worker >/dev/null
+  printf 'working: stale declaration\n' > "$d/state/worker.status"
+  for neighbor in absent present; do
+    if [ "$neighbor" = present ]; then
+      tmux new-window -d -t crew: -n fm-worker-extra 'sleep 120' || fail "start prefix neighbor"
+    fi
+    tmux new-window -d -t crew: -n fm-worker 'sleep 120' || fail "start worker"
+    pane=$(tmux display-message -p -t '=crew:=fm-worker' '#{pane_id}')
+    index=$(tmux display-message -p -t '=crew:=fm-worker' '#{window_index}')
+    (
+      . "$ROOT/bin/fm-backend.sh"
+      fm_backend_target_exists tmux "$pane" || fail "live supervisor pane ID must exist"
+      fm_backend_target_exists tmux "crew:$index" || fail "live supervisor window index must exist"
+    ) || exit 1
+    out=$(run_crew_state "$d" worker)
+    assert_contains "$out" 'state: working' "live worker remains working"
+    tmux kill-window -t '=crew:=fm-worker' || fail "close exact worker"
+    (
+      . "$ROOT/bin/fm-backend.sh"
+      if fm_backend_target_exists tmux "$pane"; then fail "closed supervisor pane ID must not exist"; fi
+      if fm_backend_target_exists tmux "crew:$index"; then fail "closed supervisor window index must not exist"; fi
+    ) || exit 1
+    out=$(run_crew_state "$d" worker)
+    assert_contains "$out" 'state: unknown · source: none' "closed worker with $neighbor prefix neighbor"
+  done
+  pass "closed tmux endpoint ignores stale busy record with and without prefix neighbor"
+)
+
+test_closed_tmux_endpoint_ignores_stale_busy_record || exit 1
 test_active_run_is_authoritative
 test_stale_needs_decision_superseded
 test_stale_blocked_superseded
@@ -1639,6 +1713,7 @@ test_ci_fixing_after_green_stays_working
 test_top_level_fixing_ci_running_after_green_stays_working
 test_top_level_fixing_done_log_stays_working
 test_terminal_passed
+test_passed_run_reports_verified_pr_state
 test_terminal_failed
 test_cross_branch_attribution_via_runs_list
 test_cross_branch_attribution_picks_most_recent_row

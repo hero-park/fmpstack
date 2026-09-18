@@ -121,11 +121,31 @@ fm_backend_tmux_send_literal() {  # <target> <text>
   tmux send-keys -t "$1" -l "$2"
 }
 
-# fm_backend_tmux_kill: remove one explicitly named task window, best-effort.
-# Empty, omitted, and malformed targets return nonzero before invoking tmux so
-# tmux can never interpret an empty target as the caller's current window.
+# fm_backend_tmux_window_inventory: <session-target>'s window names, one per
+# line on stdout, with a verdict on the read itself:
+#   0 - the inventory was read successfully.
+#   2 - tmux answered definitively that the session or server is absent.
+#   1 - the read failed without proving absence.
+# A transient tmux failure must never be treated as an absent endpoint.
+fm_backend_tmux_window_inventory() {  # <session-target>
+  local windows
+  if windows=$(LC_ALL=C tmux list-windows -t "$1" -F '#{window_name}' 2>&1); then
+    printf '%s\n' "$windows"
+    return 0
+  fi
+  case "$windows" in
+    *"can't find session:"*|*"no server running on "*|*"error connecting to "*" (No such file or directory)"|*"error connecting to "*" (Connection refused)")
+      return 2
+      ;;
+  esac
+  return 1
+}
+
+# fm_backend_tmux_kill: remove one explicitly named task window and resolve a
+# failed close against the exact recorded window identity. Empty, omitted, and
+# malformed targets return nonzero before invoking tmux.
 fm_backend_tmux_kill() {  # <target>
-  local target=${1:-} session window
+  local target=${1:-} session window windows inventory_status
   case "$target" in
     *:*)
       session=${target%%:*}
@@ -136,7 +156,17 @@ fm_backend_tmux_kill() {  # <target>
   case "$session:$window" in
     :*|*:|*:*:*) return 1 ;;
   esac
-  tmux kill-window -t "=$session:=$window" 2>/dev/null || true
+  tmux kill-window -t "=$session:=$window" 2>/dev/null && return 0
+  windows=$(fm_backend_tmux_window_inventory "=$session")
+  inventory_status=$?
+  [ "$inventory_status" -eq 2 ] && return 0
+  if [ "$inventory_status" -ne 0 ]; then
+    echo "error: tmux window $session:$window could not be read after its close, so whether it survived is unknown" >&2
+    return 1
+  fi
+  printf '%s\n' "$windows" | grep -qxF -- "$window" || return 0
+  echo "error: tmux window $session:$window is still present after its close" >&2
+  return 1
 }
 
 # fm_backend_tmux_current_command: <target>'s live foreground process name -
@@ -272,20 +302,14 @@ fm_backend_tmux_agent_state() {  # <target>
   esac
   session=${target%%:*}
   window=${target#*:}
-  if windows=$(LC_ALL=C tmux list-windows -t "$session" -F '#{window_name}' 2>&1); then
-    inventory_status=0
-  else
-    inventory_status=$?
-  fi
+  windows=$(fm_backend_tmux_window_inventory "$session")
+  inventory_status=$?
   if [ "$inventory_status" -ne 0 ]; then
-    case "$windows" in
-      *"can't find session:"*|*"no server running on "*|*"error connecting to "*" (No such file or directory)"|*"error connecting to "*" (Connection refused)")
-        printf 'missing'
-        ;;
-      *)
-        printf 'unreadable'
-        ;;
-    esac
+    if [ "$inventory_status" -eq 2 ]; then
+      printf 'missing'
+    else
+      printf 'unreadable'
+    fi
     return 0
   fi
   if ! printf '%s\n' "$windows" | grep -Fqx "$window"; then

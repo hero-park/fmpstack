@@ -2447,7 +2447,7 @@ test_nonterminal_paused_rechecks_authoritative_state() {
   pass "a declared pause is periodically rechecked against authoritative active-run state"
 }
 
-test_paused_authoritative_working_preserves_wedge_timer() {
+test_declared_wait_at_wedge_threshold_is_deferred() {
   local dir state fakebin out capture_file window key pane_hash sig pid since
   dir=$(make_case paused-working-preserves-wedge-timer); state="$dir/state"; fakebin="$dir/fakebin"
   out="$dir/watch.out"; capture_file="$dir/pane.txt"; window="test:fm-paused-working"
@@ -2481,11 +2481,18 @@ test_paused_authoritative_working_preserves_wedge_timer() {
     FM_STATE_OVERRIDE="$state" FM_CREW_STATE_BIN="$fakebin/fm-crew-state.sh" FM_STALE_ESCALATE_SECS=240 FM_POLL=1 FM_SIGNAL_GRACE=1 \
     FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 "$WATCH" > "$out" &
   pid=$!
-  wait_for_exit "$pid" 100 || fail "authoritative working state did not wedge-escalate past the threshold"
-  grep -F "possible wedge" "$out" >/dev/null || fail "authoritative working wedge escalation omitted its reason"
-  [ ! -e "$state/.stale-since-$key" ] || fail "wedge timer remained after authoritative working escalation"
+  if ! wait_poll_cycle "$state" "$pid"; then
+    reap "$pid"; fail "a declared wait at the wedge threshold surfaced instead of being deferred"
+  fi
+  [ ! -s "$state/.wake-queue" ] || { reap "$pid"; fail "a declared wait queued a wedge notification"; }
+  [ "$(cat "$state/.wedge-escalations-$key" 2>/dev/null || echo 0)" = 0 ] \
+    || { reap "$pid"; fail "a declared wait incremented the wedge escalation counter"; }
+  since=$(cat "$state/.stale-since-$key")
+  [ "$since" -gt $(( $(date +%s) - 10 )) ] \
+    || { reap "$pid"; fail "a declared wait did not restart the wedge timer"; }
+  reap "$pid"
   unset FM_FAKE_CREW_STATE
-  pass "a paused status overridden by authoritative working preserves its wedge timer and escalates"
+  pass "a declared wait defers wedge escalation and restarts its timer"
 }
 
 # --- consecutive wedge escalations on the same pane demand deep inspection ----
@@ -4062,7 +4069,7 @@ test_secondmate_nonpaused_stale_remains_suppressed
 test_secondmate_unpause_clears_pause_tracking
 test_nonterminal_stale_pause_transitions_reclassify_unchanged_hash
 test_nonterminal_paused_rechecks_authoritative_state
-test_paused_authoritative_working_preserves_wedge_timer
+test_declared_wait_at_wedge_threshold_is_deferred
 test_nonterminal_stale_repairs_missing_or_corrupt_timer
 test_wedge_escalation_deferred_while_worktree_is_written
 test_write_deferral_resurfaces_on_the_bounded_cadence

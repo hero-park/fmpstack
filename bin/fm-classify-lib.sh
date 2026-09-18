@@ -79,9 +79,9 @@ FM_CLASSIFY_CAPTAIN_RE_DEFAULT='done:|needs-decision:|blocked:|failed:|PR ready|
 
 # The deliberate-external-wait verb. A crew (or firstmate steering it) appends
 #   paused: <reason>
-# to declare it is intentionally idling on a KNOWN external dependency - an
-# upstream release, a vendor rate-limit reset, a scheduled window. Unlike
-# `blocked:` (stuck, firstmate must help) an idle `paused:` pane is EXPECTED, so
+# to declare it is intentionally idling on a KNOWN external dependency.
+# bin/fm-brief.sh owns the worker-facing wait examples.
+# Unlike `blocked:` (stuck, firstmate must help), an idle `paused:` pane is EXPECTED, so
 # the stale path absorbs it instead of escalating a possible wedge. It is
 # deliberately NOT in the captain-relevant set above: a pause is a "stop
 # wedge-nagging this idle pane" signal, not work to keep surfacing. This constant
@@ -106,11 +106,47 @@ FM_PAUSE_RESURFACE_SECS_DEFAULT=3600
 FM_CLASSIFY_RESOLVE_VERB_DEFAULT='resolved'
 FM_CLASSIFY_CAPTAIN_HELD_VERB_DEFAULT='captain-held'
 
-# Return the last non-blank line of a status file (empty if missing/blank).
-last_status_line() {
-  local f=$1
-  [ -e "$f" ] || return 0
-  grep -v '^[[:space:]]*$' "$f" 2>/dev/null | tail -1
+# Bound the common latest-event read while allowing a full scan when a tail
+# contains only continuation prose. Status logs are append-only, and an event
+# plus its continuation normally fits comfortably inside this window.
+# Return the latest recognized status event, ignoring continuation prose and
+# blanks. A log with no recognized event retains its last nonblank line as
+# the fallback, preserving legacy behavior for unknown declarations.
+last_status_line() {  # <status-file>
+  local f=$1 scan=''
+  [ -f "$f" ] && [ -r "$f" ] || return 0
+  if ! scan=$(tail -n 200 "$f" 2>/dev/null | _fm_status_event_scan); then
+    scan=$(_fm_status_event_scan < "$f") || :
+  fi
+  printf '%s\n' "$scan"
+}
+
+_fm_status_event_scan() {
+  local line last='' fallback='' verb
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in *[![:space:]]*) fallback=$line ;; *) continue ;; esac
+    case "$line" in *:*) verb=$(status_line_verb "$line") ;; *) verb='' ;; esac
+    case "$verb" in
+      working|needs-decision|blocked|done|failed|note|\
+      "${FM_CLASSIFY_PAUSED_VERB:-$FM_CLASSIFY_PAUSED_VERB_DEFAULT}"|\
+      "${FM_CLASSIFY_RESOLVE_VERB:-$FM_CLASSIFY_RESOLVE_VERB_DEFAULT}"|\
+      "${FM_CLASSIFY_CAPTAIN_HELD_VERB:-$FM_CLASSIFY_CAPTAIN_HELD_VERB_DEFAULT}")
+        last=$line
+        ;;
+      *)
+        # Legacy terminal prose is recognized only when its captain token is at
+        # the start of the line, so continuation prose cannot hide an event.
+        case "$line" in
+          [![:space:]]*)
+            printf '%s' "$line" | grep -qiE "^(${FM_CAPTAIN_RE:-$FM_CLASSIFY_CAPTAIN_RE_DEFAULT})" \
+              && { last=$line; }
+            ;;
+        esac
+        ;;
+    esac
+  done
+  printf '%s\n' "${last:-$fallback}"
+  [ -n "$last" ]
 }
 
 # 0 if the given (last) status line's leading verb is a real terminal captain verb
@@ -150,8 +186,8 @@ status_is_captain_relevant() {
 }
 
 # 0 if a status line's leading verb is the pause verb (paused: <reason>). A pure
-# read of the line itself, so the daemon's classify_stale can reuse the last line
-# it already read without a fm-crew-state.sh call. Matches only the verb before the
+# read of the line itself, so the daemon's classify_stale can reuse the latest
+# recognized line it already read without a fm-crew-state.sh call. Matches only the verb before the
 # first colon, so a reason mentioning "paused" elsewhere does not false-match.
 status_is_paused() {  # <status-line>
   local line=$1 verb
@@ -453,7 +489,7 @@ _fm_decision_fold_line() {  # <open-set> <status-line> <resolve-verb> <held-verb
 # most-recently-opened-last order; prints nothing when none are open. Pure read of
 # the file, no globals beyond the optional FM_CLASSIFY_RESOLVE_VERB override. This
 # is the durable open-set the fleet snapshot and any point-in-time consumer must use
-# instead of trusting the last status line.
+# instead of trusting one trailing status line.
 # The scan_open_decisions wrapper below enumerates a whole directory rather than
 # a single caller-chosen path, so a status file that is itself a symlink (e.g.
 # escaping the state directory) is rejected outright with a plain [ -L ] check
@@ -461,14 +497,37 @@ _fm_decision_fold_line() {  # <open-set> <status-line> <resolve-verb> <held-verb
 # subprocess read, which exists for that function's much narrower payload-driven
 # path resolution rather than this directory-local glob.
 status_open_decisions() {  # <status-file>
-  local f=$1 line resolve held open=''
+  local f=$1 line resolve held open='' verb
   [ -f "$f" ] && [ -r "$f" ] && [ ! -L "$f" ] || return 0
   resolve=${FM_CLASSIFY_RESOLVE_VERB:-$FM_CLASSIFY_RESOLVE_VERB_DEFAULT}
   held=${FM_CLASSIFY_CAPTAIN_HELD_VERB:-$FM_CLASSIFY_CAPTAIN_HELD_VERB_DEFAULT}
   while IFS= read -r line || [ -n "$line" ]; do
-    open=$(_fm_decision_fold_line "$open" "$line" "$resolve" "$held")
+    verb=$(status_line_verb "$line")
+    case "$verb" in
+      needs-decision|blocked|"$resolve"|"$held")
+        open=$(_fm_decision_fold_line "$open" "$line" "$resolve" "$held")
+        ;;
+    esac
   done < "$f"
   printf '%s' "$open"
+}
+
+# Resolve the status declaration at one boundary: an open decision remains
+# visible after later unrelated events, otherwise the latest recognized event is
+# returned. This is used for current-state reconciliation, not as a substitute
+# for authoritative run or pane evidence.
+status_current_line() {  # <status-file>
+  local open key verb note current=''
+  open=$(status_open_decisions "$1")
+  while IFS=$(printf '\t') read -r key verb note; do
+    case "$verb" in
+      ?*) current="$verb [key=$key]: $note" ;;
+    esac
+  done <<EOF
+$open
+EOF
+  [ -n "$current" ] || current=$(last_status_line "$1")
+  printf '%s\n' "$current"
 }
 
 # 0 when <key> has a record in a folded "<key>\t<verb>\t<note>" open set.
@@ -634,7 +693,7 @@ _fm_open_decisions_cursor_path() {  # <status-file>
 # Version 4 was already spent on the bracketed-tag parser change above, and a
 # cursor persisted under that reading predates this one, so it must still be
 # discarded and rebuilt from byte 0 under the new reading.
-FM_OPEN_DECISIONS_FOLD_VERSION=5
+FM_OPEN_DECISIONS_FOLD_VERSION=7
 
 # Portable device:inode identity for the rotation/recreation check below.
 _fm_open_decisions_file_ident() {  # <file> -> strongest available identity
@@ -1883,7 +1942,7 @@ signal_crew_provably_working() {  # <file> ...
   return 0
 }
 
-# 0 (terminal/actionable) if a stale window's last status line is
+# 0 (terminal/actionable) if a stale window's latest recognized status event is
 # captain-relevant; 1 otherwise, including the no-status case. A 1 only means
 # "non-terminal"; the always-on watcher then applies crew_is_provably_working,
 # while the away-mode daemon applies its persistence recheck.

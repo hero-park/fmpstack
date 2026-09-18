@@ -241,8 +241,7 @@ meta_value() {  # <meta-file> <key>
 }
 
 last_nonempty_line() {  # <file>
-  [ -f "$1" ] || return 1
-  grep -v '^[[:space:]]*$' "$1" 2>/dev/null | tail -1
+  last_status_line "$1"
 }
 
 # A local crew-state read is bounded so one slow child cannot extend this
@@ -529,7 +528,7 @@ task_json_lines() {
     # never clear another concern's keyed decision. A parked/blocked state, or a
     # non-authoritative status-log/none read on a still-live task, keeps the fold's
     # open decision surfacing.
-    open_decisions_tsv=$(status_open_decisions "$status_log")
+    open_decisions_tsv=$(status_open_decisions "$status_log" "$kind")
     if [ "$kind" != secondmate ] && \
        { { { [ "$current_source" = run-step ] || [ "$current_source" = pane ]; } \
            && [ "$current_state" != parked ] && [ "$current_state" != blocked ]; } \

@@ -146,6 +146,10 @@ fm_primary_scope_matches "$FM_ROOT" "$STATE" || exit 0
 # --- the actual predicate ----------------------------------------------------
 # shellcheck source=bin/fm-wake-lib.sh
 . "$SCRIPT_DIR/fm-wake-lib.sh"
+if [ "$CLAUDE_MODE" -eq 1 ]; then
+  # shellcheck source=bin/fm-session-lock-lib.sh
+  . "$SCRIPT_DIR/fm-session-lock-lib.sh"
+fi
 
 BUDGET_FILE="$STATE/.turnend-claude-blocks"
 BUDGET_LOCK="$STATE/.turnend-claude-blocks.lock"
@@ -198,6 +202,12 @@ block_stop() {
   } >&2
   exit 2
 }
+
+if [ "$CLAUDE_MODE" -eq 1 ] && fm_session_lock_foreign_owner_live "$STATE"; then
+  printf '{"systemMessage":"FIRSTMATE SUPERVISION IS OWNED BY ANOTHER LIVE SESSION: this session cannot repair it without stealing ownership (lock owner pid %s). Allowing this turn to end safely; the owning session must restore supervision."}\n' \
+    "$FM_SESSION_LOCK_FOREIGN_OWNER_PID"
+  exit 0
+fi
 
 if [ "$CLAUDE_MODE" -eq 0 ]; then
   block_stop
