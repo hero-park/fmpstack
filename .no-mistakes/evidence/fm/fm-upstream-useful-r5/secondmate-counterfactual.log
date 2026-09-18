@@ -1,0 +1,5 @@
+warning: secondmate profile-pi-signed-secondmate-z8d sync skipped before launch: primary default-branch commit cannot be resolved
+/private/tmp/fm-spawn-dispatch-profile.ttnJ0M/profile-pi-signed-secondmate/fake/fakebin/timeout: line 3: exec: 1: not found
+/private/tmp/fm-spawn-dispatch-profile.ttnJ0M/profile-pi-signed-secondmate/fake/fakebin/timeout: line 3: exec: 1: not found
+spawned profile-pi-signed-secondmate-z8d harness=pi-signed kind=secondmate mode=secondmate yolo=off window=firstmate:fm-profile-pi-signed-secondmate-z8d worktree=/private/tmp/fm-spawn-dispatch-profile.ttnJ0M/profile-pi-signed-secondmate/secondmate-home
+ok - pi-signed is a distinct persistent secondmate runtime with shared Pi supervision semantics

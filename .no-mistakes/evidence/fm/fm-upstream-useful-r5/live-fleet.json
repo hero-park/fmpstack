@@ -1,0 +1,425 @@
+{
+  "schema": "fm-fleet-snapshot.v1",
+  "generated": "2026-09-18T00:23:27Z",
+  "fm_home": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home",
+  "roots": {
+    "fm_root": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1",
+    "state": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state",
+    "data": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data",
+    "config": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/config",
+    "projects": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/projects"
+  },
+  "backlog": {
+    "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/backlog.md",
+    "present": false,
+    "records": []
+  },
+  "tasks": [
+    {
+      "id": "buried",
+      "kind": "scout",
+      "harness": "",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/buried.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/buried.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "done",
+            "note": "report delivered",
+            "raw": "done: report delivered"
+          }
+        },
+        "worktree": {
+          "path": null,
+          "present": false
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/buried/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "unknown",
+        "source": "none",
+        "detail": "worktree gone (torn down?)",
+        "raw": "state: unknown · source: none · worktree gone (torn down?)",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": null,
+        "exists": null,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "done: report delivered"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-buried",
+        "steer": "bin/fm-send.sh fm-buried '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    },
+    {
+      "id": "scout-done",
+      "kind": "scout",
+      "harness": "",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/scout-done.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/scout-done.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "resolved",
+            "note": "answered REST",
+            "raw": "resolved [key=api]: answered REST"
+          }
+        },
+        "worktree": {
+          "path": null,
+          "present": false
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/scout-done/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "unknown",
+        "source": "none",
+        "detail": "worktree gone (torn down?)",
+        "raw": "state: unknown · source: none · worktree gone (torn down?)",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": null,
+        "exists": null,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "resolved [key=api]: answered REST"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-scout-done",
+        "steer": "bin/fm-send.sh fm-scout-done '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    },
+    {
+      "id": "scout-failed",
+      "kind": "scout",
+      "harness": "",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/scout-failed.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/scout-failed.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "resolved",
+            "note": "answered REST",
+            "raw": "resolved [key=api]: answered REST"
+          }
+        },
+        "worktree": {
+          "path": null,
+          "present": false
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/scout-failed/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "unknown",
+        "source": "none",
+        "detail": "worktree gone (torn down?)",
+        "raw": "state: unknown · source: none · worktree gone (torn down?)",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": null,
+        "exists": null,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "resolved [key=api]: answered REST"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-scout-failed",
+        "steer": "bin/fm-send.sh fm-scout-failed '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    },
+    {
+      "id": "ship-done",
+      "kind": "ship",
+      "harness": "",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/ship-done.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/ship-done.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "resolved",
+            "note": "answered REST",
+            "raw": "resolved [key=api]: answered REST"
+          }
+        },
+        "worktree": {
+          "path": null,
+          "present": false
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/ship-done/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "unknown",
+        "source": "none",
+        "detail": "worktree gone (torn down?)",
+        "raw": "state: unknown · source: none · worktree gone (torn down?)",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": null,
+        "exists": null,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "resolved [key=api]: answered REST"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-ship-done",
+        "steer": "bin/fm-send.sh fm-ship-done '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    },
+    {
+      "id": "ship-failed",
+      "kind": "ship",
+      "harness": "",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/ship-failed.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/state/ship-failed.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "resolved",
+            "note": "answered REST",
+            "raw": "resolved [key=api]: answered REST"
+          }
+        },
+        "worktree": {
+          "path": null,
+          "present": false
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/ship-failed/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "unknown",
+        "source": "none",
+        "detail": "worktree gone (torn down?)",
+        "raw": "state: unknown · source: none · worktree gone (torn down?)",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": null,
+        "exists": null,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T00:23:27Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "resolved [key=api]: answered REST"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-ship-failed",
+        "steer": "bin/fm-send.sh fm-ship-failed '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    }
+  ],
+  "main_inventory": {
+    "valid": true,
+    "reason": null,
+    "orphan_in_flight": [],
+    "unstructured_current_count": 0
+  },
+  "scout_reports": [],
+  "secondmate_current": {
+    "registry": {
+      "present": false,
+      "available": true,
+      "complete": true,
+      "reason": null,
+      "provenance": "registered-table",
+      "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/drain-home/data/secondmates.md",
+      "freshness": {
+        "status": "fresh",
+        "observed_at": "2026-09-18T00:23:27Z"
+      },
+      "records": [],
+      "input_truncated": false,
+      "records_truncated": false,
+      "reasons": [],
+      "lines_in_window": 0,
+      "records_in_window": 0
+    },
+    "records": [],
+    "total_registered": 0,
+    "total": 0,
+    "shown": 0,
+    "truncated": 0
+  },
+  "secondmate_landed": {
+    "records": [],
+    "truncated": [],
+    "unreadable": [],
+    "partial": []
+  },
+  "secondmate_guidance": {
+    "note": "For kind=secondmate, bearings selects validated structured state from that registered home; parent events and bounded terminal evidence are fallback-only supplements and never current-state authority."
+  }
+}

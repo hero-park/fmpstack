@@ -1,0 +1,16 @@
+Buried pause after 230 continuation lines:
+state: unknown · source: pane · harness state unavailable (unknown codex-unverified)
+
+Unanswered decision after done:
+state: unknown · source: pane · harness state unavailable (unknown codex-unverified)
+
+Unanswered decision after failed:
+state: unknown · source: pane · harness state unavailable (unknown codex-unverified)
+
+After explicit keyed resolution:
+state: unknown · source: pane · harness state unavailable (unknown codex-unverified)
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/live/home/data/live-ship/brief.md (ship, mode=no-mistakes; replace {TASK})
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/.test-phase-tmp/live/home/data/live-scout/brief.md (scout; replace {TASK})
+
+Exact endpoint closure with a prefix neighbor:
+fm-scout2

@@ -1,0 +1,31 @@
+Initial open decisions:
+OPEN DECISIONS (still open, folded from the durable status logs - not just the latest line):
+scout-done [key=api] needs-decision: choose interface
+scout-failed [key=api] needs-decision: choose interface
+ship-done [key=api] needs-decision: choose interface
+ship-failed [key=api] needs-decision: choose interface
+OPEN DECISIONS: close one by answering it: bin/fm-send.sh <task> --resolve-key <key> '<answer>'
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  4 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After terminal events (incremental drain):
+STATUS OUTCOME BACKSTOP (newest captain-facing task event has no covering branch outcome):
+scout-done done: unrelated outcome
+scout-failed failed: unrelated outcome
+ship-done done: unrelated outcome
+ship-failed failed: unrelated outcome
+OPEN DECISIONS (still open, folded from the durable status logs - not just the latest line):
+scout-done [key=api] needs-decision: choose interface
+scout-failed [key=api] needs-decision: choose interface
+ship-done [key=api] needs-decision: choose interface
+ship-failed [key=api] needs-decision: choose interface
+OPEN DECISIONS: close one by answering it: bin/fm-send.sh <task> --resolve-key <key> '<answer>'
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+
+After explicit resolutions:
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
