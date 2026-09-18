@@ -11,7 +11,7 @@
 # no-mistakes run-step attributed under bin/fm-nm-run-lib.sh's contract, else
 # the pane busy-signature) and reconciles the possibly-stale log against it.
 #
-# The determinism lives entirely here - only run-step / pane / log reads plus
+# The determinism lives entirely here - run-step / pane / log / forge reads plus
 # fixed mapping logic, no heuristics and no LLM. Output is one stable, parseable,
 # token-tight line firstmate can read every heartbeat:
 #
@@ -36,12 +36,18 @@
 #      checks" from "checks green, waiting on merge" (see nm_ci_checks_state) -
 #      a ci-step log-tail check overrides working -> done once checks read
 #      green, so a green PR is never silently read as still-validating.
-#   3. Reconcile the status log: if its latest recognized event says
+#      A passed run uses its PR identity, falling back to task metadata, to read
+#      PR/MR state with a five-second forge bound. An identity-matched validated
+#      retirement receipt also proves merged. Missing identity or an unreadable
+#      forge reports unknown PR state, never an inferred merge.
+#      FM_CREW_STATE_NO_FORGE=1 skips the forge read (used by inactive reconcile);
+#      a matching retirement receipt remains usable.
+#   3. Reconcile the status declaration selected by status_current_line: if it says
 #      needs-decision/blocked but the run-step shows the run moved on, the log is
 #      deterministically stale and is flagged superseded. A genuinely parked run
 #      plus a needs-decision log agree, and are reported as parked.
 #   4. No run for this crew (pre-validation, or kind=scout): fall back to the
-#      recorded backend's pane busy state, then the latest recognized status event
+#      recorded backend's pane busy state, then status_current_line's declaration
 #      only when its verb maps to a recognized run-state. Decision-only events
 #      such as `resolved` never become current state or detail.
 #   5. Missing meta or torn-down worktree: report unknown · none. If no run is
@@ -716,7 +722,7 @@ if [ "$KIND" != secondmate ]; then
   esac
 fi
 
-# Fall back to the latest recognized status event, but ONLY when its verb maps to
+# Fall back to status_current_line's declaration, but ONLY when its verb maps to
 # a real run-state. A decision-closing event - resolved: (fm-classify-lib.sh's
 # FM_CLASSIFY_RESOLVE_VERB), and any future decision-only sibling - is NOT a state:
 # it exists solely to CLOSE a keyed decision in the durable fold, so a trailing

@@ -75,8 +75,13 @@
 # leased home and state in place instead of hiding a still-held lease.
 # Usage: fm-teardown.sh <task-id> [--force]
 #   --force skips ordinary-task dirty and landed-work checks, skips scout report
-#   checks, and discards secondmate child work for kind=secondmate. Only use it
-#   when the captain has explicitly said to discard the work.
+#   checks, and discards secondmate child work for kind=secondmate. It also allows
+#   generic endpoint-close failure to proceed to record removal; the endpoint
+#   then requires manual reconciliation. Orca and forced child cleanup still
+#   refuse on a reported close failure and preserve the identifying records.
+#   Without that override, a reported endpoint-close failure preserves task
+#   records for retry, although earlier worktree cleanup may already have run.
+#   Only use --force when the captain has explicitly said to discard the work.
 #
 # Transient / stale worktree git lock recovery (teardown-lock-race): a crew process
 # killed mid-git-operation can leave a .git/worktrees/<wt>/index.lock (or, for a
@@ -2426,11 +2431,8 @@ $session	$lock_path"
   return 1
 }
 
-# Report an endpoint close that could not be proven successful and stop before
-# deleting the records that identify the surviving endpoint. The generic close
-# may continue only under an explicit --force; Orca and forced child cleanup
-# retain the identity records because their next destructive step still needs
-# the endpoint provider.
+# Preserve endpoint attribution on a reported close failure under the header
+# contract; adapters remain responsible for their own closure evidence.
 endpoint_close_refusal() {  # <subject> <backend> <target> <honors-force>
   local subject=$1 backend=$2 target=$3 honors_force=$4
   echo "error: the $backend endpoint $target for $subject could not be closed, so it may still be live." >&2
