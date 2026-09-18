@@ -414,7 +414,9 @@ test_codex_threads_model_and_effort() {
   launch=$(cat "$LAUNCH_LOG")
   assert_contains "$launch" "codex --model 'gpt-5' -c 'model_reasoning_effort=\"high\"' --dangerously-bypass-approvals-and-sandbox" \
     "codex launch did not thread model and reasoning effort config"
-  pass "codex receives --model and model_reasoning_effort profile flags"
+  assert_contains "$launch" "--disable hooks" \
+    "codex crewmate launch must disable Codex's hook-trust modal"
+  pass "codex receives model/effort flags and disables its hook layer"
 }
 
 test_codex_omits_invalid_max_effort() {
@@ -430,6 +432,7 @@ test_codex_omits_invalid_max_effort() {
   launch=$(cat "$LAUNCH_LOG")
   assert_contains "$launch" "codex --model 'gpt-5' --dangerously-bypass-approvals-and-sandbox" \
     "codex launch did not preserve the model flag when max effort was omitted"
+  assert_contains "$launch" "--disable hooks" "codex launch must disable its hook layer"
   assert_not_contains "$launch" "model_reasoning_effort" "codex launch must omit unsupported max reasoning effort"
   pass "codex omits unsupported max effort instead of passing a bad config value"
 }
@@ -789,6 +792,8 @@ test_active_dispatch_profile_does_not_block_secondmate_launch() {
   assert_contains "$out" "spawned $id harness=codex kind=secondmate" "secondmate launch did not use secondmate harness resolution"
   assert_grep "kind=secondmate" "$HOME_DIR/state/$id.meta" "secondmate meta missing kind=secondmate"
   assert_meta_profile "$HOME_DIR/state/$id.meta" codex default default
+  assert_not_contains "$(cat "$LAUNCH_LOG")" "--disable hooks" \
+    "secondmate primary launch must retain its lifecycle hooks"
   pass "active crew-dispatch profile does not block secondmate launches"
 }
 

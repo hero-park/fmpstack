@@ -257,6 +257,50 @@ test_tmux_empty_target_refuses_without_invocation() {
   pass "tmux backend: direct empty target returns nonzero without invoking tmux"
 }
 
+test_tmux_close_failure_is_resolved_before_cleanup() {
+  local dir rc out
+  dir=$(make_case tmux-close-resolution)
+  cat > "$dir/fakebin/tmux" <<'SH'
+#!/usr/bin/env bash
+set -u
+case "${1:-}" in
+  kill-window)
+    exit 1
+    ;;
+  list-windows)
+    case "${FM_TMUX_INVENTORY:-present}" in
+      present) printf 'fm-target\n' ;;
+      absent) printf 'fm-neighbor\n' ;;
+      unreadable) printf 'temporary tmux failure\n' >&2; exit 1 ;;
+    esac
+    ;;
+esac
+exit 0
+SH
+  chmod +x "$dir/fakebin/tmux"
+  for expectation in present absent unreadable; do
+    set +e
+    out=$(FM_TMUX_INVENTORY="$expectation" PATH="$dir/fakebin:$PATH" \
+      bash -c '. "$1/bin/fm-backend.sh"; fm_backend_source tmux; fm_backend_tmux_kill "session:fm-target"' _ "$ROOT" 2>&1)
+    rc=$?
+    set -e
+    case "$expectation" in
+      present)
+        [ "$rc" -ne 0 ] || fail "a surviving tmux window must refuse cleanup"
+        assert_contains "$out" "still present" "surviving tmux window should explain the refusal"
+        ;;
+      absent)
+        [ "$rc" -eq 0 ] || fail "an already-gone tmux window should be benign"
+        ;;
+      unreadable)
+        [ "$rc" -ne 0 ] || fail "an unreadable tmux inventory must refuse cleanup"
+        assert_contains "$out" "whether it survived is unknown" "unreadable tmux inventory should remain unknown"
+        ;;
+    esac
+  done
+  pass "tmux backend: failed close is resolved by exact inventory before teardown proceeds"
+}
+
 test_recorded_process_identity_cleanup_is_exact() {
   local dir target_pid control_pid target_record control_record live_command
   dir=$(make_case recorded-process)
@@ -370,5 +414,6 @@ test_control_lock_contention_refuses_before_mutation
 test_metadata_lock_serializes_destructive_cleanup
 test_supported_backend_endpoint_records_validate
 test_tmux_empty_target_refuses_without_invocation
+test_tmux_close_failure_is_resolved_before_cleanup
 test_recorded_process_identity_cleanup_is_exact
 test_isolated_tmux_invalid_and_valid_cleanup

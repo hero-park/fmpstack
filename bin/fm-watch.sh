@@ -25,7 +25,7 @@
 #                          absorbed instead with its own long re-surface cadence,
 #                          never as a wedge, and that recheck reason names which
 #                          human the wait is on. Only when neither absorb class
-#                          applies does the log's last line decide:
+#                          applies does the latest recognized status event decide:
 #                          terminal (captain-relevant) or non-terminal (no verb),
 #                          both surfaced at once. A provably-working stale past the
 #                          wedge threshold also surfaces, with an "escalation N"
@@ -749,6 +749,51 @@ clear_write_tracking() {  # <window-key>
   rm -f "$STATE/.writing-since-$key" "$STATE/.writing-resurfaced-$key"
 }
 
+# A quiet pane whose latest status declaration explains the wait is not a wedge
+# merely because its active run or busy signature kept it on the timer path.
+# The declaration is consulted only at the escalation boundary, so ordinary
+# polls retain their existing cost and undeclared panes retain their schedule.
+wedge_wait_evidence() {  # <task> -> declared|held
+  local task=$1 last
+  [ -n "$task" ] || return 1
+  last=$(last_status_line "$STATE/$task.status")
+  if status_is_captain_held "$last"; then
+    printf 'held'
+    return 0
+  fi
+  status_is_paused "$last" || return 1
+  printf 'declared'
+}
+
+# Defer one wedge escalation for a declared wait, restarting the idle timer and
+# using the same bounded re-surface cadence as ordinary pause absorption.
+wedge_defer_wait() {  # <window> <task> <since-file> <triage-label> <idle-age> <declared|held>
+  local win=$1 task=$2 since_file=$3 label=$4 age=$5 evidence=$6 key mtime wage detail action
+  key=$(window_key "$win")
+  if [ "$evidence" = held ]; then
+    if afk_present; then
+      triage_log "absorbed $label (captain-held while away): $win"
+      date +%s > "$since_file"
+      return 0
+    fi
+    detail='captain-held, awaiting the captain'
+    action='answer the held decision or release the hold'
+  else
+    detail='declared wait, awaiting external'
+    action='confirm the wait still holds'
+  fi
+  mtime=$(stat_mtime "$STATE/$task.status")
+  case "$mtime" in
+    ''|*[!0-9]*) wage=$age ;;
+    *) wage=$(( $(date +%s) - mtime )); [ "$wage" -ge 0 ] || wage=0 ;;
+  esac
+  clear_write_tracking "$key"
+  date +%s > "$since_file"
+  resurface_absorbed "$win" "$STATE/.waiting-resurfaced-$key" "$wage" \
+    "stale: $win (idle ${age}s - $detail, rechecked on a long cadence not a wedge; $action)"
+  triage_log "absorbed $label (the pane's own wait explains the quiet, idle ${age}s): $win"
+}
+
 # Repeat-poll wedge-timer bookkeeping for an already-classified stale hash
 # absorbed as provably-working - repairs a missing/corrupt timer (self-heals a
 # watcher restart between recording the hash and recording the timer), or
@@ -757,11 +802,11 @@ clear_write_tracking() {  # <window-key>
 # both places a hash can be absorbed this way: the plain non-terminal path,
 # and the stale_is_terminal-overridden path (a captain-relevant status-log
 # line that an active run/busy pane outranked).
-# The worktree write probe runs ONLY here, inside the at-threshold branch that is
-# about to escalate: at most one bounded walk per window per STALE_ESCALATE_SECS,
-# never per poll.
+# The wait-evidence consult and worktree write probe run ONLY here, inside the
+# at-threshold branch that is about to escalate: at most one of each per window
+# per STALE_ESCALATE_SECS, never per poll.
 wedge_timer_check() {  # <window> <since-file> <triage-label> <escalation-count-file> <task>
-  local win=$1 since_file=$2 label=$3 escalation_file=$4 task=$5 since age n reason
+  local win=$1 since_file=$2 label=$3 escalation_file=$4 task=$5 since age n reason evidence
   since=$(cat "$since_file" 2>/dev/null || true)
   case "$since" in
     ''|*[!0-9]*)
@@ -774,6 +819,10 @@ wedge_timer_check() {  # <window> <since-file> <triage-label> <escalation-count-
     *)
       age=$(( $(date +%s) - since ))
       if [ "$age" -ge "$STALE_ESCALATE_SECS" ]; then
+        if evidence=$(wedge_wait_evidence "$task"); then
+          wedge_defer_wait "$win" "$task" "$since_file" "$label" "$age" "$evidence"
+          return 0
+        fi
         if crew_worktree_written_since "$task" "$STATE" "$since_file"; then
           wedge_defer_writing "$win" "$since_file" "$label" "$age"
           return 0
@@ -914,7 +963,8 @@ clear_pause_state() {  # <window-key>
 clear_stale_hash_tracking() {  # <window-key>
   local key=$1
   clear_write_tracking "$key"
-  rm -f "$STATE/.stale-$key" "$STATE/.stale-since-$key" "$STATE/.wedge-escalations-$key"
+  rm -f "$STATE/.stale-$key" "$STATE/.stale-since-$key" "$STATE/.wedge-escalations-$key" \
+    "$STATE/.waiting-resurfaced-$key"
 }
 
 clear_pause_tracking() {  # <window-key>
@@ -1206,7 +1256,7 @@ run_check_capture() {
 # appended since this watcher last classified it. The start offset is the
 # classified-position field in that file's .seen-* marker, and fm-classify-lib.sh's
 # status-span contract owns both that format and what counts as actionable in
-# the span. Reading the SPAN rather than the last line is what stops a later
+# the span. Reading the SPAN rather than one trailing line is what stops a later
 # routine append - a `working:` note landing inside SIGNAL_GRACE below - from
 # hiding the `needs-decision`, `blocked`, `failed`, or `done` event that arrived
 # just before it: the .seen-* marker advances either way, so an event absorbed
@@ -1862,7 +1912,7 @@ EOF
             wake "stale: $w"
           fi
         elif stale_is_terminal "$w" "$STATE"; then
-          # The log's last line is captain-relevant - but that alone is not
+          # The latest recognized log event is captain-relevant - but that alone is not
           # proof the crew is actually done: a crew's own status log gets no
           # new entry once firstmate hands it to a no-mistakes validation
           # (AGENTS.md's sparse status-reporting contract), so the log can

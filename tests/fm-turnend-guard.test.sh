@@ -116,6 +116,8 @@ install_guard_scripts() {
   cp "$ROOT/bin/fm-supervision-lib.sh" "$dir/bin/fm-supervision-lib.sh"
   cp "$ROOT/bin/fm-wake-lib.sh" "$dir/bin/fm-wake-lib.sh"
   cp "$ROOT/bin/fm-hook-host-lib.sh" "$dir/bin/fm-hook-host-lib.sh"
+  cp "$ROOT/bin/fm-session-lock-lib.sh" "$dir/bin/fm-session-lock-lib.sh"
+  cp "$ROOT/bin/fm-cursor-lib.sh" "$dir/bin/fm-cursor-lib.sh"
   mkdir -p "$dir/docs"
   cp -R "$ROOT/docs/supervision-protocols" "$dir/docs/supervision-protocols"
   chmod +x "$dir/bin/fm-turnend-guard.sh" "$dir/bin/fm-turnend-guard-grok.sh" "$dir/bin/fm-operational-input.sh" "$dir/bin/fm-supervision-instructions.sh" "$dir/bin/fm-harness.sh"
@@ -1153,6 +1155,23 @@ SH
 # The 2026-07-21 incident regression: after a spent forced continuation the old
 # one-shot loop guard ALLOWED a blind stop (stop_hook_active=true) while the
 # watcher was already dead. In --claude mode the guard must re-block instead.
+test_hook_claude_mode_allows_read_only_foreign_owner() {
+  local dir out status pid
+  dir=$(make_primary_dir "$TMP_ROOT/hook-claude-foreign-owner")
+  : > "$dir/state/task1.meta"
+  # Give the lock to a live process whose argv[0] is a verified harness name,
+  # but which is outside this test shell's harness ancestry.
+  bash -c 'exec -a claude sleep 60' &
+  pid=$!
+  printf '%s\n' "$pid" > "$dir/state/.lock"
+  out=$(FM_CLAUDE_AUTOARM_SYNC_WAIT_MS=200 run_hook_claude "$dir" true); status=$?
+  kill "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+  expect_code 0 "$status" "a Claude stop with a live foreign session owner must end safely"
+  assert_contains "$out" "OWNED BY ANOTHER LIVE SESSION" "foreign-owner allow must explain the read-only handoff"
+  pass "fm-turnend-guard --claude: a live foreign session owner permits safe exit"
+}
+
 test_hook_claude_mode_reblocks_stop_hook_active_when_unhealthy() {
   local dir out status
   dir=$(make_primary_dir "$TMP_ROOT/hook-claude-reblock")
@@ -1796,6 +1815,7 @@ test_codex_hook_ignores_nested_git_root_guard
 test_opencode_plugin_anchors_guard_to_worktree
 test_pi_extension_injects_once_per_logical_agent_run
 test_pi_extension_retries_after_followup_delivery_failure
+test_hook_claude_mode_allows_read_only_foreign_owner
 test_hook_claude_mode_reblocks_stop_hook_active_when_unhealthy
 test_hook_claude_mode_reblocks_x_mode_without_tasks
 test_hook_claude_mode_allows_when_autoarm_owner_alive

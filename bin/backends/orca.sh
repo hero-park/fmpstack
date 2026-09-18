@@ -284,7 +284,10 @@ fm_backend_orca_send_text_submit() {  # <terminal-id> <text> <retries> <enter-sl
     "$terminal" "$retries" "$sleep_s"
 }
 
+# A missing Orca CLI means the close was never attempted, so report it rather
+# than claiming the recorded terminal is gone. The close command itself remains
+# best-effort because this adapter has no verified presence re-read.
 fm_backend_orca_kill() {  # <terminal-id>
-  fm_backend_orca_tool_check || return 0
+  fm_backend_orca_tool_check || return 1
   orca terminal close --terminal "$1" --json >/dev/null 2>&1 || true
 }

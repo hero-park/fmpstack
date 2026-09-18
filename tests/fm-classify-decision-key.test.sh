@@ -276,6 +276,31 @@ test_key_only_before_colon_still_opens_no_regression
 test_blocked_and_resolved_are_tag_order_independent
 test_incremental_agrees_with_full_fold_across_appends
 
+test_latest_status_event_ignores_continuation_prose() {
+  local dir f previous latest
+  dir=$(case_dir latest-event)
+  f="$dir/a.status"
+  printf 'done: report ready\n' > "$f"
+  printf 'the report contains no further status transition\n' >> "$f"
+  latest=$(last_status_line "$f")
+  [ "$latest" = "done: report ready" ] \
+    || fail "continuation prose hid the latest status event: '$latest'"
+  previous=sentinel
+  latest=$(last_status_line "$f")
+  last_status_line "$f" previous >/dev/null
+  [ "$latest" = "done: report ready" ] && [ "$previous" = "" ] \
+    || fail "latest-event previous marker was not stable: latest='$latest' previous='$previous'"
+  printf 'working: resumed\n' >> "$f"
+  printf 'still describing the resumed work\n' >> "$f"
+  latest=$(last_status_line "$f")
+  last_status_line "$f" previous >/dev/null
+  [ "$latest" = "working: resumed" ] && [ "$previous" = "done: report ready" ] \
+    || fail "latest-event reader lost event chronology: latest='$latest' previous='$previous'"
+  pass "latest status event survives trailing continuation prose"
+}
+
+test_latest_status_event_ignores_continuation_prose
+
 # status_key_closing_verb reports HOW the status side currently reads one key,
 # which is what lets a consumer tell a settled key from a key handed to a
 # durable captain-held task. The two closing verbs must stay distinguishable:

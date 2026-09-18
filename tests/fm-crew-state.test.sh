@@ -671,6 +671,29 @@ test_terminal_passed() {
   pass "terminal passed run is authoritative"
 }
 
+test_passed_run_reports_verified_pr_state() {
+  reset_fakes
+  local d out
+  d=$(new_case passed-pr-state)
+  make_repo_on_branch "$d/wt" fm/feat-d
+  make_fakebin "$d" >/dev/null
+  cat > "$d/fakebin/gh-axi" <<'SH'
+#!/usr/bin/env bash
+set -u
+[ "${1:-}" = pr ] && [ "${2:-}" = view ] || exit 1
+printf 'state: %s\n' "${FM_FAKE_PR_STATE:-OPEN}"
+SH
+  chmod +x "$d/fakebin/gh-axi"
+  fm_write_meta "$d/state/feat-d.meta" "window=fm:fm-feat-d" "worktree=$d/wt" "kind=ship"
+  FM_FAKE_AXI_STATUS="$(run_passed fm/feat-d)"
+  out=$(FM_FAKE_PR_STATE=OPEN run_crew_state "$d" feat-d)
+  assert_contains "$out" "run passed: PR open" "an open PR must not be reported as merged"
+  assert_not_contains "$out" "merged/closed" "passed output must not use the old invented merged/closed detail"
+  out=$(FM_FAKE_PR_STATE=MERGED run_crew_state "$d" feat-d)
+  assert_contains "$out" "run passed: PR merged" "a verified merged PR should be reported as merged"
+  pass "passed run: crew state reports forge-verified PR state"
+}
+
 test_terminal_failed() {
   reset_fakes
   local d; d=$(new_case failed)
@@ -1639,6 +1662,7 @@ test_ci_fixing_after_green_stays_working
 test_top_level_fixing_ci_running_after_green_stays_working
 test_top_level_fixing_done_log_stays_working
 test_terminal_passed
+test_passed_run_reports_verified_pr_state
 test_terminal_failed
 test_cross_branch_attribution_via_runs_list
 test_cross_branch_attribution_picks_most_recent_row

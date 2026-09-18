@@ -88,6 +88,8 @@ FM_PR_RETIRE_REG_HASH=
 FM_PR_RETIRE_REG_IDENTITY=
 FM_PR_RETIRE_RECEIPT_HASH=
 FM_PR_RETIRE_RECEIPT_IDENTITY=
+FM_PR_RECORD_STATE=
+FM_PR_RECORD_MERGED=
 FM_PR_POLL_RETIREMENT_REJECTED=
 
 fm_task_id_path_safe() {
@@ -736,6 +738,63 @@ fm_pr_poll_retirement_receipt_valid() {
   [ "$FM_PR_META_NUMBER" = "$FM_PR_RETIRE_NUMBER" ] || return 1
   FM_PR_RETIRE_RECEIPT_HASH=$(fm_pr_sha256 "$receipt") || return 1
   FM_PR_RETIRE_RECEIPT_IDENTITY=$(fm_pr_file_identity "$receipt") || return 1
+}
+
+# Read the minimal PR/MR state needed to describe a passed validation run.
+# These helpers deliberately accept only structured output from the configured
+# forge client and expose no merge authority.
+fm_pr_github_read_record_with_gh_axi() {  # <owner> <repo> <number>
+  local owner=$1 repo=$2 number=$3 output state
+  FM_PR_RECORD_STATE=
+  FM_PR_RECORD_MERGED=
+  output=$(gh-axi pr view "$number" --repo "$owner/$repo" 2>/dev/null) || return 1
+  state=$(printf '%s\n' "$output" | awk '
+    $1 == "state:" { count++; value=$2 }
+    END { if (count == 1 && value != "") print value; else exit 1 }
+  ') || return 1
+  case "$state" in
+    MERGED|merged)
+      FM_PR_RECORD_STATE=MERGED
+      FM_PR_RECORD_MERGED=true
+      ;;
+    OPEN|open)
+      FM_PR_RECORD_STATE=OPEN
+      FM_PR_RECORD_MERGED=false
+      ;;
+    CLOSED|closed)
+      FM_PR_RECORD_STATE=CLOSED
+      FM_PR_RECORD_MERGED=false
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+fm_pr_github_read_record() {  # <owner> <repo> <number>
+  command -v gh-axi >/dev/null 2>&1 || return 1
+  fm_pr_github_read_record_with_gh_axi "$@"
+}
+
+fm_pr_gitlab_read_record() {  # <host> <path> <number>
+  local host=$1 path=$2 number=$3 project_url json state
+  FM_PR_RECORD_STATE=
+  FM_PR_RECORD_MERGED=
+  command -v glab >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+  project_url="https://$host/$path"
+  json=$(GITLAB_HOST="$host" glab mr view "$number" -R "$project_url" -F json 2>/dev/null) || return 1
+  [ -n "$json" ] || return 1
+  state=$(printf '%s' "$json" | jq -r '
+    if type == "object" and (.state | type) == "string" and .state != "" then .state
+    else error("invalid merge request state") end' 2>/dev/null) || return 1
+  case "$state" in
+    merged|opened|open|closed)
+      # shellcheck disable=SC2034 # Output globals are consumed by the bounded caller.
+      FM_PR_RECORD_STATE=$state
+      # shellcheck disable=SC2034 # Output globals are consumed by the bounded caller.
+      [ "$state" = merged ] && FM_PR_RECORD_MERGED=true || FM_PR_RECORD_MERGED=false
+      ;;
+    *) return 1 ;;
+  esac
 }
 
 fm_pr_poll_retirement_data_valid() {
