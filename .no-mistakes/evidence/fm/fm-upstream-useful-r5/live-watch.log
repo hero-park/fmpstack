@@ -7,5 +7,5 @@ EMPTY CLOSE: refused
 LONG CONTINUATION: state: paused · source: status-log · waiting for validation round
 OPEN DECISION: state: parked · source: status-log · choose outcome
 RESOLVED DECISION: state: paused · source: status-log · waiting for validation round
-scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/live/home/data/validation/brief.md (ship, mode=no-mistakes; replace {TASK})
-GENERATED BRIEF: validation/brief.md
+stale: lab:fm-worker (paused 5s, awaiting external - declared pause, rechecked on a long cadence not a wedge; confirm the wait still holds)
+1789757892	1	stale	lab:fm-worker	stale: lab:fm-worker (paused 5s, awaiting external - declared pause, rechecked on a long cadence not a wedge; confirm the wait still holds)

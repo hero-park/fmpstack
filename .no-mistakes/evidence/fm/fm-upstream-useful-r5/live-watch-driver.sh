@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT=$PWD
-D="$ROOT/.test-phase-tmp/live"
+D="$ROOT/.test-phase-tmp/watch-fresh"
 mkdir -p "$D"/{home/state,home/config,home/data,wt,route}
 export FM_HOME="$D/home" FM_STATE_OVERRIDE="$D/home/state" FM_CREW_STATE_NO_FORGE=1
 export FM_GATE_REFUSE_BYPASS=1
@@ -40,6 +40,17 @@ printf 'needs-decision [key=choice]: choose outcome\nworking: resumed unrelated 
 out=$(bin/fm-crew-state.sh worker); printf 'OPEN DECISION: %s\n' "$out"; [[ "$out" = *'state: parked'* ]]
 printf 'resolved [key=choice]: chosen\npaused: waiting for validation round\n' >> "$FM_HOME/state/worker.status"
 out=$(bin/fm-crew-state.sh worker); printf 'RESOLVED DECISION: %s\n' "$out"; [[ "$out" = *'state: paused'* ]]
-FM_HOME="$D/home" bin/fm-brief.sh validation example --mode no-mistakes
-cp "$D/home/data/validation/brief.md" /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/generated-brief.md
-printf 'GENERATED BRIEF: validation/brief.md\n'
+
+bin/fm-busy-event.sh apply "$FM_HOME/state" worker busy --gen "$gen" --source claude-hook --event user-prompt-submit
+export FM_POLL=1 FM_SIGNAL_GRACE=1 FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 FM_STALE_ESCALATE_SECS=2 FM_BUSY_TURN_MAX_SECS=1 FM_PAUSE_RESURFACE_SECS=5
+bin/fm-watch.sh > "$D/watch.out" 2>&1 &
+watch_pid=$!
+trap 'kill "$watch_pid" 2>/dev/null || true; wait "$watch_pid" 2>/dev/null || true; tmux kill-server 2>/dev/null || true' EXIT
+for ((i=0;i<25;i++)); do
+  if ! kill -0 "$watch_pid" 2>/dev/null; then break; fi
+  sleep 1
+done
+cat "$D/watch.out"
+if [ -f "$FM_HOME/state/.wake-queue" ]; then cat "$FM_HOME/state/.wake-queue"; fi
+if ! grep -Eq 'declared (wait|pause)' "$D/watch.out"; then printf 'No declared-wait result observed\n'; exit 1; fi
+if grep -q 'possible wedge' "$D/watch.out"; then exit 1; fi

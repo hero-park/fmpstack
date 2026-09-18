@@ -1,0 +1,2 @@
+spawn output: error: secondmate home cannot be inside the firstmate repo: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/fm-spawn-dispatch-profile.73ElSj/profile-pi-signed-secondmate/secondmate-home
+not ok - pi-signed persistent secondmate spawn should succeed: expected 0 got 1

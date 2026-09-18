@@ -1,0 +1,6 @@
+stale: waittest:fm-waiter (paused 3s, awaiting external - declared pause, rechecked on a long cadence not a wedge; confirm the wait still holds)
+
+.wake-queue: 1789757330	1	stale	waittest:fm-waiter	stale: waittest:fm-waiter (paused 3s, awaiting external - declared pause, rechecked on a long cadence not a wedge; confirm the wait still holds)
+
+.wake-queue.seq: 1
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT=$PWD
-D="$ROOT/.test-phase-tmp/live"
+D="$ROOT/.test-phase-tmp/snapshot"
 mkdir -p "$D"/{home/state,home/config,home/data,wt,route}
 export FM_HOME="$D/home" FM_STATE_OVERRIDE="$D/home/state" FM_CREW_STATE_NO_FORGE=1
 export FM_GATE_REFUSE_BYPASS=1
@@ -40,6 +40,14 @@ printf 'needs-decision [key=choice]: choose outcome\nworking: resumed unrelated 
 out=$(bin/fm-crew-state.sh worker); printf 'OPEN DECISION: %s\n' "$out"; [[ "$out" = *'state: parked'* ]]
 printf 'resolved [key=choice]: chosen\npaused: waiting for validation round\n' >> "$FM_HOME/state/worker.status"
 out=$(bin/fm-crew-state.sh worker); printf 'RESOLVED DECISION: %s\n' "$out"; [[ "$out" = *'state: paused'* ]]
-FM_HOME="$D/home" bin/fm-brief.sh validation example --mode no-mistakes
-cp "$D/home/data/validation/brief.md" /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/generated-brief.md
-printf 'GENERATED BRIEF: validation/brief.md\n'
+
+printf 'needs-decision [key=choice]: old choice\n' > "$FM_HOME/state/worker.status"
+bin/fm-busy-event.sh apply "$FM_HOME/state" worker busy --gen "$gen" --source claude-hook --event user-prompt-submit
+printf 'window=lab:fm-worker2\nbackend=tmux\nkind=secondmate\nharness=claude\nworktree=%s\n' "$D/wt" > "$FM_HOME/state/mate.meta"
+printf 'needs-decision [key=choice]: persistent choice\n' > "$FM_HOME/state/mate.status"
+gen2=$(bin/fm-busy-event.sh arm "$FM_HOME/state" mate)
+bin/fm-busy-event.sh apply "$FM_HOME/state" mate busy --gen "$gen2" --source claude-hook --event user-prompt-submit
+bin/fm-fleet-snapshot.sh --json > /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/live-snapshot.json
+jq '.tasks[] | {id,current_state,hints}' /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/live-snapshot.json
+jq -e '[.tasks[] | select(.id=="worker") | .hints.open_decisions | length] == [0]' /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/live-snapshot.json
+jq -e '[.tasks[] | select(.id=="mate") | .hints.open_decisions | length] == [1]' /Users/andrewpark/.no-mistakes/evidence/01M2TX81RG2RPK68ZXRQVR1TAM/live-snapshot.json

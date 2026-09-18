@@ -80,11 +80,11 @@ ok - triage log capping handles wc byte counts with leading spaces
 ok - a captured process-event result wakes a healthy watcher proactively, with no manual drain
 ok - an unacknowledged process-event result re-drains until handling is acknowledged
 ok - complete process-event queue keys map to distinct seen markers
-WAKE_ACK_REQUIRED: after handling completes run bin/fm-wake-drain.sh --ack-through 1 --recovery-generation 8543.1789691377.nYCsLg
+WAKE_ACK_REQUIRED: after handling completes run bin/fm-wake-drain.sh --ack-through 1 --recovery-generation 93955.1789758124.t4BFrp
 ok - queue revalidation, proactive output, and marker commit serialize with drain
-/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2RXHBD73VF0CA05VYH9ZMC1/bin/fm-push-transition-lib.sh: line 96: echo: write error: Broken pipe
-tests/wake-helpers.sh: line 303: 10615 Killed: 9                  PATH="$dir/fakebin:$PATH" FM_HOME="$dir" FM_PROCEVENT_CLAIM_ROOT="$dir/claims" FM_CREW_STATE_BIN="$dir/fakebin/fm-crew-state.sh" FM_POLL=0.2 FM_SIGNAL_GRACE=1 FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 "$WATCH" > "$out"
-tests/wake-helpers.sh: line 303: 11449 Killed: 9                  PATH="$dir/fakebin:$PATH" FM_HOME="$dir" FM_PROCEVENT_CLAIM_ROOT="$dir/claims" FM_CREW_STATE_BIN="$dir/fakebin/fm-crew-state.sh" FM_POLL=0.2 FM_SIGNAL_GRACE=1 FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 "$WATCH" > "$out"
+/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/bin/fm-push-transition-lib.sh: line 96: echo: write error: Broken pipe
+tests/wake-helpers.sh: line 303: 95566 Killed: 9                  PATH="$dir/fakebin:$PATH" FM_HOME="$dir" FM_PROCEVENT_CLAIM_ROOT="$dir/claims" FM_CREW_STATE_BIN="$dir/fakebin/fm-crew-state.sh" FM_POLL=0.2 FM_SIGNAL_GRACE=1 FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 "$WATCH" > "$out"
+tests/wake-helpers.sh: line 303: 96397 Killed: 9                  PATH="$dir/fakebin:$PATH" FM_HOME="$dir" FM_PROCEVENT_CLAIM_ROOT="$dir/claims" FM_CREW_STATE_BIN="$dir/fakebin/fm-crew-state.sh" FM_POLL=0.2 FM_SIGNAL_GRACE=1 FM_CHECK_INTERVAL=999999 FM_HEARTBEAT=999999 "$WATCH" > "$out"
 ok - surfacing failures replay until post-handling acknowledgement
 ok - marker failure exits through the shared wake owner, releases its lock, and replays later
 ok - a heartbeat with no captain-relevant change is absorbed and backs off the cadence

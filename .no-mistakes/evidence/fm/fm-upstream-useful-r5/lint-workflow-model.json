@@ -1,0 +1,20 @@
+{
+  "name": "Lint",
+  "runs-on": "ubuntu-latest",
+  "steps": [
+    {
+      "uses": "actions/checkout@v6"
+    },
+    {
+      "name": "Install pinned ShellCheck",
+      "run": "set -eu\nbin/fm-install-shellcheck.sh \"$RUNNER_TEMP/bin\"\necho \"$RUNNER_TEMP/bin\" >> \"$GITHUB_PATH\"\n"
+    },
+    {
+      "name": "Install pinned actionlint",
+      "run": "set -eu\nbin/fm-install-actionlint.sh \"$RUNNER_TEMP/bin\"\necho \"$RUNNER_TEMP/bin\" >> \"$GITHUB_PATH\"\n"
+    },
+    {
+      "run": "bin/fm-lint.sh --jobs 1"
+    }
+  ]
+}

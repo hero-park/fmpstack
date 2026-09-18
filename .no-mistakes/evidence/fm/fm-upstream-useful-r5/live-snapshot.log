@@ -1,0 +1,53 @@
+LIVE BUSY: state: working · source: pane · harness busy (claude-hook)
+CLOSED WITH PREFIX NEIGHBOR: state: unknown · source: none · backend target gone: lab:fm-worker
+REPEATED CLOSE SURVIVORS:
+control
+fm-worker2
+EMPTY CLOSE: refused
+LONG CONTINUATION: state: paused · source: status-log · waiting for validation round
+OPEN DECISION: state: parked · source: status-log · choose outcome
+RESOLVED DECISION: state: paused · source: status-log · waiting for validation round
+{
+  "id": "mate",
+  "current_state": {
+    "state": "parked",
+    "source": "status-log",
+    "detail": "persistent choice",
+    "raw": "state: parked · source: status-log · persistent choice",
+    "observed_at": "2026-09-18T19:00:03Z",
+    "freshness": "fresh"
+  },
+  "hints": {
+    "pending_decision": true,
+    "blocked_event": false,
+    "open_decisions": [
+      {
+        "key": "choice",
+        "verb": "needs-decision",
+        "summary": "persistent choice"
+      }
+    ],
+    "scout_report_present": false,
+    "last_event_text": "needs-decision [key=choice]: persistent choice"
+  }
+}
+{
+  "id": "worker",
+  "current_state": {
+    "state": "working",
+    "source": "pane",
+    "detail": "harness busy (claude-hook)",
+    "raw": "state: working · source: pane · harness busy (claude-hook)",
+    "observed_at": "2026-09-18T19:00:03Z",
+    "freshness": "fresh"
+  },
+  "hints": {
+    "pending_decision": false,
+    "blocked_event": false,
+    "open_decisions": [],
+    "scout_report_present": false,
+    "last_event_text": "needs-decision [key=choice]: old choice"
+  }
+}
+true
+true

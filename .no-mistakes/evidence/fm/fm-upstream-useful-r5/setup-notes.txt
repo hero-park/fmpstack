@@ -1,0 +1,3 @@
+The initial spawn-dispatch-profile run used TMPDIR inside the repository. The persistent secondmate case was correctly refused: secondmate home cannot be inside the firstmate repo. Rerunning with the existing test suite default temporary directory passed. No source fix required.
+The first live-watch probe expected the phrase declared wait, but the product emitted declared pause and the correct recheck. The assertion was widened to accept both emitted wait classes and a fresh isolated rerun passed.
+Workflow semantic inspection: Python PyYAML unavailable; Ruby YAML parsed successfully after replacing unsupported filter_map with map/compact. Lint job invokes bin/fm-lint.sh --jobs 1; temporary observer absent. No lint or CI invoked.

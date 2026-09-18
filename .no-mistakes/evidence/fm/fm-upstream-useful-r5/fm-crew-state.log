@@ -1,3 +1,4 @@
+ok - closed tmux endpoint ignores stale busy record with and without prefix neighbor
 ok - active run-step is authoritative
 ok - stale needs-decision over active run is superseded
 ok - stale blocked over active run is superseded

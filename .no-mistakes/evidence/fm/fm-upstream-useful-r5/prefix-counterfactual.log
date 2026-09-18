@@ -1,0 +1,16 @@
+Actual inventory (worker does not exist):
+control
+fm-worker-neighbor
+Non-exact lookup resolves to: fm-worker-neighbor
+Exact lookup exit: control
+0
+Status with prefix neighbor: state: working · source: pane · harness busy (claude-hook)
+Status after removing only the neighbor: state: working · source: pane · harness busy (claude-hook)
+Status after removing the isolated server: state: unknown · source: none · backend target gone: testphase:fm-worker
+Baseline pane_readable implementation:
+pane_readable() {  # <target>
+  case "$TASK_BACKEND" in
+    tmux) tmux display-message -p -t "$1" '#{pane_id}' >/dev/null 2>&1 ;;
+    *) fm_backend_capture "$TASK_BACKEND" "$1" 1 "$EXPECTED_LABEL" >/dev/null 2>&1 ;;
+  esac
+}

@@ -1,0 +1,289 @@
+{
+  "schema": "fm-fleet-snapshot.v1",
+  "generated": "2026-09-18T19:00:03Z",
+  "fm_home": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home",
+  "roots": {
+    "fm_root": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM",
+    "state": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/state",
+    "data": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/data",
+    "config": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/config",
+    "projects": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/projects"
+  },
+  "backlog": {
+    "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/data/backlog.md",
+    "present": false,
+    "records": []
+  },
+  "tasks": [
+    {
+      "id": "mate",
+      "kind": "secondmate",
+      "harness": "claude",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/state/mate.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/state/mate.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "needs-decision",
+            "note": "persistent choice",
+            "raw": "needs-decision [key=choice]: persistent choice"
+          }
+        },
+        "worktree": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/wt",
+          "present": true
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/data/mate/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "parked",
+        "source": "status-log",
+        "detail": "persistent choice",
+        "raw": "state: parked · source: status-log · persistent choice",
+        "observed_at": "2026-09-18T19:00:03Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": "lab:fm-worker2",
+        "exists": true,
+        "agent_alive": "unknown",
+        "status": "unknown",
+        "observed_at": "2026-09-18T19:00:03Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": true,
+        "blocked_event": false,
+        "open_decisions": [
+          {
+            "key": "choice",
+            "verb": "needs-decision",
+            "summary": "persistent choice"
+          }
+        ],
+        "scout_report_present": false,
+        "last_event_text": "needs-decision [key=choice]: persistent choice"
+      },
+      "actions": {
+        "send": "bin/fm-send.sh fm-mate '<request>'",
+        "watch": "read status/doc return channel; do not routinely fm-peek a secondmate for answers",
+        "return_channel_note": "Secondmate answers come back through status/doc paths after a marked fm-send request."
+      },
+      "backlog": null
+    },
+    {
+      "id": "worker",
+      "kind": "scout",
+      "harness": "claude",
+      "mode": "",
+      "yolo": "",
+      "project": "",
+      "spawn_gen": null,
+      "backend": "tmux",
+      "remote": null,
+      "paths": {
+        "meta": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/state/worker.meta",
+          "present": true
+        },
+        "status_log": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/state/worker.status",
+          "present": true,
+          "kind": "event_history",
+          "last_event": {
+            "state": "needs-decision",
+            "note": "old choice",
+            "raw": "needs-decision [key=choice]: old choice"
+          }
+        },
+        "worktree": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/wt",
+          "present": true
+        },
+        "home": {
+          "path": null,
+          "present": false
+        },
+        "report": {
+          "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/data/worker/report.md",
+          "present": false
+        }
+      },
+      "secondmate_projects": [],
+      "current_state": {
+        "state": "working",
+        "source": "pane",
+        "detail": "harness busy (claude-hook)",
+        "raw": "state: working · source: pane · harness busy (claude-hook)",
+        "observed_at": "2026-09-18T19:00:03Z",
+        "freshness": "fresh"
+      },
+      "endpoint": {
+        "target": "lab:fm-worker",
+        "exists": true,
+        "agent_alive": "not_checked",
+        "status": "unknown",
+        "observed_at": "2026-09-18T19:00:03Z",
+        "freshness": "fresh"
+      },
+      "pr": {
+        "url": null,
+        "source": "absent"
+      },
+      "hints": {
+        "pending_decision": false,
+        "blocked_event": false,
+        "open_decisions": [],
+        "scout_report_present": false,
+        "last_event_text": "needs-decision [key=choice]: old choice"
+      },
+      "actions": {
+        "watch": "bin/fm-peek.sh fm-worker",
+        "steer": "bin/fm-send.sh fm-worker '<instruction>'",
+        "return_channel_note": null
+      },
+      "backlog": null
+    }
+  ],
+  "main_inventory": {
+    "valid": true,
+    "reason": null,
+    "orphan_in_flight": [],
+    "unstructured_current_count": 0
+  },
+  "scout_reports": [],
+  "secondmate_current": {
+    "registry": {
+      "present": false,
+      "available": true,
+      "complete": true,
+      "reason": null,
+      "provenance": "registered-table",
+      "path": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M2TX81RG2RPK68ZXRQVR1TAM/.test-phase-tmp/snapshot/home/data/secondmates.md",
+      "freshness": {
+        "status": "fresh",
+        "observed_at": "2026-09-18T19:00:03Z"
+      },
+      "records": [],
+      "input_truncated": false,
+      "records_truncated": false,
+      "reasons": [],
+      "lines_in_window": 0,
+      "records_in_window": 0
+    },
+    "records": [
+      {
+        "id": "mate",
+        "home": null,
+        "host": null,
+        "remote": false,
+        "registered": false,
+        "spawn_gen": null,
+        "current": {
+          "state": "unknown",
+          "reason": "secondmate metadata is not registered"
+        },
+        "invalidity": null,
+        "reconcile_inventory": null,
+        "provenance": {
+          "selected": "parent-event-fallback",
+          "structured_home": null,
+          "parent_event_role": "fallback-only-not-current"
+        },
+        "freshness": {
+          "status": "historical-event",
+          "observed_at": "2026-09-18T19:00:03Z",
+          "age_seconds": 0
+        },
+        "active_children": [],
+        "decisions_open": [],
+        "holds": [],
+        "queued": [],
+        "landed": [],
+        "endpoints": [],
+        "counts": {
+          "active_children": 0,
+          "decisions_open": 0,
+          "holds": 0,
+          "queued": 0,
+          "landed": 0,
+          "endpoints": 0
+        },
+        "omitted": [],
+        "parent_event": {
+          "raw": "needs-decision [key=choice]: persistent choice",
+          "note": "persistent choice",
+          "age_seconds": 0,
+          "open_activities": [],
+          "open_decisions": [
+            {
+              "key": "choice",
+              "verb": "needs-decision",
+              "summary": "persistent choice"
+            }
+          ],
+          "activity_scan": {
+            "records": [],
+            "available": true,
+            "input_truncated": false,
+            "retained_truncated": false,
+            "reasons": [],
+            "lines_in_window": 1,
+            "records_in_window": 0
+          }
+        },
+        "terminal_evidence": {
+          "provenance": "parent-direct-report-terminal",
+          "trust": "untrusted-supplement",
+          "captured": true,
+          "observed_at": "2026-09-18T19:00:03Z",
+          "freshness": "fresh",
+          "reason": null,
+          "lines": 0,
+          "bytes": 0,
+          "event_note_seen": false,
+          "contradiction": false
+        },
+        "contradiction": false
+      }
+    ],
+    "total_registered": 0,
+    "total": 1,
+    "shown": 1,
+    "truncated": 0
+  },
+  "secondmate_landed": {
+    "records": [],
+    "truncated": [],
+    "unreadable": [
+      "<mate: unavailable>"
+    ],
+    "partial": []
+  },
+  "secondmate_guidance": {
+    "note": "For kind=secondmate, bearings selects validated structured state from that registered home; parent events and bounded terminal evidence are fallback-only supplements and never current-state authority."
+  }
+}

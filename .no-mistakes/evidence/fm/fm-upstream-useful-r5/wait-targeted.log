@@ -1,0 +1,3 @@
+ok - a declared wait defers wedge escalation and restarts its timer
+ok - a busy pane under a declared pause is rechecked on the long cadence, and lifting the pause restores the wedge escalation
+ok - a declared pause is periodically rechecked against authoritative active-run state
