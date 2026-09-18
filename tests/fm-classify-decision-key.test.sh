@@ -368,7 +368,7 @@ test_terminal_events_preserve_unanswered_keys() {
   local kind event dir f expected cursor
   expected=$'api\tneeds-decision\tchoose interface'
   for kind in ship scout; do
-    for event in done failed; do
+    for event in 'done' 'failed'; do
       dir=$(case_dir "$kind-$event")
       f="$dir/a.status"
       printf 'kind=%s\n' "$kind" > "$dir/a.meta"

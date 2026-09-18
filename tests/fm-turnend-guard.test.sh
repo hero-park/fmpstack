@@ -1165,6 +1165,7 @@ test_hook_claude_mode_allows_read_only_foreign_owner() {
   pid=$!
   printf '%s\n' "$pid" > "$dir/state/.lock"
   ln -s /bin/bash "$dir/claude"
+  # shellcheck disable=SC2016 # Expand variables in the controlled harness shell.
   out=$(printf '{"stop_hook_active":true,"session_id":"sess-claude-mode"}' \
     | CLAUDECODE=1 FM_HOME="$dir" FM_CLAUDE_AUTOARM_SYNC_WAIT_MS=200 \
       "$dir/claude" -c 'bash "$FM_HOME/bin/fm-turnend-guard.sh" --claude; exit $?' 2>&1); status=$?
