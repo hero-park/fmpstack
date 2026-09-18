@@ -68,7 +68,7 @@ case "${1:-}" in
     for a in "$@"; do case "$a" in *cursor_y*) printf '1\n'; exit 0 ;; esac; done
     printf 'fakepane\n'; exit 0 ;;
   capture-pane) printf '╭────╮\n│    │\n╰────╯\n'; exit 0 ;;
-  list-windows) exit 0 ;;
+  list-windows) printf '%s\n' elsewhere fm-t1 fm-t9 fm-t4 fm-t5 fm-t6 fm-domain fm-t7; exit 0 ;;
 esac
 exit 0
 SH

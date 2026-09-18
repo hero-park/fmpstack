@@ -835,12 +835,23 @@ fm_backend_target_exists() {  # <backend> <target> [expected-label]
   local backend=$1 target=$2 expected_label=${3:-} session pane windows
   case "$backend" in
     tmux)
+      # Supervisors use pane IDs or window indexes; task metadata uses names.
+      case "$target" in
+        %*)
+          pane=$(tmux display-message -p -t "$target" '#{pane_id}' 2>/dev/null) || return 1
+          [ "$pane" = "$target" ]
+          return
+          ;;
+      esac
       session=${target%%:*}
       pane=${target#*:}
       case "$session:$pane" in :*|*:|*:*:*) return 1 ;; esac
       [ "$pane" != "$target" ] || return 1
       fm_backend_source tmux || return 1
-      windows=$(fm_backend_tmux_window_inventory "=$session") || return 1
+      case "$pane" in
+        *[!0-9]*) windows=$(fm_backend_tmux_window_inventory "=$session") || return 1 ;;
+        *) windows=$(tmux list-windows -t "=$session" -F '#{window_index}' 2>/dev/null) || return 1 ;;
+      esac
       printf '%s\n' "$windows" | grep -qxF -- "$pane"
       ;;
     herdr)

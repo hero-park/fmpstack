@@ -37,6 +37,14 @@ SH
   cat > "$fb/tmux" <<'SH'
 #!/usr/bin/env bash
 case "${1:-}" in
+  list-windows)
+    # The isolated home owns the live fixture endpoints; dead-* rows are absent.
+    for meta in "$FM_HOME"/state/*.meta; do
+      [ -f "$meta" ] || continue
+      window=$(sed -n 's/^window=//p' "$meta")
+      case "$window" in *dead-*) ;; *:*) printf '%s\n' "${window#*:}" ;; esac
+    done
+    ;;
   display-message) case "$*" in *dead-*) exit 1 ;; *) printf '%%1\n' ;; esac ;;
   capture-pane)
     case "$*" in

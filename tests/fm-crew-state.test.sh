@@ -1648,7 +1648,7 @@ test_missing_run_head_falls_back_to_current_state() {
 
 # Real tmux is essential here: display-message may succeed on a missing target.
 test_closed_tmux_endpoint_ignores_stale_busy_record() (
-  local d real_tmux out neighbor
+  local d real_tmux out neighbor pane index
   real_tmux=$(command -v tmux) || { echo "skip - tmux not installed"; return; }
   d=$(new_case closed-tmux)
   mkdir -p "$d/wt" "$d/fakebin"
@@ -1672,9 +1672,21 @@ SH
       tmux new-window -d -t crew: -n fm-worker-extra 'sleep 120' || fail "start prefix neighbor"
     fi
     tmux new-window -d -t crew: -n fm-worker 'sleep 120' || fail "start worker"
+    pane=$(tmux display-message -p -t '=crew:=fm-worker' '#{pane_id}')
+    index=$(tmux display-message -p -t '=crew:=fm-worker' '#{window_index}')
+    (
+      . "$ROOT/bin/fm-backend.sh"
+      fm_backend_target_exists tmux "$pane" || fail "live supervisor pane ID must exist"
+      fm_backend_target_exists tmux "crew:$index" || fail "live supervisor window index must exist"
+    ) || exit 1
     out=$(run_crew_state "$d" worker)
     assert_contains "$out" 'state: working' "live worker remains working"
     tmux kill-window -t '=crew:=fm-worker' || fail "close exact worker"
+    (
+      . "$ROOT/bin/fm-backend.sh"
+      if fm_backend_target_exists tmux "$pane"; then fail "closed supervisor pane ID must not exist"; fi
+      if fm_backend_target_exists tmux "crew:$index"; then fail "closed supervisor window index must not exist"; fi
+    ) || exit 1
     out=$(run_crew_state "$d" worker)
     assert_contains "$out" 'state: unknown · source: none' "closed worker with $neighbor prefix neighbor"
   done
