@@ -136,7 +136,7 @@ map_log_state() {  # <line>
   esac
 }
 
-LOG_LINE=$(status_current_line "$LOG" "$KIND")
+LOG_LINE=$(status_current_line "$LOG")
 LOG_VERB=$(status_line_verb "$LOG_LINE")
 
 # --- remote secondmate: the true source is the remote endpoint ---------------
