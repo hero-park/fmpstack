@@ -223,7 +223,7 @@ test_supported_backend_endpoint_records_validate() {
   id=orca-task
   fm_write_meta "$dir/home/state/$id.meta" \
     "window=fm-$id" "endpoint_task_id=$id" "terminal=term-7" \
-    "worktree=$dir/worktree" "project=$dir/project" "backend=orca" "orca_worktree_id=worktree-9"
+    "worktree=$dir/worktree" "project=$dir/project" "backend=orca" "orca_worktree_id=worktree-9::/orca/worktree-9"
   fm_backend_validate_task_endpoint "$dir/home/state/$id.meta" "$id" || fail "valid Orca endpoint refused"
   [ "$FM_BACKEND_VALIDATED_TARGET" = term-7 ] || fail "Orca validation did not select its terminal"
 
@@ -241,6 +241,34 @@ test_supported_backend_endpoint_records_validate() {
     [ "$target" -ne 0 ] || fail "$backend generic kill accepted an empty target"
   done
   pass "cleanup identity: valid tmux, Herdr, Zellij, Orca, and cmux records validate while every empty backend target refuses"
+}
+
+test_orca_composite_worktree_id_validates() {
+  local dir id real
+  dir=$(make_case orca-composite-worktree-id)
+  # shellcheck source=/dev/null
+  . "$ROOT/bin/fm-backend.sh"
+
+  real="411226f7-dc91-4d37-975d-32d412bf97a2::/Users/fleet/orca/workspaces/proj/fm-task"
+  fm_backend_orca_worktree_id_valid "$real" \
+    || fail "the composite worktree id Orca really returns was rejected"
+  if fm_backend_orca_worktree_id_valid "$(printf 'wt-a::/orca/wt\na')"; then
+    fail "a worktree id carrying a newline was accepted"
+  fi
+  if fm_backend_orca_worktree_id_valid "wt-atom"; then
+    fail "a worktree id with no :: separator was accepted"
+  fi
+
+  id=orca-composite-task
+  fm_write_meta "$dir/home/state/$id.meta" \
+    "window=fm-$id" "endpoint_task_id=$id" "terminal=term-11" \
+    "worktree=$dir/worktree" "project=$dir/project" "backend=orca" \
+    "orca_worktree_id=411226f7-dc91-4d37-975d-32d412bf97a2::$dir/worktree"
+  fm_backend_validate_task_endpoint "$dir/home/state/$id.meta" "$id" \
+    || fail "an Orca record carrying its real composite worktree id was refused"
+  [ "$FM_BACKEND_VALIDATED_TARGET" = term-11 ] \
+    || fail "Orca validation did not select its terminal"
+  pass "cleanup identity: an Orca record's real composite worktree id validates while a separatorless or newline-carrying id refuses"
 }
 
 test_tmux_empty_target_refuses_without_invocation() {
@@ -413,6 +441,7 @@ test_invalid_endpoint_records_refuse_before_mutation
 test_control_lock_contention_refuses_before_mutation
 test_metadata_lock_serializes_destructive_cleanup
 test_supported_backend_endpoint_records_validate
+test_orca_composite_worktree_id_validates
 test_tmux_empty_target_refuses_without_invocation
 test_tmux_close_failure_is_resolved_before_cleanup
 test_recorded_process_identity_cleanup_is_exact
