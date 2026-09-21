@@ -1,0 +1,8 @@
+Isolated HOME, installed quota-axi, public arm -> reconcile -> captured result:
+quota: quota-test-missing-provider
+status: error
+detail: quota-axi --json failed or quota-axi is missing/incompatible
+condition_polls: 1
+classify: error
+handled: quota-test-missing-provider 1
+retired: quota-test-missing-provider

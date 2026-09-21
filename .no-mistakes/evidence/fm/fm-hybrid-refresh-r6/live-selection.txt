@@ -1,0 +1,12 @@
+Live quota-axi --no-credential-refresh --json: schemaVersion=5
+$ bin/fm-quota-choose.sh --snapshot /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M32KQFQK8WVDJEEE520YV6KV/.test-phase-tmp/live-quota.json --candidate claude:default --candidate codex:default
+codex default
+exit=0
+$ bin/fm-quota-choose.sh --snapshot /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M32KQFQK8WVDJEEE520YV6KV/.test-phase-tmp/live-quota.json --candidate claude:default
+none
+exit=1
+
+Live quota-axi --no-credential-refresh (default TOON)
+$ bin/fm-quota-choose.sh --snapshot live-quota.toon --candidate claude:default --candidate codex:default
+codex default
+exit=0
