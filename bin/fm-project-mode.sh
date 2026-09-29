@@ -17,6 +17,7 @@
 #   - <name> [<mode> +yolo] - <desc> (added <date>)    -> <mode> on
 #
 # Registered modes:
+#   <name> may contain spaces; it ends at the literal " [" or " - " that follows it.
 #   no-mistakes            full pipeline -> PR -> configured merge authority (default)
 #   direct-PR              push + PR via gh-axi, no pipeline
 #   local-only             local branch, no remote/PR, guarded local merge
@@ -57,11 +58,19 @@ fi
 
 # awk emits "<mode> <yolo>" (one line) or nothing if the project is absent.
 parsed=$(awk -v n="$NAME" '
-  $1=="-" && $2==n {
+  {
+    # Match the complete registered name literally. The delimiter after the
+    # name prevents a short name from matching a longer name with the same
+    # prefix, and avoids treating registry text as a regular expression.
+    prefix = "- " n; plen = length(prefix);
+    if (substr($0, 1, plen) != prefix) next
+    after = substr($0, plen + 1);
+    if (after != "" && substr(after, 1, 2) != " [" && substr(after, 1, 3) != " - ") next
     mode="no-mistakes"; yolo="off";
-    if ($3 ~ /^\[/) {
+    if (substr(after, 1, 2) == " [") {
       s="";
-      for (i=3; i<=NF; i++) { s = s (s==""?"":" ") $i; if ($i ~ /\]$/) break }
+      nk = split(after, rest, " ");
+      for (i=1; i<=nk; i++) { s = s (s==""?"":" ") rest[i]; if (rest[i] ~ /\]$/) break }
       gsub(/^\[|\]$/, "", s);           # strip the surrounding brackets
       k = split(s, a, " ");
       if (a[1] != "" && a[1] != "+yolo") mode = a[1];
