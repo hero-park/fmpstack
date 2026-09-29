@@ -91,7 +91,10 @@ test_gate_common_dir_is_silent() {
   printf 'gate-test\n' > "$root/.fm-secondmate-home"
   expect_silent_zero "gate common-dir nudge" env FM_GATE_REFUSE_BYPASS=0 \
     FM_ROOT_OVERRIDE="$root" FM_HOME="$root" "$NUDGE"
-  pass "fm-sessionstart-nudge: .no-mistakes gate common-dir is silent"
+  rmdir "$root/state"
+  expect_silent_zero "fresh gate common-dir run" run_hook "$root" --source startup
+  assert_absent "$root/state" "a marked gate copy acquired primary state through the run wrapper"
+  pass "session-open wrappers: .no-mistakes gate common-dir stays silent and never creates primary state"
 }
 
 test_unmarked_linked_worktree_is_silent() {
@@ -990,6 +993,10 @@ test_run_gate_and_scope_are_silent() {
     "$RUN" --source startup --pi-prerequisite 2>&1) || status=$?
   expect_code 3 "$status" "gate env Pi prerequisite stand-down"
   [ -z "$out" ] || fail "gate env Pi prerequisite stand-down must be silent, got: $out"
+  rmdir "$root/state"
+  expect_silent_zero "fresh gate env run" env NO_MISTAKES_GATE=1 FM_GATE_REFUSE_BYPASS=0 \
+    FM_ROOT_OVERRIDE="$root" FM_HOME="$root" PATH="$RUN_PATH" "$RUN" --source startup
+  assert_absent "$root/state" "a fresh gate primary acquired a state directory before refusing the gate"
 
   fm_git_worktree "$base" "$linked" fm/run-linked
   mkdir -p "$linked/bin" "$linked/state"
@@ -1001,6 +1008,63 @@ test_run_gate_and_scope_are_silent() {
   [ -z "$out" ] || fail "linked worktree Pi prerequisite stand-down must be silent, got: $out"
   assert_absent "$linked/state/.lock" "an unmarked task worktree still took the fleet lock"
   pass "run wrapper: ordinary ineligible opens stay silent-zero and Pi preflight gets an explicit silent stand-down"
+}
+
+test_run_creates_missing_state_on_a_fresh_primary() {
+  local root="$TMP_ROOT/run-fresh-primary" base="$TMP_ROOT/run-fresh-linked-base"
+  local linked="$TMP_ROOT/run-fresh-linked" out status=0
+  make_run_primary "$root"
+  rmdir "$root/state"
+  assert_absent "$root/state" "the fixture still had a state dir before the assertion began"
+
+  out=$(run_hook "$root" --source startup </dev/null) || status=$?
+  expect_code 0 "$status" "run wrapper startup on a fresh primary with no state dir"
+  assert_present "$root/state" "a fresh primary root did not get its state dir created"
+  assert_contains "$out" "$FULL_BANNER$root" \
+    "creating the state dir did not let a fresh primary's session start run"
+  assert_contains "$out" "lock acquired: harness pid" \
+    "creating the state dir did not let a fresh primary take the fleet lock"
+  assert_not_contains "$out" "$REEMIT_BANNER" \
+    "a fresh primary's first session was misrouted to a context re-emit"
+  assert_contains "$out" "NEXT STEP" "a fresh primary did not receive the complete digest"
+
+  # An unmarked linked task worktree stays ineligible: it must not have a state
+  # dir manufactured for it, so the existing scope refusal is unchanged.
+  fm_git_worktree "$base" "$linked" fm/run-fresh-linked
+  mkdir -p "$linked/bin"
+  : > "$linked/AGENTS.md"
+  assert_absent "$linked/state" "the linked fixture already had a state dir before the assertion began"
+  expect_silent_zero "linked worktree fresh state run" run_hook "$linked" --source startup
+  assert_absent "$linked/state" "an unmarked linked task worktree got a state dir created for it"
+
+  # The same linked copy becomes eligible only with the existing secondmate
+  # marker, and may then create state on its own first session.
+  printf 'fresh-secondmate\n' > "$linked/.fm-secondmate-home"
+  mkdir -p "$linked/data" "$linked/config"
+  status=0
+  out=$(run_hook "$linked" --source startup </dev/null) || status=$?
+  expect_code 0 "$status" "run wrapper startup on a fresh marked secondmate"
+  assert_present "$linked/state" "a fresh marked secondmate did not get its state dir"
+  assert_contains "$out" "$FULL_BANNER$linked" "a fresh marked secondmate did not run the full digest"
+  assert_contains "$out" "NEXT STEP" "a fresh marked secondmate did not receive the complete digest"
+  pass "run wrapper: only fresh primary roots and marked secondmate homes acquire missing state"
+}
+
+test_run_reports_a_state_dir_it_cannot_create() {
+  local root="$TMP_ROOT/run-fresh-readonly" out err_file="$TMP_ROOT/run-fresh-readonly.err" status=0
+  make_run_primary "$root"
+  rmdir "$root/state"
+  chmod 0500 "$root"
+  out=$(run_hook "$root" --source startup </dev/null 2>"$err_file") || status=$?
+  chmod 0700 "$root"
+  expect_code 0 "$status" "run wrapper on a fresh primary whose state dir cannot be created"
+  [ -z "$out" ] || fail "a failed state dir creation must still stand down without a digest, got: $out"
+  assert_absent "$root/state" "a read-only fresh primary somehow got a state dir"
+  [ "$(wc -l <"$err_file")" -eq 1 ] || fail "expected exactly one stderr line, got: $(cat "$err_file")"
+  assert_contains "$(cat "$err_file")" \
+    "startup could not create the state directory $root/state: Permission denied" \
+    "a failed state dir creation did not say what failed and why"
+  pass "run wrapper: a fresh primary that cannot create its state dir says so on stderr, then stands down"
 }
 
 test_run_reports_a_failed_session_start_as_digest_text() {
@@ -1032,6 +1096,8 @@ test_run_resume_delegates_to_the_nudge
 test_run_reads_source_from_the_hook_payload
 test_run_unknown_source_takes_the_helm
 test_run_gate_and_scope_are_silent
+test_run_creates_missing_state_on_a_fresh_primary
+test_run_reports_a_state_dir_it_cannot_create
 test_run_reports_a_failed_session_start_as_digest_text
 test_pi_startup_classifies_cli_continuations
 test_pi_sessionstart_generation_prerequisite
