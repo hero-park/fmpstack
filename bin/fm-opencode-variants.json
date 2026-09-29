@@ -1,0 +1,6 @@
+{
+  "anthropic/claude-sonnet-4-5": ["high", "max"],
+  "openai/gpt-5.1-codex": ["low", "medium", "high"],
+  "openai/gpt-5.2-codex": ["low", "medium", "high", "xhigh"],
+  "openai/gpt-5.3-codex": ["low", "medium", "high", "xhigh"]
+}

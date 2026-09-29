@@ -1051,20 +1051,54 @@ test_run_creates_missing_state_on_a_fresh_primary() {
 }
 
 test_run_reports_a_state_dir_it_cannot_create() {
-  local root="$TMP_ROOT/run-fresh-readonly" out err_file="$TMP_ROOT/run-fresh-readonly.err" status=0
+  local root="$TMP_ROOT/run-fresh-readonly" out pi_out cursor_out prerequisite_out duplicate_out
+  local status=0 pi_status=0 cursor_status=0 prerequisite_status=0 duplicate_status=0
+  local err_file="$TMP_ROOT/run-fresh-readonly.err" expected
   make_run_primary "$root"
   rmdir "$root/state"
+  expected="fm-sessionstart-run: startup could not create the state directory $root/state: Permission denied"
   chmod 0500 "$root"
   out=$(run_hook "$root" --source startup </dev/null 2>"$err_file") || status=$?
+  prerequisite_out=$(run_hook_pi "$root" --source startup --pi-prerequisite </dev/null) || prerequisite_status=$?
+  duplicate_out=$(printf '{"cursor_version":"test","source":"startup"}' | \
+    RUN_PATH="$(dirname "$(command -v jq)"):$RUN_PATH" run_hook "$root") || duplicate_status=$?
+  cursor_out=$(FM_GATE_REFUSE_BYPASS=0 FM_ROOT_OVERRIDE="$root" FM_HOME="$root" \
+    "$ROOT/bin/fm-sessionstart-cursor.sh" --source startup </dev/null) || cursor_status=$?
+  pi_out=$(EXT="$ROOT/.pi/extensions/fm-primary-turnend-guard.ts" \
+    FM_ROOT_OVERRIDE="$root" FM_HOME="$root" FM_GATE_REFUSE_BYPASS=0 EXPECTED="$expected" \
+    node --input-type=module 2>&1 <<'JS'
+import { pathToFileURL } from "node:url";
+const handlers = new Map();
+const extension = await import(pathToFileURL(process.env.EXT).href);
+extension.default({
+  on(event, handler) { handlers.set(event, handler); },
+  sendMessage() { throw new Error("startup must use provider preflight"); },
+});
+const ctx = { sessionManager: { getSessionId: () => "state-creation-failure" } };
+handlers.get("session_start")({ reason: "startup" }, ctx);
+const result = await handlers.get("before_agent_start")({ prompt: "test" }, ctx);
+const content = result?.message?.content ?? "";
+if (!content.includes(process.env.EXPECTED)) throw new Error(`failure was not delivered: ${content}`);
+if (!content.includes("FIRSTMATE_OP: v1 session-start:")) throw new Error("failure lost its operational provenance");
+if (await handlers.get("before_agent_start")({ prompt: "again" }, ctx)) throw new Error("failure was delivered twice");
+await handlers.get("session_shutdown")({}, ctx);
+JS
+  ) || pi_status=$?
   chmod 0700 "$root"
-  expect_code 0 "$status" "run wrapper on a fresh primary whose state dir cannot be created"
-  [ -z "$out" ] || fail "a failed state dir creation must still stand down without a digest, got: $out"
+  expect_code 0 "$status" "ordinary state-directory creation failure"
+  expect_code 0 "$prerequisite_status" "eligible Pi prerequisite creation failure must not be ineligible"
+  expect_code 0 "$cursor_status" "Cursor state-directory creation failure"
+  expect_code 0 "$duplicate_status" "Cursor-delivered duplicate creation failure"
+  [ -z "$duplicate_out" ] || fail "Cursor's duplicate hook emitted a creation failure: $duplicate_out"
+  expect_code 0 "$pi_status" "Pi state-directory creation failure delivery: $pi_out"
+  [ -z "$pi_out" ] || fail "Pi failure delivery printed unexpected output: $pi_out"
+  [ "$out" = "$expected" ] || fail "ordinary hook did not emit its creation failure: $out"
+  [ "$prerequisite_out" = "$expected" ] || fail "Pi prerequisite did not emit its creation failure: $prerequisite_out"
+  printf '%s\n' "$cursor_out" | jq -e --arg expected "$expected" \
+    '.additional_context == $expected' >/dev/null || fail "Cursor did not deliver its creation failure: $cursor_out"
+  [ ! -s "$err_file" ] || fail "creation failure still relies on stderr: $(cat "$err_file")"
   assert_absent "$root/state" "a read-only fresh primary somehow got a state dir"
-  [ "$(wc -l <"$err_file")" -eq 1 ] || fail "expected exactly one stderr line, got: $(cat "$err_file")"
-  assert_contains "$(cat "$err_file")" \
-    "startup could not create the state directory $root/state: Permission denied" \
-    "a failed state dir creation did not say what failed and why"
-  pass "run wrapper: a fresh primary that cannot create its state dir says so on stderr, then stands down"
+  pass "run wrapper: state creation failures reach hook stdout, Cursor context, and Pi preflight without blocking startup"
 }
 
 test_run_reports_a_failed_session_start_as_digest_text() {

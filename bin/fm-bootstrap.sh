@@ -1097,9 +1097,9 @@ crew_dispatch_validate() {
     echo "CREW_DISPATCH: invalid config/crew-dispatch.json - malformed JSON"
     return 0
   fi
-  err=$(jq -r '
+  err=$(jq -r --slurpfile opencode_variants "$SCRIPT_DIR/fm-opencode-variants.json" '
     def verified($h): ["claude","codex","opencode","pi","pi-signed","grok","kimi","cursor","muse"] | index($h);
-    def effort_ok($h; $e):
+    def effort_ok($h; $m; $e):
       if $e == null then true
       elif ($e | type) != "string" then false
       elif $h == "claude" then (["low","medium","high","xhigh","max"] | index($e))
@@ -1107,7 +1107,8 @@ crew_dispatch_validate() {
       elif $h == "grok" then (["low","medium","high"] | index($e))
       elif $h == "pi" or $h == "pi-signed" then (["low","medium","high","xhigh","max"] | index($e))
       elif $h == "muse" then (["low","medium","high","xhigh","max"] | index($e))
-      elif $h == "opencode" or $h == "kimi" or $h == "cursor" then false
+      elif $h == "opencode" then (($opencode_variants[0][$m // ""] // []) | index($e) != null)
+      elif $h == "kimi" or $h == "cursor" then false
       else true
       end;
     def profiles($value):
@@ -1123,10 +1124,10 @@ crew_dispatch_validate() {
       or ($items | any(has("effort") and (((.effort | type) != "string") or (.effort | length) == 0)));
     def bad_efforts:
       configured_profiles
-      | map({h: .harness, e: .effort})
+      | map({h: .harness, m: .model, e: .effort})
       | map(select(.e != null))
       | map(select((.h | type) == "string" and verified(.h)))
-      | map(select(. as $p | effort_ok($p.h; $p.e) | not))
+      | map(select(. as $p | effort_ok($p.h; $p.m; $p.e) | not))
       | map("\(.h):\(.e)")
       | unique;
     if type != "object" then "top-level value must be an object"

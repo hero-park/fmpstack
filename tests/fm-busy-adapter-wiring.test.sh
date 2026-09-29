@@ -23,7 +23,7 @@ make_spawn_case() {  # <name> <harness> <id>
   home="$case_dir/home"
   proj="$case_dir/project"
   wt="$case_dir/wt"
-  fakebin=$(make_spawn_fakebin "$case_dir/fake" pi opencode claude codex)
+  fakebin=$(make_spawn_fakebin "$case_dir/fake" pi pi-signed opencode claude codex)
   fm_test_spawn_home "$home" "$harness"
   fm_git_worktree "$proj" "$wt" "wt-$name"
   fm_test_spawn_brief "$home" "$id"
@@ -79,8 +79,8 @@ EOF
 }
 
 test_pi_extension_semantic_lifecycle() {
-  local rec id=busy-pi-1 out state ext
-  rec=$(make_spawn_case pi-lifecycle pi "$id")
+  local harness=$1 rec id="busy-$1-1" out state ext
+  rec=$(make_spawn_case "$harness-lifecycle" "$harness" "$id")
   read_case_record "$rec"
   out=$(run_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$id" "$PROJ_DIR")
   expect_code 0 $? "pi spawn should succeed: $out"
@@ -88,31 +88,31 @@ test_pi_extension_semantic_lifecycle() {
   ext="$state/$id.pi-ext.ts"
   assert_present "$ext" "pi spawn did not write the per-task extension"
 
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "busy fm-spawn" ] || fail "seed after spawn must be 'busy fm-spawn', got '$out'"
 
   rm -f "$state/$id.turn-ended"
   out=$(drive_pi_ext "$ext" turn-end) || fail "turn_end drive failed: $out"
   [ -f "$state/$id.turn-ended" ] || fail "turn_end no longer touches the notification marker"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "busy fm-spawn" ] || fail "turn_end must stay a notification, not a state edge, got '$out'"
 
   out=$(drive_pi_ext "$ext" settle-idle) || fail "agent_settled drive failed: $out"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "idle pi-ext" ] || fail "agent_settled with isIdle must classify 'idle pi-ext', got '$out'"
 
   out=$(drive_pi_ext "$ext" agent-start) || fail "agent_start drive failed: $out"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "busy pi-ext" ] || fail "agent_start must classify 'busy pi-ext', got '$out'"
 
   out=$(drive_pi_ext "$ext" settle-continuing) || fail "continuing settle drive failed: $out"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "busy pi-ext" ] || fail "a settle while another run continues must stay busy, got '$out'"
 
   out=$(drive_pi_ext "$ext" settle-idle) || fail "final settle drive failed: $out"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "idle pi-ext" ] || fail "the final settle must classify idle, got '$out'"
-  pass "pi extension reports agent_start busy, settles idle only via ctx.isIdle(), and keeps turn_end a notification"
+  pass "$harness extension reports agent_start busy, settles idle only via ctx.isIdle(), and keeps turn_end a notification"
 }
 
 test_pi_extension_serializes_settle_before_next_start() {
@@ -131,8 +131,8 @@ test_pi_extension_serializes_settle_before_next_start() {
 }
 
 test_pi_extension_stale_incarnation_rejected() {
-  local rec id=busy-pi-2 out state ext
-  rec=$(make_spawn_case pi-stale pi "$id")
+  local harness=$1 rec id="busy-$1-2" out state ext
+  rec=$(make_spawn_case "$harness-stale" "$harness" "$id")
   read_case_record "$rec"
   out=$(run_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$id" "$PROJ_DIR")
   expect_code 0 $? "pi spawn should succeed: $out"
@@ -142,9 +142,9 @@ test_pi_extension_stale_incarnation_rejected() {
   # extension file: its late events must be rejected and never change state.
   "$ROOT/bin/fm-busy-event.sh" arm "$state" "$id" >/dev/null
   out=$(drive_pi_ext "$ext" settle-idle) || fail "stale settle drive failed: $out"
-  out=$(classify pi "$id" "$state")
+  out=$(classify "$harness" "$id" "$state")
   [ "$out" = "busy fm-spawn" ] || fail "a stale extension event must not change state, got '$out'"
-  pass "pi extension events from a superseded incarnation are rejected as stale"
+  pass "$harness extension events from a superseded incarnation are rejected as stale"
 }
 
 # drive_oc_plugin <plugin-path> <events-json-lines...>: load the generated
@@ -312,9 +312,11 @@ test_kimi_and_grok_install_no_unverified_wiring() {
   pass "kimi and grok install no unverified semantic wiring and classify through their own gates"
 }
 
-test_pi_extension_semantic_lifecycle
+test_pi_extension_semantic_lifecycle pi
+test_pi_extension_semantic_lifecycle pi-signed
 test_pi_extension_serializes_settle_before_next_start
-test_pi_extension_stale_incarnation_rejected
+test_pi_extension_stale_incarnation_rejected pi
+test_pi_extension_stale_incarnation_rejected pi-signed
 test_kimi_and_grok_install_no_unverified_wiring
 test_opencode_plugin_semantic_lifecycle
 test_claude_hooks_semantic_lifecycle

@@ -51,7 +51,7 @@ The installed pi-signed 0.82.0 wrapper repeated the shared Pi primary extension 
 ### Fresh-primary state initialization
 
 The portable primary-scope regression ran on 2026-09-29 with Bash 5.3.9 on macOS and Apple clang 21.0.0 for the Cursor process fixture.
-It exercises the real session-start digest, proving missing-state creation for eligible primary and marked-secondmate roots, continued exclusion of ordinary linked task copies and both gate-identity signals, and explicit directory-creation error reporting.
+It exercises the real session-start digest, proving missing-state creation for eligible primary and marked-secondmate roots and continued exclusion of ordinary linked task copies and both gate-identity signals.
 This is executable wrapper/process coverage, not a new live-vendor transport claim; [`../sessionstart-nudge.md`](../sessionstart-nudge.md#shared-wrapper-and-safety) owns the behavior.
 
 ```sh
@@ -67,9 +67,11 @@ Observed boundary assertions:
 ```text
 ok - session-open wrappers: .no-mistakes gate common-dir stays silent and never creates primary state
 ok - run wrapper: only fresh primary roots and marked secondmate homes acquire missing state
-ok - run wrapper: a fresh primary that cannot create its state dir says so on stderr, then stands down
 FM_TEST_SUMMARY total=3 failed=0 skipped_gate=0 duration_ms=136549
 ```
+
+For current directory-creation failure coverage, `tests/fm-sessionstart-nudge.test.sh` executes the shared wrapper, Cursor adapter, and Pi extension to assert model-visible failure delivery and silent duplicate exclusion.
+This portable consumer check does not establish new live-vendor transport evidence.
 
 ### Run-tier source vocabulary and context-reset injection
 

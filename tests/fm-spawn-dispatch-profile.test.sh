@@ -562,60 +562,69 @@ test_cursor_failed_catalog_probe_does_not_block_spawn() {
   pass "cursor preserves the requested model when its live catalog is unreachable"
 }
 
-test_opencode_threads_model_and_effort_variant() {
-  local rec id out status launch
-  id=profile-opencode-z7
-  rec=$(make_spawn_case profile-opencode opencode "$id")
-  read_case_record "$rec"
-
-  out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" "$id" "$PROJ_DIR" --model anthropic/claude-sonnet-4-5 --effort high)
-  status=$?
-  expect_code 0 "$status" "opencode spawn with model and effort should succeed"
-  assert_meta_profile "$HOME_DIR/state/$id.meta" opencode anthropic/claude-sonnet-4-5 high
-  launch=$(cat "$LAUNCH_LOG")
-  assert_contains "$launch" \
-    "OPENCODE_CONFIG_CONTENT='{\"permission\":{\"*\":\"allow\"},\"agent\":{\"build\":{\"model\":\"anthropic/claude-sonnet-4-5\",\"variant\":\"high\"}}}' opencode --model 'anthropic/claude-sonnet-4-5' --prompt" \
-    "opencode launch did not write the effort as the build agent's variant"
-  assert_not_contains "$launch" "--effort" "opencode launch must not pass --effort"
-  assert_not_contains "$launch" "--variant" "opencode launch must not pass run-only --variant"
-  assert_not_contains "$launch" "--thinking" "opencode launch must not pass pi thinking flag"
-  pass "opencode receives model and effort through its verified config variant"
-}
-
-test_opencode_without_effort_keeps_launch_config_unchanged() {
-  local rec id out status launch
-  id=profile-opencode-noeffort-z7b
-  rec=$(make_spawn_case profile-opencode-noeffort opencode "$id")
-  read_case_record "$rec"
-
-  out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" "$id" "$PROJ_DIR" --model anthropic/claude-sonnet-4-5)
-  status=$?
-  expect_code 0 "$status" "opencode spawn without effort should succeed"
-  assert_meta_profile "$HOME_DIR/state/$id.meta" opencode anthropic/claude-sonnet-4-5 default
-  launch=$(cat "$LAUNCH_LOG")
-  assert_contains "$launch" \
-    "OPENCODE_CONFIG_CONTENT='{\"permission\":{\"*\":\"allow\"}}' opencode --model 'anthropic/claude-sonnet-4-5' --prompt" \
-    "opencode launch without effort changed its permission-only config"
-  assert_not_contains "$launch" '"variant"' "opencode launch without effort must not write a variant"
-  pass "opencode without effort keeps its permission-only launch config"
-}
-
-test_opencode_omits_variant_for_unsupported_family_effort() {
-  local rec id out status launch
-  id=profile-opencode-unsupported-z7c
-  rec=$(make_spawn_case profile-opencode-unsupported opencode "$id")
-  read_case_record "$rec"
-
-  out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" "$id" "$PROJ_DIR" --model anthropic/claude-sonnet-4-5 --effort medium)
-  status=$?
-  expect_code 0 "$status" "opencode spawn with an unsupported family effort should succeed"
-  assert_meta_profile "$HOME_DIR/state/$id.meta" opencode anthropic/claude-sonnet-4-5 medium
-  launch=$(cat "$LAUNCH_LOG")
-  assert_contains "$launch" \
-    "OPENCODE_CONFIG_CONTENT='{\"permission\":{\"*\":\"allow\"}}' opencode --model 'anthropic/claude-sonnet-4-5' --prompt" \
-    "opencode should keep the permission-only config for an unsupported family effort"
-  assert_not_contains "$launch" '"variant"' "opencode must omit the variant when the model family lacks the effort"
-  pass "opencode omits unsupported family effort variants"
+test_opencode_launch_config_contract() {
+  local rec id out status launch model effort variant n=0
+  local -a flags
+  while read -r model effort variant; do
+    n=$((n + 1))
+    id="profile-opencode-z7-$n"
+    rec=$(make_spawn_case "profile-opencode-$n" opencode "$id")
+    read_case_record "$rec"
+    flags=()
+    [ "$model" = default ] || flags+=(--model "$model")
+    [ "$effort" = default ] || flags+=(--effort "$effort")
+    out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" \
+      "$id" "$PROJ_DIR" ${flags[@]+"${flags[@]}"})
+    status=$?
+    expect_code 0 "$status" "opencode $model/$effort spawn should succeed: $out"
+    assert_meta_profile "$HOME_DIR/state/$id.meta" opencode "$model" "$effort"
+    cat > "$FAKEBIN_DIR/opencode" <<'SH'
+#!/usr/bin/env bash
+jq -n --argjson config "$OPENCODE_CONFIG_CONTENT" --args \
+  '{config: $config, args: $ARGS.positional}' -- "$@" > "$FM_OPENCODE_CAPTURE"
+SH
+    chmod +x "$FAKEBIN_DIR/opencode"
+    launch=$(cat "$LAUNCH_LOG")
+    PATH="$FAKEBIN_DIR:$PATH" FM_OPENCODE_CAPTURE="$CASE_DIR/launch.json" \
+      bash -c "$launch" || fail "opencode launch command could not execute"
+    jq -e --arg model "$model" --arg variant "$variant" '
+      .config == (if $variant == "none" then {permission: {"*": "allow"}}
+                  else {permission: {"*": "allow"}, agent: {build: {model: $model, variant: $variant}}}
+                  end)
+      and (.args | length) == (if $model == "default" then 2 else 4 end)
+      and (if $model == "default" then .args[0] == "--prompt"
+           else .args[0:3] == ["--model", $model, "--prompt"] end)
+    ' "$CASE_DIR/launch.json" >/dev/null \
+      || fail "opencode $model/$effort received an unexpected config or arguments"
+  done <<'ROWS'
+anthropic/claude-sonnet-4-5 high high
+anthropic/claude-sonnet-4-5 max max
+openai/gpt-5.1-codex low low
+openai/gpt-5.1-codex medium medium
+openai/gpt-5.1-codex high high
+openai/gpt-5.2-codex low low
+openai/gpt-5.2-codex medium medium
+openai/gpt-5.2-codex high high
+openai/gpt-5.2-codex xhigh xhigh
+openai/gpt-5.3-codex low low
+openai/gpt-5.3-codex medium medium
+openai/gpt-5.3-codex high high
+openai/gpt-5.3-codex xhigh xhigh
+anthropic/claude-sonnet-4-5 medium none
+anthropic/claude-sonnet-4-5 xhigh none
+anthropic/unverified high none
+openai/gpt-5.1-codex xhigh none
+openai/gpt-5-pro high none
+openai/gpt-4.1 high none
+openai/unverified high none
+openai/gpt-5.2-codex-unverified xhigh none
+openrouter/openai/gpt-5.2-codex xhigh none
+openai/gpt-5.2-codex max none
+anthropic/claude-sonnet-4-5 default none
+default high none
+default default none
+ROWS
+  pass "opencode launches variants only for verified model/effort pairs and otherwise keeps permission-only config"
 }
 
 test_pi_scout_launch_enters_recorded_worktree() {
@@ -677,15 +686,6 @@ test_pi_signed_threads_shared_pi_profile_and_preserves_identity() {
   assert_present "$HOME_DIR/state/$id.busy-gen" "pi-signed spawn did not arm the busy-state contract"
   assert_contains "$(cat "$HOME_DIR/state/$id.busy-state")" "state=busy source=fm-spawn" \
     "pi-signed spawn did not seed the busy-state record from the launch brief"
-  local ext gen
-  ext=$(cat "$HOME_DIR/state/$id.pi-ext.ts")
-  gen=$(cat "$HOME_DIR/state/$id.busy-gen")
-  assert_contains "$ext" 'pi.on("agent_start"' "pi extension lost the semantic agent_start busy edge"
-  assert_contains "$ext" 'pi.on("agent_settled"' "pi extension lost the semantic agent_settled idle edge"
-  assert_contains "$ext" 'ctx.isIdle()' "pi extension no longer confirms idle with ctx.isIdle()"
-  assert_contains "$ext" "\"--gen\", \"$gen\"" "pi extension does not carry the armed incarnation gen"
-  assert_contains "$ext" '"--source", "pi-ext"' "pi extension does not attribute its semantic source"
-  assert_contains "$ext" 'pi.on("turn_end"' "pi extension lost the turn-end notification touch"
   pass "pi-signed shares Pi launch semantics while preserving its configured and recorded identity"
 }
 
@@ -872,9 +872,7 @@ test_grok_omits_invalid_xhigh_reasoning_effort
 test_cursor_threads_model_workspace_and_omits_effort_axis
 test_cursor_refuses_model_absent_from_live_catalog
 test_cursor_failed_catalog_probe_does_not_block_spawn
-test_opencode_threads_model_and_effort_variant
-test_opencode_without_effort_keeps_launch_config_unchanged
-test_opencode_omits_variant_for_unsupported_family_effort
+test_opencode_launch_config_contract
 test_pi_scout_launch_enters_recorded_worktree
 test_pi_threads_model_and_max_effort
 test_pi_tui_mode_probe_is_safe_for_old_and_new_pi

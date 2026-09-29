@@ -90,14 +90,7 @@ stand_down() {
 # they do not own. Pi's preflight-only status preserves that intentional silence
 # without mistaking it for a failed eligible attempt that needs the manual nudge.
 fm_is_gate_agent "$FM_ROOT" && stand_down
-if [ ! -d "$STATE" ] && fm_primary_root_matches "$FM_ROOT"; then
-  if ! MKDIR_ERR=$(mkdir -p "$STATE" 2>&1); then
-    printf 'fm-sessionstart-run: startup could not create the state directory %s: %s\n' \
-      "$STATE" "${MKDIR_ERR##*: }" >&2
-    stand_down
-  fi
-fi
-fm_primary_scope_matches "$FM_ROOT" "$STATE" || stand_down
+fm_primary_root_matches "$FM_ROOT" || stand_down
 
 session_start_completed() {
   local lock_pid completion_pid
@@ -136,6 +129,15 @@ if [ -z "$SOURCE" ] && [ ! -t 0 ]; then
     $0 == "source" { seen = 1 }
   ')
 fi
+
+if [ ! -d "$STATE" ]; then
+  if ! MKDIR_ERR=$(mkdir -p "$STATE" 2>&1); then
+    printf 'fm-sessionstart-run: startup could not create the state directory %s: %s\n' \
+      "$STATE" "${MKDIR_ERR##*: }"
+    exit 0
+  fi
+fi
+fm_primary_scope_matches "$FM_ROOT" "$STATE" || stand_down
 
 case "$SOURCE" in
   resume|reload|fork)

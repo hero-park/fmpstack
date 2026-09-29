@@ -1525,16 +1525,10 @@ effort_flag_for_harness() {
       esac
       ;;
     opencode)
-      # OpenCode's interactive launch has no effort flag, but its config schema
-      # carries per-model reasoning effort as the build agent's variant.
-      # Restrict this to provider families with verified effort names so an
-      # unknown provider keeps the permission-only launch.
       [ -n "$model" ] && [ "$model" != default ] || return 0
-      case "${model%%/*}:$effort" in
-        anthropic:high | anthropic:max) ;;
-        openai:low | openai:medium | openai:high | openai:xhigh) ;;
-        *) return 0 ;;
-      esac
+      jq -e --arg model "$model" --arg effort "$effort" \
+        '(.[$model] // []) | index($effort) != null' \
+        "$SCRIPT_DIR/fm-opencode-variants.json" >/dev/null || return 0
       local model_json
       model_json=$(json_escape "$model")
       model_json=${model_json//\'/\'\\\'\'}
@@ -2449,9 +2443,7 @@ kimi_spawn_fail() {  # <detail>
   echo "error: $1; inspect window $T" >&2
 }
 
-if [ "$RELAUNCH" -eq 1 ] && [ "$BACKEND" = orca ]; then
-  [ "$KIND" = secondmate ] || validate_spawn_worktree "relaunch" "$T"
-elif [ "$RELAUNCH" -eq 1 ]; then
+if [ "$RELAUNCH" -eq 1 ]; then
   # No worktree is acquired: the recorded one is reused as-is. What must be
   # proven instead is that the adopted endpoint's shell is actually sitting in
   # that worktree, so the replacement agent starts where the work is rather
