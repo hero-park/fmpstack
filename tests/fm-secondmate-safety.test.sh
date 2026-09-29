@@ -135,6 +135,55 @@ EOF
   pass "seed allows overlapping project clone lists and drops the owns/owner routing"
 }
 
+test_home_seed_preserves_complete_project_names() {
+  local home="$TMP_ROOT/complete-name-parent" sub="$TMP_ROOT/complete-name-child"
+  local fakebin project out
+  mkdir -p "$home/projects" "$home/data" "$home/state"
+  for project in foo 'foo bar baz' 'legacy name'; do
+    fm_git_init_commit "$home/projects/$project"
+    fm_git_add_origin "$home/projects/$project" "$TMP_ROOT/complete-name-origins/$project.git"
+  done
+  cat > "$home/data/projects.md" <<'EOF'
+- foo bar [local-only] - excluded neighbor
+- foo [direct-PR] - selected short name
+- foo bar baz plus [local-only] - excluded longer neighbor
+- foo bar baz [direct-PR +yolo] - selected multiword name
+- legacy name - selected legacy name
+EOF
+  fakebin=$(make_fake_no_mistakes "$TMP_ROOT/complete-name-fake")
+  out=$(PATH="$fakebin:$PATH" FM_HOME="$home" FM_SECONDMATE_CHARTER='Complete project names.' \
+    FM_SECONDMATE_SCOPE='complete names' "$ROOT/bin/fm-home-seed.sh" \
+    complete-names "$sub" foo 'foo bar baz' 'legacy name' 2>&1) \
+    || fail "complete-name seed failed: $out"
+  [ "$(FM_HOME="$sub" "$ROOT/bin/fm-project-mode.sh" foo)" = 'direct-PR off' ] \
+    || fail "seed copied the short project's neighboring annotation"
+  [ "$(FM_HOME="$sub" "$ROOT/bin/fm-project-mode.sh" 'foo bar baz')" = 'direct-PR on' ] \
+    || fail "seed lost the multiword project's annotation"
+  assert_absent "$sub/projects/foo/.no-mistakes-init" "short direct-PR project was initialized for no-mistakes"
+  assert_absent "$sub/projects/foo bar baz/.no-mistakes-init" "multiword direct-PR project was initialized for no-mistakes"
+  assert_present "$sub/projects/legacy name/.no-mistakes-init" "legacy multiword project did not retain default initialization"
+  git -C "$sub/projects/legacy name" remote add no-mistakes \
+    "$(git -C "$sub/projects/legacy name" remote get-url origin)"
+  printf '%s\n' '- foo bar [local-only] - child-owned neighbor' \
+    '- foo bar baz plus [local-only] - child-owned longer neighbor' >> "$sub/data/projects.md"
+  out=$(PATH="$fakebin:$PATH" FM_HOME="$home" "$ROOT/bin/fm-home-seed.sh" \
+    complete-names "$sub" foo 'foo bar baz' 'legacy name' 2>&1) \
+    || fail "complete-name reseed failed: $out"
+  [ "$(FM_HOME="$sub" "$ROOT/bin/fm-project-mode.sh" 'foo bar')" = 'local-only off' ] \
+    || fail "reseed removed the short project's longer neighbor"
+  [ "$(FM_HOME="$sub" "$ROOT/bin/fm-project-mode.sh" 'foo bar baz plus')" = 'local-only off' ] \
+    || fail "reseed removed the multiword project's longer neighbor"
+  while IFS= read -r project; do
+    [ "$(grep -Fxc -- "$project" "$sub/data/projects.md")" -eq 1 ] \
+      || fail "reseed duplicated or changed the persisted registry row: $project"
+  done <<'ROWS'
+- foo [direct-PR] - selected short name
+- foo bar baz [direct-PR +yolo] - selected multiword name
+- legacy name - selected legacy name
+ROWS
+  pass "home seeding preserves complete-name annotations and replaces only selected rows, including multiword names"
+}
+
 test_home_seed_validate_rejects_unparseable_registry_entry() {
   local home err
   home="$TMP_ROOT/unparseable-registry-home"
@@ -2897,6 +2946,7 @@ EOF
 test_fm_home_parameterization
 test_lock_status_is_per_home
 test_seed_allows_overlapping_clones_and_drops_owner
+test_home_seed_preserves_complete_project_names
 test_home_seed_validate_rejects_unparseable_registry_entry
 test_home_seed_refuses_broken_registry_symlink
 test_home_seed_refuses_unreadable_registry

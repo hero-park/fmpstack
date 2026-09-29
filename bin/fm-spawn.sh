@@ -1526,9 +1526,34 @@ effort_flag_for_harness() {
       ;;
     opencode)
       [ -n "$model" ] && [ "$model" != default ] || return 0
-      jq -e --arg model "$model" --arg effort "$effort" \
-        '(.[$model] // []) | index($effort) != null' \
-        "$SCRIPT_DIR/fm-opencode-variants.json" >/dev/null || return 0
+      local variants="$SCRIPT_DIR/fm-opencode-variants.json" supported
+      command -v jq >/dev/null 2>&1 || {
+        echo "error: jq is required to resolve OpenCode model/effort variants" >&2
+        return 1
+      }
+      [ -f "$variants" ] || {
+        echo "error: OpenCode variant support data is missing: $variants" >&2
+        return 1
+      }
+      [ -r "$variants" ] || {
+        echo "error: OpenCode variant support data is unreadable: $variants" >&2
+        return 1
+      }
+      if ! supported=$(jq -rs --arg model "$model" --arg effort "$effort" '
+        if length != 1 or (.[0] | type) != "object"
+          or (.[0] | any(.[]; type != "array" or any(.[]; type != "string")))
+        then error("corrupt OpenCode variant support data")
+        else (.[0][$model] // []) | index($effort) != null
+        end
+      ' "$variants" 2>&1); then
+        echo "error: OpenCode variant lookup failed for $variants: $supported" >&2
+        return 1
+      fi
+      case "$supported" in
+        true) ;;
+        false) return 0 ;;
+        *) echo "error: OpenCode variant lookup returned an invalid result: $supported" >&2; return 1 ;;
+      esac
       local model_json
       model_json=$(json_escape "$model")
       model_json=${model_json//\'/\'\\\'\'}
@@ -1591,6 +1616,11 @@ esac
 json_escape() {
   printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
+
+EFFORTFLAG=
+case "$LAUNCH" in
+  *__EFFORTFLAG__*) EFFORTFLAG=$(effort_flag_for_harness "$HARNESS" "$EFFORT" "$MODEL") || exit 1 ;;
+esac
 
 resolved_existing_dir() {
   local path=$1
@@ -3001,7 +3031,6 @@ sq_piwatch=$(shell_quote "$PROJ_ABS/.pi/extensions/fm-primary-pi-watch.ts")
 sq_opinput=$(shell_quote "$FM_ROOT/bin/fm-operational-input.sh")
 sq_worktree=$(shell_quote "$WT")
 MODELFLAG=$(model_flag_for_harness "$HARNESS" "$MODEL")
-EFFORTFLAG=$(effort_flag_for_harness "$HARNESS" "$EFFORT" "$MODEL")
 LAUNCH=${LAUNCH//__MODELFLAG__/$MODELFLAG}
 LAUNCH=${LAUNCH//__EFFORTFLAG__/$EFFORTFLAG}
 LAUNCH=${LAUNCH//__BRIEF__/$sq_brief}

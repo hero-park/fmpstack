@@ -472,6 +472,8 @@ rm -rf "$TMP_ROOT/beta-src"
 cat > "$TMP_ROOT/seed-parent/data/projects.md" <<'EOF'
 - beta [direct-PR] - beta project (added 2026-08-06)
 - delta [local-only] - delta project (added 2026-08-06)
+- foo bar [local-only] - longer project before the selected name
+- foo [direct-PR] - selected short project
 EOF
 BETA_ORIGIN="file://$TMP_ROOT/beta.git"
 PROJECTS_BEFORE=$(projects_snapshot "$TMP_ROOT/seed-parent/projects")
@@ -533,6 +535,37 @@ assert_absent "$TMP_ROOT/seed-parent/projects/beta" \
 [ "$(projects_snapshot "$TMP_ROOT/seed-parent/projects")" = "$PROJECTS_BEFORE" ] \
   || fail "seeding changed the primary project tree"
 pass "remote seeding provisions a supplied origin without touching the primary project tree"
+
+out=$(FM_SECONDMATE_CHARTER='Own foo delivery.' FM_SECONDMATE_SCOPE='foo delivery' \
+  seed_env "$ROOT/bin/fm-remote-home-seed.sh" seed-complete-name remote-mac "$REMOTE_ROOT" \
+  "$TMP_ROOT/seed-complete-name-home" "foo=$BETA_ORIGIN" 2>&1) \
+  || fail "remote complete-name seed failed: $out"
+[ "$(FM_HOME="$TMP_ROOT/seed-complete-name-home" "$ROOT/bin/fm-project-mode.sh" foo)" = 'direct-PR off' ] \
+  || fail "remote seeding published the neighboring project's annotation"
+[ "$(cat "$TMP_ROOT/seed-complete-name-home/data/projects.md")" = '- foo [direct-PR] - selected short project' ] \
+  || fail "remote seeding did not copy the selected project's complete registry row"
+assert_present "$TMP_ROOT/seed-complete-name-home/projects/foo/.git" "remote seeding did not clone the selected short project"
+[ "$(projects_snapshot "$TMP_ROOT/seed-parent/projects")" = "$PROJECTS_BEFORE" ] \
+  || fail "complete-name seeding changed the primary project tree"
+pass "remote seeding selects the complete project name despite a preceding local-only multiword neighbor"
+
+printf 'schema=fm-remote-home-provision.v1\nid_b64=%s\ncharter_b64=%s\nproject_count=1\nproject=%s|%s|%s|%s\n' \
+  "$(printf wrong-project | base64 | tr -d '\n')" \
+  "$(printf 'Mismatched project registry charter.\n' | base64 | tr -d '\n')" \
+  "$(printf foo | base64 | tr -d '\n')" \
+  "$(printf '%s' "$BETA_ORIGIN" | base64 | tr -d '\n')" \
+  "$(printf -- '- foo bar [local-only] - wrong project' | base64 | tr -d '\n')" \
+  "$(printf direct-PR | base64 | tr -d '\n')" \
+  > "$TMP_ROOT/wrong-project.manifest"
+if FM_HOME="$TMP_ROOT/wrong-project-home" FM_ROOT_OVERRIDE="$REMOTE_ROOT" \
+  "$REMOTE_ROOT/bin/fm-remote-home-provision.sh" < "$TMP_ROOT/wrong-project.manifest" \
+  > "$TMP_ROOT/wrong-project.out" 2>&1; then
+  fail "remote provisioning accepted a longer project's registry row for the short name"
+fi
+assert_grep 'project foo registry line is malformed' "$TMP_ROOT/wrong-project.out" \
+  "remote provisioning did not identify the complete-name mismatch"
+assert_absent "$TMP_ROOT/wrong-project-home" "registry mismatch left a provisioned remote home"
+pass "remote provisioning refuses registry prefix collisions and rolls back the home"
 
 # The receiving host validates the origin itself rather than trusting whatever
 # reached it, so a manifest naming an executable transport provisions nothing.

@@ -1097,7 +1097,7 @@ crew_dispatch_validate() {
     echo "CREW_DISPATCH: invalid config/crew-dispatch.json - malformed JSON"
     return 0
   fi
-  err=$(jq -r --slurpfile opencode_variants "$SCRIPT_DIR/fm-opencode-variants.json" '
+  if ! err=$(jq -r --slurpfile opencode_variants "$SCRIPT_DIR/fm-opencode-variants.json" '
     def verified($h): ["claude","codex","opencode","pi","pi-signed","grok","kimi","cursor","muse"] | index($h);
     def effort_ok($h; $m; $e):
       if $e == null then true
@@ -1130,7 +1130,10 @@ crew_dispatch_validate() {
       | map(select(. as $p | effort_ok($p.h; $p.m; $p.e) | not))
       | map("\(.h):\(.e)")
       | unique;
-    if type != "object" then "top-level value must be an object"
+    if ($opencode_variants | length) != 1 or ($opencode_variants[0] | type) != "object"
+      or ($opencode_variants[0] | any(.[]; type != "array" or any(.[]; type != "string")))
+    then error("corrupt OpenCode variant support data")
+    elif type != "object" then "top-level value must be an object"
     elif has("rules") and (.rules | type) != "array" then "rules must be an array"
     elif [(.rules // [])[]? | select(type != "object")] | length > 0 then "each rule must be an object"
     elif [(.rules // [])[]? | select((.when? | type) != "string" or (.when | length) == 0)] | length > 0 then "each rule needs non-empty when"
@@ -1158,7 +1161,10 @@ crew_dispatch_validate() {
         else empty
         end
     end
-  ' "$file" 2>/dev/null || true)
+  ' "$file" 2>&1); then
+    echo "CREW_DISPATCH: config/crew-dispatch.json validation failed - $err"
+    return 0
+  fi
   if [ -n "$err" ]; then
     echo "CREW_DISPATCH: invalid config/crew-dispatch.json - $err"
     return 0

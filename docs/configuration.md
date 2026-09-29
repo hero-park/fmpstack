@@ -368,11 +368,12 @@ An omitted model or effort means the selected harness uses its own default for t
 OpenCode receives effort as its default `build` agent's `variant`, keyed to the resolved model, inside the `OPENCODE_CONFIG_CONTENT` JSON its launch already writes, only for the verified pairs in [`bin/fm-opencode-variants.json`](../bin/fm-opencode-variants.json).
 That shared allowlist constrains both launch emission and bootstrap validation of rule/default profiles, including arrays, against OpenCode's [model-specific variant rules at `51e310c9`](https://github.com/anomalyco/opencode/blob/51e310c9/packages/opencode/src/provider/transform.ts).
 Omitted model or effort axes and unsupported pairs retain the permission-only launch config and requested task metadata; an explicitly configured unsupported effort still receives the bootstrap diagnostic described below.
+Resolving a concrete OpenCode model/effort pair requires `jq` and readable, well-formed support data; a missing parser, support-data failure, or lookup error refuses the spawn before endpoint creation or metadata publication rather than silently omitting the effort.
 Every profile array is an implicit quota-aware choice resolved through `quota-array-dispatch`.
 If no dispatch rule fits, firstmate resolves `default` through the same object-or-array path before falling back to `config/crew-harness`.
 If a selected profile carries an effort value the chosen harness does not accept, `fm-spawn.sh` records the requested `effort=` in task meta for traceability but omits the launch flag, and bootstrap reports the invalid harness/effort pair as a `CREW_DISPATCH` diagnostic when it is visible in the file.
 See [`docs/examples/crew-dispatch.json`](examples/crew-dispatch.json) for a starting point to copy into local `config/crew-dispatch.json`.
-When the file exists, bootstrap validates it with `jq`.
+When the file exists, bootstrap validates it with `jq` and reports support-data or validation failures instead of treating them as a valid or unsupported profile.
 Valid files stay silent by default; with `FM_BOOTSTRAP_VERBOSE_FACTS=1`, bootstrap emits `BOOTSTRAP_INFO: crew dispatch active config/crew-dispatch.json`, one `BOOTSTRAP_INFO:` fact per rule, and one fact for the optional default profile set.
 Malformed JSON, an empty or malformed rule/default array, an unverified harness, or an effort value unsupported by that harness is reported as `CREW_DISPATCH: invalid config/crew-dispatch.json - ...`; missing `jq` is reported through the normal `MISSING: jq` install-consent flow.
 While the file remains present, no crewmate or scout spawn may proceed without an explicit resolved harness; malformed configuration must be reported and corrected rather than selected around.

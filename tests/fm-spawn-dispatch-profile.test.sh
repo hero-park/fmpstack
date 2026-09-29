@@ -627,6 +627,86 @@ ROWS
   pass "opencode launches variants only for verified model/effort pairs and otherwise keeps permission-only config"
 }
 
+test_opencode_lookup_failures_refuse_before_launch() {
+  local failure rec id out status code_root test_root expected real_jq
+  code_root="$TMP_ROOT/opencode-code-root"
+  mkdir -p "$code_root"
+  cp -R "$ROOT/bin" "$code_root/bin"
+  real_jq=$(command -v jq) || fail "jq is required for OpenCode lookup regressions"
+  for failure in missing-parser missing-data unreadable-data corrupt-data malformed-data read-error lookup-error invalid-result; do
+    id="profile-opencode-failure-$failure"
+    rec=$(make_spawn_case "$id" opencode "$id")
+    read_case_record "$rec"
+    test_root=$ROOT
+    cp "$ROOT/bin/fm-opencode-variants.json" "$code_root/bin/fm-opencode-variants.json"
+    mv "$FAKEBIN_DIR/tmux" "$FAKEBIN_DIR/tmux-real"
+    cat > "$FAKEBIN_DIR/tmux" <<SH
+#!/usr/bin/env bash
+case "\${1:-}" in new-session|new-window) : > "$CASE_DIR/endpoint-created" ;; esac
+exec "$FAKEBIN_DIR/tmux-real" "\$@"
+SH
+    chmod +x "$FAKEBIN_DIR/tmux"
+    : > "$CASE_DIR/bash.env"
+    case "$failure" in
+      missing-parser)
+        cat > "$CASE_DIR/bash.env" <<'SH'
+command() {
+  if [ "${1:-}" = -v ] && [ "${2:-}" = jq ]; then return 1; fi
+  builtin command "$@"
+}
+jq() { return 127; }
+SH
+        expected="jq is required to resolve OpenCode" ;;
+      missing-data)
+        test_root=$code_root
+        rm "$code_root/bin/fm-opencode-variants.json"
+        expected="variant support data is missing" ;;
+      unreadable-data)
+        test_root=$code_root
+        chmod 000 "$code_root/bin/fm-opencode-variants.json"
+        expected="variant support data is unreadable" ;;
+      corrupt-data)
+        test_root=$code_root
+        printf '{invalid\n' > "$code_root/bin/fm-opencode-variants.json"
+        expected="OpenCode variant lookup failed" ;;
+      malformed-data)
+        test_root=$code_root
+        printf '{"openai/gpt-5.2-codex":null}\n' > "$code_root/bin/fm-opencode-variants.json"
+        expected="corrupt OpenCode variant support data" ;;
+      read-error|lookup-error|invalid-result)
+        cat > "$FAKEBIN_DIR/jq" <<SH
+#!/usr/bin/env bash
+case "\$*" in
+  *fm-opencode-variants.json*)
+    case '$failure' in
+      read-error) printf 'support data read error\n' >&2; exit 2 ;;
+      lookup-error) printf 'lookup runtime error\n' >&2; exit 5 ;;
+      invalid-result) printf 'unexpected\n'; exit 0 ;;
+    esac ;;
+esac
+exec '$real_jq' "\$@"
+SH
+        chmod +x "$FAKEBIN_DIR/jq"
+        if [ "$failure" = invalid-result ]; then
+          expected="OpenCode variant lookup returned an invalid result"
+        else
+          expected="OpenCode variant lookup failed"
+        fi ;;
+    esac
+    out=$(ROOT="$test_root" BASH_ENV="$CASE_DIR/bash.env" \
+      run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" \
+      "$id" "$PROJ_DIR" --model openai/gpt-5.2-codex --effort xhigh)
+    status=$?
+    chmod 600 "$code_root/bin/fm-opencode-variants.json" 2>/dev/null || true
+    expect_code 1 "$status" "OpenCode $failure must refuse: $out"
+    assert_contains "$out" "$expected" "OpenCode $failure did not identify its prerequisite failure"
+    assert_absent "$CASE_DIR/endpoint-created" "OpenCode $failure created an endpoint before lookup succeeded"
+    assert_absent "$HOME_DIR/state/$id.meta" "OpenCode $failure published metadata before lookup succeeded"
+    [ ! -s "$LAUNCH_LOG" ] || fail "OpenCode $failure sent a launch command"
+  done
+  pass "OpenCode parser, support-data, and lookup failures refuse before endpoint creation or metadata publication"
+}
+
 test_pi_scout_launch_enters_recorded_worktree() {
   local rec id out status
   id=profile-pi-scout-cwd-z1
@@ -873,6 +953,7 @@ test_cursor_threads_model_workspace_and_omits_effort_axis
 test_cursor_refuses_model_absent_from_live_catalog
 test_cursor_failed_catalog_probe_does_not_block_spawn
 test_opencode_launch_config_contract
+test_opencode_lookup_failures_refuse_before_launch
 test_pi_scout_launch_enters_recorded_worktree
 test_pi_threads_model_and_max_effort
 test_pi_tui_mode_probe_is_safe_for_old_and_new_pi
