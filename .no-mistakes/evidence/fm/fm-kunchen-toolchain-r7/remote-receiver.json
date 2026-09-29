@@ -1,0 +1,27 @@
+{
+  "commands": [
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-remote-home-provision.sh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "provisioned: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/receiver-home projects=1\n",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-project-mode.sh foo",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "direct-PR off\n",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-remote-home-provision.sh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: project foo registry line is malformed\n"
+    }
+  ],
+  "persisted_registry": "- foo [direct-PR] - selected short name\n",
+  "mismatched_home_exists": false
+}

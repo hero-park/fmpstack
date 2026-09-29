@@ -1,0 +1,18 @@
+{
+  "commands": [
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-bootstrap.sh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "MISSING: gh (install: brew install gh  # or the platform's package manager)\nMISSING: no-mistakes (install: curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | sh)\nMISSING: gh-axi (install: npm install -g gh-axi && gh-axi setup hooks)\nMISSING: chrome-devtools-axi (install: npm install -g chrome-devtools-axi && chrome-devtools-axi setup hooks)\nMISSING: lavish-axi (install: npm install -g lavish-axi && lavish-axi setup hooks)\nMISSING: tasks-axi (install: npm install -g tasks-axi)\nMISSING: quota-axi (install: npm install -g quota-axi)\n",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-bootstrap.sh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "MISSING: gh (install: brew install gh  # or the platform's package manager)\nMISSING: no-mistakes (install: curl -fsSL https://raw.githubusercontent.com/kunchenguid/no-mistakes/main/docs/install.sh | sh)\nMISSING: gh-axi (install: npm install -g gh-axi && gh-axi setup hooks)\nMISSING: chrome-devtools-axi (install: npm install -g chrome-devtools-axi && chrome-devtools-axi setup hooks)\nMISSING: lavish-axi (install: npm install -g lavish-axi && lavish-axi setup hooks)\nMISSING: tasks-axi (install: npm install -g tasks-axi)\nMISSING: quota-axi (install: npm install -g quota-axi)\nCREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:xhigh\n",
+      "stderr": ""
+    }
+  ]
+}

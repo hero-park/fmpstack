@@ -1,0 +1,52 @@
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+bash-3.2$ treehouse get
+🌳 Setting up worktree...
+🌳 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6
+bb/2/app. Type 'exit' to return.
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+bash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/a
+pp'
+bash-3.2$ export GOTMPDIR=/tmp/fm-live-pi-lifecycle/gotmp
+bash-3.2$ env -u CURSOR_AGENT -u CURSOR_INVOKED_AS FM_PI_HARNESS=pi '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y
+5RQ59CG6A/.test-phase/tools/pi' --tui-mode regular --model 'evidence-local/deterministic' -e '/Users/andrewpark/.no-mistakes/worktrees/6df33
+f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/state/live-pi-lifecycle.pi-ext.ts' "$('/Users/andrewpark/.no-mistakes/worktrees/6
+df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-operational-input.sh' encode launch-brief < '/Users/andrewpark/.no-mistakes/worktrees/6df33f9e
+df6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/data/live-pi-lifecycle/brief.md')"
+
+ ▀▀█  v0.99.1
+ █▀ █ escape interrupt · ctrl+c/ctrl+d clear/exit · / commands · ! bash · ctrl+o more
+ Press ctrl+o to show full startup help and loaded resources.
+
+ Pi can explain its own features and look up its docs. Ask it how to use or extend Pi.
+
+
+[Context]
+  /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/AGENTS.md
+
+[Extensions]
+  live-pi-lifecycle.pi-ext.ts
+
+
+ Warning: fd not found. Offline mode enabled, skipping download.
+ Warning: ripgrep not found. Offline mode enabled, skipping download.
+
+ Warning: tmux extended-keys is off. Modified Enter keys may not work. Add `set -g extended-keys on` to ~/.tmux.conf and restart tmux.
+
+
+ ⁣FIRSTMATE_OP: v1 launch-brief: Delivery contract: mode=direct-PR
+ Disposable lifecycle check. Do not use any tools.
+
+
+ DISPOSABLE_PI_WORKER_ACK
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/app (detached)
+30.8%/66k (auto)                                                                                                               deterministic

@@ -1,0 +1,79 @@
+{
+  "commands": [
+    {
+      "command": "git init -q -b main /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git add .",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git commit -qm fixture",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git clone --quiet --bare /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/cwd-adversary-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git remote add origin file:///Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/cwd-adversary-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux -f /dev/null new-session -d -s firstmate -x 140 -y 40 -c /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux set-option -g default-shell /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/shell",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh cwd-adversary /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary --mode direct-PR --yolo off printf 'WRONG_CWD_LAUNCH' > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/must-not-launch.txt'",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "notice: cwd-adversary ships mode=direct-PR while the standing posture for cwd-adversary is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\nerror: task cwd-adversary's worker started in '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary', not its recorded worktree '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/cwd-adversary-59bac4/1/cwd-adversary'; refusing to continue outside the copy holding its work\n"
+    },
+    {
+      "command": "tmux capture-pane -p -t firstmate:fm-cwd-adversary -S -200",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n\ud83c\udf33 Setting up worktree...\n\ud83c\udf33 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/cwd-adve\nrsary-59bac4/1/cwd-adversary. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/cwd-adversary-\n59bac4/1/cwd-adversary'\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": ""
+    },
+    {
+      "command": "tmux display-message -p -t firstmate:fm-cwd-adversary #{pane_current_path}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary\n",
+      "stderr": ""
+    }
+  ],
+  "actual_pane_cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/cwd-adversary\n",
+  "pane": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n\ud83c\udf33 Setting up worktree...\n\ud83c\udf33 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/cwd-adve\nrsary-59bac4/1/cwd-adversary. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/cwd-adversary-\n59bac4/1/cwd-adversary'\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+  "launch_marker_exists": false,
+  "metadata_exists": false,
+  "adversary": "Disposable shell rc redirects cd away from the acquired worktree; real tmux supplies the observed cwd."
+}

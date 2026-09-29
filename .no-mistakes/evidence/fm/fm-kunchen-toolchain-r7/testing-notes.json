@@ -1,0 +1,21 @@
+{
+  "target": "78b1345d42ac5effce02a5411546acc696250c61",
+  "isolation": "All homes, repositories, keys/configuration, npm installation, model endpoint, tmux socket and Treehouse pool were disposable worktree-local fixtures. External vendor credentials/configuration and shared services were not used. No upstream source refresh, lint, format, pipeline control, push or CI commands were run.",
+  "live_checks": [
+    "Real Firstmate project lookup and local reseeding with prefix/multiword/punctuation collisions",
+    "Real remote receiving-host provisioning protocol including mismatched-row rollback",
+    "Real Pi startup with current Firstmate primary extension and disposable HTTP model endpoint",
+    "Read-only primary failure delivered through native hook stdout, Cursor hook additional_context and real Pi provider request",
+    "Gate and linked-copy exclusions, plus marked-secondmate startup",
+    "Real tmux/Treehouse fresh ship, scout, replacement and cwd refusal",
+    "Installed workspace-local OpenCode 1.17.6 debug-config consumer of actual generated launch environment, not a live billing/model call",
+    "Missing jq, missing/unreadable/malformed support table preflight through actual CLI and real endpoint inventory",
+    "Bootstrap supported/unsupported rule/default arrays",
+    "Real Pi TUI generated-worker extension busy/idle/turn-end and stale generation behavior",
+    "Before/after public-interface reproductions for registry prefix collision and silent parser failure"
+  ],
+  "manual_step": "tmux -S \"$PWD/.test-phase/tmux.sock\" send-keys -t firstmate:fm-live-pi-lifecycle Down Down Enter selected Trust (this session only). Every tmux session used a nonzero 140x40 grid.",
+  "baseline_accounting": "Initial six-script targeted runner passed busy-adapter, task-delivery, worktree-settle, sessionstart-nudge and bootstrap, but dispatch-profile hit the existing secondmate-inside-code-root guard because TMPDIR was nested under the source root. Re-running dispatch-profile from an independent archived code root with sibling fixture roots passed. The broader remote lifecycle runner passed the altered seed/receiver regressions and later hit the existing gate guard from a fixture cwd nested under the gate; a separate disposable Git root and a focused seed/receiver prefix rerun passed. Driver setup issues (unsupported remote multiword names, raw relaunch syntax, native jq on /usr/bin, missing minimal-PATH core utilities, and concurrent fixture inventory changes) were corrected and relevant scenarios re-driven. These were setup failures, not target product failures.",
+  "transport_limit": "Remote sender/receiver registry regression ran through the existing deterministic SSH boundary. Native SSH remote readiness was not driven: an isolated ready remote account was unavailable, and the local readiness auto-repair would alter the operator Aqua/launchd Herdr and remote-job namespace. Docker, Podman and QEMU guest runtimes were not on PATH. No fresh live-vendor SSH transport proof is claimed.",
+  "evidence_scope": "JSON files contain actual public CLI commands/output, serialized model endpoint inputs, vendor-consumed configuration and persisted state. The Pi terminal transcript is the actual 140x40 tmux end-user surface. No UI rendering or layout source changed; no screenshot was needed for this CLI/hook/configuration change."
+}

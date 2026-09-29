@@ -1,0 +1,139 @@
+{
+  "commands": [
+    {
+      "command": "git init -q -b main /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git add .",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git commit -qm fixture",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git clone --quiet --bare /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git remote add origin file:///Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux -f /dev/null new-session -d -s firstmate -x 140 -y 40 -c /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux set-option -g default-shell /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/shell",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh live-ship /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app --mode direct-PR --yolo off pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-ship-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "spawned live-ship harness=pwd kind=ship mode=direct-PR yolo=off window=firstmate:fm-live-ship worktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/app\n",
+      "stderr": "notice: live-ship ships mode=direct-PR while the standing posture for app is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\n"
+    },
+    {
+      "command": "tmux capture-pane -p -t firstmate:fm-live-ship -S -200",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n🌳 Setting up worktree...\n🌳 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6\nbb/1/app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/a\npp'\nbash-3.2$ export GOTMPDIR=/tmp/fm-live-ship/gotmp\nbash-3.2$ pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-ship-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'\nWORKER_CWD_CAPTURED\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": ""
+    },
+    {
+      "task": "live-ship",
+      "recorded_metadata": {
+        "window": "firstmate:fm-live-ship",
+        "endpoint_task_id": "live-ship",
+        "worktree": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/app",
+        "project": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+        "harness": "pwd",
+        "kind": "ship",
+        "mode": "direct-PR",
+        "yolo": "off",
+        "tasktmp": "/tmp/fm-live-ship",
+        "model": "default",
+        "effort": "default",
+        "spawn_gen": "s1790719802.33198.6483"
+      },
+      "actual_worker_cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/app\n",
+      "pane": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n🌳 Setting up worktree...\n🌳 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6\nbb/1/app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/a\npp'\nbash-3.2$ export GOTMPDIR=/tmp/fm-live-ship/gotmp\nbash-3.2$ pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-ship-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'\nWORKER_CWD_CAPTURED\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh live-scout /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app --scout pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-scout-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "spawned live-scout harness=pwd kind=scout window=firstmate:fm-live-scout worktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/app\n",
+      "stderr": ""
+    },
+    {
+      "command": "tmux capture-pane -p -t firstmate:fm-live-scout -S -200",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n🌳 Setting up worktree...\n🌳 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6\nbb/2/app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/a\npp'\nbash-3.2$ export GOTMPDIR=/tmp/fm-live-scout/gotmp\nbash-3.2$ pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-scout-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'\nWORKER_CWD_CAPTURED\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": ""
+    },
+    {
+      "task": "live-scout",
+      "recorded_metadata": {
+        "window": "firstmate:fm-live-scout",
+        "endpoint_task_id": "live-scout",
+        "worktree": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/app",
+        "project": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app",
+        "harness": "pwd",
+        "kind": "scout",
+        "tasktmp": "/tmp/fm-live-scout",
+        "model": "default",
+        "effort": "default",
+        "spawn_gen": "s1790719806.34989.8417"
+      },
+      "actual_worker_cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/app\n",
+      "pane": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n🌳 Setting up worktree...\n🌳 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6\nbb/2/app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/2/a\npp'\nbash-3.2$ export GOTMPDIR=/tmp/fm-live-scout/gotmp\nbash-3.2$ pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/live-scout-cwd.txt'; printf 'WORKER_CWD_CAPTURED\\n'\nWORKER_CWD_CAPTURED\nbash-3.2$\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh live-ship --relaunch --harness pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/replacement-cwd.txt'; printf 'REPLACEMENT_CWD_CAPTURED\\n'",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "spawned live-ship harness=pwd kind=ship mode=direct-PR yolo=off window=firstmate:fm-live-ship worktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/app\n",
+      "stderr": "notice: live-ship ships mode=direct-PR while the standing posture for app is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\n"
+    },
+    {
+      "command": "tmux send-keys -t firstmate:fm-live-ship cd -- \"/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app\" Enter",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh live-ship --relaunch --harness pwd > '/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/replacement-cwd.txt'; printf 'REPLACEMENT_CWD_CAPTURED\\n'",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "notice: live-ship ships mode=direct-PR while the standing posture for app is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\nerror: task live-ship's endpoint is in '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app', not its recorded worktree '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/1/app'; refusing to relaunch an agent outside the copy holding its work\n"
+    }
+  ],
+  "unlanded_content": "Preserve this replacement work\n"
+}

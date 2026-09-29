@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Launch fresh ship/scout and replacement workers in recorded copies, preserve unlanded work, and refuse a drifted relaunch",
+    "result": "pass",
+    "live": true,
+    "evidence": "/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/worker-cwd-handoff.json",
+    "reason": "Executed real product entrypoints against disposable local homes/endpoints."
+  },
+  {
+    "name": "Spawn OpenCode with a verified effort pair, an unsupported pair, and omitted effort; real OpenCode resolves only the authorized variant",
+    "result": "pass",
+    "live": true,
+    "evidence": "/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/opencode-supported.json",
+    "reason": "Executed real product entrypoints against disposable local homes/endpoints."
+  }
+]

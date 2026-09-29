@@ -1,0 +1,92 @@
+{
+  "commands": [
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-project-mode.sh foo",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "no-mistakes off\n",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-project-mode.sh foo",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "direct-PR off\n",
+      "stderr": ""
+    },
+    {
+      "command": "git init -q -b main /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git add .",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git commit -qm fixture",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git clone --quiet --bare /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git remote add origin file:///Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-origin.git",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux -f /dev/null new-session -d -s firstmate -x 140 -y 40 -c /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux set-option -g default-shell /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/shell",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior/bin/fm-spawn.sh prior-parser /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app --harness opencode --model openai/gpt-5.2-codex --effort xhigh --mode direct-PR --yolo off",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "spawned prior-parser harness=opencode kind=ship mode=direct-PR yolo=off window=firstmate:fm-prior-parser worktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app\n",
+      "stderr": "notice: prior-parser ships mode=direct-PR while the standing posture for prior-app is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\n/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior/bin/fm-spawn.sh: line 1529: jq: command not found\n"
+    },
+    {
+      "command": "tmux capture-pane -p -J -t firstmate:fm-prior-parser -S -120",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n\ud83c\udf33 Setting up worktree...\n\ud83c\udf33 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app'\nbash-3.2$ export GOTMPDIR=/tmp/fm-prior-parser/gotmp\nbash-3.2$ env -u CURSOR_AGENT -u CURSOR_INVOKED_AS OPENCODE_CONFIG_CONTENT='{\"permission\":{\"*\":\"allow\"}}' opencode --model 'openai/gpt-5.2-codex' --prompt \"$('/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior/bin/fm-operational-input.sh' encode launch-brief < '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/data/prior-parser/brief.md')\"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "stderr": ""
+    }
+  ],
+  "registry_before": "no-mistakes off",
+  "registry_after": "direct-PR off",
+  "prior_parser_failure_launched": true,
+  "prior_metadata": "window=firstmate:fm-prior-parser\nendpoint_task_id=prior-parser\nworktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app\nproject=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/projects/prior-app\nharness=opencode\nkind=ship\nmode=direct-PR\nyolo=off\ntasktmp=/tmp/fm-prior-parser\nmodel=openai/gpt-5.2-codex\neffort=xhigh\nbusy_gen=g1790721970.51720.20149\nspawn_gen=s1790721970.51501.23009\n",
+  "prior_emitted_launch_config": {
+    "permission": {
+      "*": "allow"
+    }
+  },
+  "prior_pane": "\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ treehouse get\n\ud83c\udf33 Setting up worktree...\n\ud83c\udf33 Entered worktree at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app. Type 'exit' to return.\n\nThe default interactive shell is now zsh.\nTo update your account to use zsh, please run `chsh -s /bin/zsh`.\nFor more details, please visit https://support.apple.com/kb/HT208050.\nbash-3.2$ cd -- '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/prior-app-a1d6ff/2/prior-app'\nbash-3.2$ export GOTMPDIR=/tmp/fm-prior-parser/gotmp\nbash-3.2$ env -u CURSOR_AGENT -u CURSOR_INVOKED_AS OPENCODE_CONFIG_CONTENT='{\"permission\":{\"*\":\"allow\"}}' opencode --model 'openai/gpt-5.2-codex' --prompt \"$('/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior/bin/fm-operational-input.sh' encode launch-brief < '/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prior-home/data/prior-parser/brief.md')\"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+  "target_prerequisite_evidence": "/Users/andrewpark/.no-mistakes/evidence/01M3QEYFTCVJ0545Y5RQ59CG6A/opencode-prerequisites.json"
+}

@@ -1,0 +1,162 @@
+{
+  "commands": [
+    {
+      "command": "git init -q -b main /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git add .",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git commit -qm fixture",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-spawn.sh preflight-missing-parser /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: jq is required to resolve OpenCode model/effort variants\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-spawn.sh preflight-missing-data /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: OpenCode variant support data is missing: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-spawn.sh preflight-unreadable-data /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: OpenCode variant support data is unreadable: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-spawn.sh preflight-corrupt-json /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: OpenCode variant lookup failed for /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json: jq: parse error: Invalid numeric literal at line 2, column 0\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    },
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-spawn.sh preflight-corrupt-shape /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: OpenCode variant lookup failed for /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json: jq: error (at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json:1): corrupt OpenCode variant support data\n"
+    },
+    {
+      "command": "tmux list-windows -a -F #{window_id}",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "no server running on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/tmux.sock\n"
+    }
+  ],
+  "observations": [
+    {
+      "failure": "missing-parser",
+      "diagnostic": "error: jq is required to resolve OpenCode model/effort variants\n",
+      "endpoint_inventory_unchanged": true,
+      "metadata_exists": false
+    },
+    {
+      "failure": "missing-data",
+      "diagnostic": "error: OpenCode variant support data is missing: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json\n",
+      "endpoint_inventory_unchanged": true,
+      "metadata_exists": false
+    },
+    {
+      "failure": "unreadable-data",
+      "diagnostic": "error: OpenCode variant support data is unreadable: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json\n",
+      "endpoint_inventory_unchanged": true,
+      "metadata_exists": false
+    },
+    {
+      "failure": "corrupt-json",
+      "diagnostic": "error: OpenCode variant lookup failed for /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json: jq: parse error: Invalid numeric literal at line 2, column 0\n",
+      "endpoint_inventory_unchanged": true,
+      "metadata_exists": false
+    },
+    {
+      "failure": "corrupt-shape",
+      "diagnostic": "error: OpenCode variant lookup failed for /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json: jq: error (at /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/prereq-code/bin/fm-opencode-variants.json:1): corrupt OpenCode variant support data\n",
+      "endpoint_inventory_unchanged": true,
+      "metadata_exists": false
+    }
+  ]
+}

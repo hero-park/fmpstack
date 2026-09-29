@@ -1,0 +1,37 @@
+{
+  "commands": [
+    {
+      "command": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/bin/fm-spawn.sh oc-supported /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/worker-home/projects/app --mode direct-PR --yolo off --harness opencode --model openai/gpt-5.2-codex --effort xhigh",
+      "cwd": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A",
+      "exit": 0,
+      "stdout": "spawned oc-supported harness=opencode kind=ship mode=direct-PR yolo=off window=firstmate:fm-oc-supported worktree=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/3/app\n",
+      "stderr": "notice: oc-supported ships mode=direct-PR while the standing posture for app is no-mistakes - less rigor than the captain's standing posture; proceed only on a current explicit captain instruction or an intake judgment you can state\n"
+    }
+  ],
+  "resolved_vendor_config": {
+    "agent": {
+      "build": {
+        "model": "openai/gpt-5.2-codex",
+        "variant": "xhigh",
+        "options": {},
+        "permission": {}
+      }
+    },
+    "mode": {},
+    "plugin": [
+      "file:///Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/3/app/.opencode/plugins/fm-busy-state.js"
+    ],
+    "command": {},
+    "plugin_origins": [
+      {
+        "spec": "file:///Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/3/app/.opencode/plugins/fm-busy-state.js",
+        "source": "/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M3QEYFTCVJ0545Y5RQ59CG6A/.test-phase/pool/.treehouse/app-53d6bb/3/app/.opencode",
+        "scope": "local"
+      }
+    ],
+    "permission": {
+      "*": "allow"
+    },
+    "username": "unknown"
+  }
+}
