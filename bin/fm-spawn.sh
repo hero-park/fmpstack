@@ -29,16 +29,17 @@
 #   model, and effort may change, which is what makes a harness switch one
 #   ordinary relaunch. It refuses unless the recorded endpoint is positively
 #   agent-free on a backend with a recovery-grade agent-state classifier (tmux
-#   or herdr), and clears the previous harness's per-task wiring before arming
-#   the new incarnation. Every fresh ship/scout launch and replacement explicitly
-#   enters the recorded worktree before the harness starts, then refuses unless a
-#   pre-launch cwd check confirms the endpoint is in that copy.
+#   or herdr), refuses unless its shell is already in the recorded worktree, and
+#   clears the previous harness's per-task wiring before arming the new incarnation.
+#   Every fresh or replacement ship/scout launch explicitly enters the recorded
+#   worktree before harness setup, then rechecks cwd where the backend has a
+#   current-path probe, refusing a mismatch or unreadable path.
 #   --harness <name> is the explicit per-spawn harness/profile adapter. The old
 #   positional harness arg still works for back-compat.
 #   --model <name> and --effort <low|medium|high|xhigh|max> are concrete profile
-#   axes chosen by firstmate at intake. They are only threaded into harnesses whose
-#   installed CLIs were verified to support that axis; unsupported axes are omitted
-#   from that harness's launch rather than guessed.
+#   axes chosen by firstmate at intake. Adapter-specific effort delivery,
+#   unsupported-profile handling, and lookup prerequisites are owned by
+#   docs/configuration.md "Crew dispatch profiles".
 #   --backend <name> is the explicit runtime session-provider backend for this
 #   exact task only (docs/configuration.md "Runtime backend" owns when that flag
 #   is authorized). Without it, the script resolves FM_BACKEND, then

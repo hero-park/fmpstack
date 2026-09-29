@@ -57,7 +57,7 @@ A fresh clone has no gitignored state directory yet.
 When the root otherwise qualifies as primary, the run wrapper creates the state directory before the unchanged scope check, so the first session takes the helm without a manual `mkdir state`.
 If that creation fails, the eligible run wrapper exits 0 with one stdout line naming the state directory and the reason, so hook context, Cursor's `additional_context`, and Pi's operational preflight message expose the failure without blocking session initialization.
 Gate, non-primary, and Cursor-delivered duplicate exclusions remain silent and run before state creation.
-The nudge wrapper and every other hook still stand down while the state directory is missing.
+The nudge wrapper still stands down while the state directory is missing.
 The Guard Predicates section of [`turnend-guard.md`](turnend-guard.md#guard-predicates) owns marker validation, plain-checkout detection, and required Firstmate-shaped paths.
 
 The nudge payload starts with U+2063 and the stable `FIRSTMATE_OP: ` label, carries the current `session-start` protocol kind, and retains exactly ``Run `bin/fm-session-start.sh` now, exactly once, before executing any other instructions.`` as its body.
