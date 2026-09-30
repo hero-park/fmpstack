@@ -179,7 +179,14 @@ EOF
     || die "project $project has no origin; pass $project=<origin-url> so the remote host can clone it"
   fm_project_origin_safe "$ORIGIN" \
     || die "project $project origin is not an accepted clone URL: $ORIGIN"
-  REGISTRY_LINE=$(awk -v p="$project" '$1 == "-" && $2 == p { print; exit }' "$DATA/projects.md" 2>/dev/null || true)
+  REGISTRY_LINE=$(awk -v n="$project" '
+    {
+      prefix = "- " n; plen = length(prefix)
+      if (substr($0, 1, plen) != prefix) next
+      after = substr($0, plen + 1)
+      if (after == "" || substr(after, 1, 2) == " [" || substr(after, 1, 3) == " - ") { print; exit }
+    }
+  ' "$DATA/projects.md" 2>/dev/null || true)
   [ -n "$REGISTRY_LINE" ] || die "project $project has no registry record"
   NAME_B64=$(printf '%s' "$project" | encode)
   ORIGIN_B64=$(printf '%s' "$ORIGIN" | encode)

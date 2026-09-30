@@ -48,6 +48,31 @@ That cold positional-prompt check established eventual custom-message delivery, 
 The installed pi-signed 0.82.0 wrapper repeated the shared Pi primary extension and session-start path on 2026-07-27.
 [`runtime-backends.md`](runtime-backends.md#tmux) owns the shared-ancestry evidence and authoritative selection-marker boundary.
 
+### Fresh-primary state initialization
+
+The portable primary-scope regression ran on 2026-09-29 with Bash 5.3.9 on macOS and Apple clang 21.0.0 for the Cursor process fixture.
+It exercises the real session-start digest, proving missing-state creation for eligible primary and marked-secondmate roots and continued exclusion of ordinary linked task copies and both gate-identity signals.
+This is executable wrapper/process coverage, not a new live-vendor transport claim; [`../sessionstart-nudge.md`](../sessionstart-nudge.md#shared-wrapper-and-safety) owns the behavior.
+
+```sh
+SDKROOT="$(xcrun --sdk macosx --show-sdk-path)" \
+  bin/fm-test-run.sh --per-script-timeout-secs 300 \
+  tests/fm-sessionstart-nudge.test.sh tests/fm-turnend-guard.test.sh \
+  tests/fm-cursor-primary.test.sh
+```
+
+The invocation selected Xcode's matching SDK for the fixture compiler without changing the host toolchain configuration.
+Observed boundary assertions:
+
+```text
+ok - session-open wrappers: .no-mistakes gate common-dir stays silent and never creates primary state
+ok - run wrapper: only fresh primary roots and marked secondmate homes acquire missing state
+FM_TEST_SUMMARY total=3 failed=0 skipped_gate=0 duration_ms=136549
+```
+
+For current directory-creation failure coverage, `tests/fm-sessionstart-nudge.test.sh` executes the shared wrapper, Cursor adapter, and Pi extension to assert model-visible failure delivery and silent duplicate exclusion.
+This portable consumer check does not establish new live-vendor transport evidence.
+
 ### Run-tier source vocabulary and context-reset injection
 
 The run tier depends on three facts only the vendor can supply: the session-open source it reports, whether hook stdout reaches model context on a context-RESET open rather than only a cold one, and whether a worker the hook detaches survives the hook returning.

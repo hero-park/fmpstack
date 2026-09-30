@@ -1093,6 +1093,45 @@ test_crew_dispatch_active_rules_are_verbose_bootstrap_info() {
   pass "bootstrap surfaces active crew-dispatch rules only as verbose BOOTSTRAP_INFO"
 }
 
+test_crew_dispatch_support_data_failures_are_visible() {
+  local failure case_dir fakebin real_jq out
+  real_jq=$(command -v jq) || fail "jq is required for support-data regressions"
+  for failure in read-error corrupt-data malformed-data; do
+    case_dir="$TMP_ROOT/dispatch-support-$failure"
+    mkdir -p "$case_dir/home/config"
+    printf '%s\n' manual > "$case_dir/home/config/backlog-backend"
+    printf '%s\n' '{"default":{"harness":"opencode","model":"openai/gpt-5.2-codex","effort":"xhigh"}}' \
+      > "$case_dir/home/config/crew-dispatch.json"
+    fakebin=$(make_fake_toolchain "$case_dir")
+    case "$failure" in
+      corrupt-data) printf '{invalid\n' > "$case_dir/variants.json" ;;
+      malformed-data) printf '{"openai/gpt-5.2-codex":null}\n' > "$case_dir/variants.json" ;;
+    esac
+    cat > "$fakebin/jq" <<SH
+#!/usr/bin/env bash
+args=()
+for arg in "\$@"; do
+  case "\$arg" in
+    */fm-opencode-variants.json)
+      if [ '$failure' = read-error ]; then printf 'support data read error\n' >&2; exit 2; fi
+      args+=("$case_dir/variants.json") ;;
+    *) args+=("\$arg") ;;
+  esac
+done
+exec '$real_jq' "\${args[@]}"
+SH
+    chmod +x "$fakebin/jq"
+    out=$(PATH="$fakebin:$BASE_PATH" FM_HOME="$case_dir/home" FM_ROOT_OVERRIDE="$case_dir/home" \
+      FM_BOOTSTRAP_VERBOSE_FACTS=1 FM_FAKE_TREEHOUSE_LEASE_HELP=1 "$ROOT/bin/fm-bootstrap.sh")
+    expect_code 0 $? "bootstrap must retain its hook-compatible exit contract"
+    assert_contains "$out" 'CREW_DISPATCH: config/crew-dispatch.json validation failed' \
+      "bootstrap hid the $failure support-data failure"
+    assert_not_contains "$out" 'invalid effort: opencode:xhigh' "bootstrap classified $failure as an unsupported pair"
+    assert_not_contains "$out" 'BOOTSTRAP_INFO: crew dispatch active' "bootstrap reported success after $failure"
+  done
+  pass "bootstrap reports support-data read and parse failures rather than silently accepting profiles"
+}
+
 test_crew_dispatch_validation() {
   local label body expect mode case_dir fakebin out n
   n=0
@@ -1125,7 +1164,18 @@ pi max effort is accepted^{"rules":[{"when":"deep coding","use":{"harness":"pi",
 pi-signed max effort is accepted^{"rules":[{"when":"signed coding","use":{"harness":"pi-signed","model":"openai-codex/gpt-5.6-sol","effort":"max"}}]}^empty^
 muse shared efforts are accepted^{"rules":[{"when":"muse low","use":{"harness":"muse","effort":"low"}},{"when":"muse medium","use":{"harness":"muse","effort":"medium"}},{"when":"muse high","use":{"harness":"muse","effort":"high"}},{"when":"muse xhigh","use":{"harness":"muse","effort":"xhigh"}},{"when":"muse max","use":{"harness":"muse","effort":"max"}}]}^empty^
 unsupported muse ultra effort is flagged^{"rules":[{"when":"muse ultra","use":{"harness":"muse","effort":"ultra"}}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: muse:ultra
-unsupported opencode effort is flagged^{"rules":[{"when":"opencode work","use":{"harness":"opencode","model":"anthropic/claude-sonnet-4-5","effort":"high"}}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:high
+opencode sonnet rule effort is accepted^{"rules":[{"when":"opencode work","use":{"harness":"opencode","model":"anthropic/claude-sonnet-4-5","effort":"high"}}]}^empty^
+opencode sonnet default effort is accepted^{"default":{"harness":"opencode","model":"anthropic/claude-sonnet-4-5","effort":"max"}}^empty^
+opencode codex rule array effort is accepted^{"rules":[{"when":"opencode work","use":[{"harness":"codex","effort":"high"},{"harness":"opencode","model":"openai/gpt-5.2-codex","effort":"xhigh"}]}]}^empty^
+opencode codex default array efforts are accepted^{"default":[{"harness":"opencode","model":"openai/gpt-5.1-codex","effort":"medium"},{"harness":"opencode","model":"openai/gpt-5.3-codex","effort":"xhigh"}]}^empty^
+opencode omitted effort is accepted^{"default":{"harness":"opencode","model":"openai/gpt-4.1"}}^empty^
+opencode unsupported rule effort is flagged^{"rules":[{"when":"opencode work","use":{"harness":"opencode","model":"openai/gpt-5.1-codex","effort":"xhigh"}}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:xhigh
+opencode unsupported default effort is flagged^{"default":{"harness":"opencode","model":"openai/gpt-5.1-codex","effort":"xhigh"}}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:xhigh
+opencode unsupported rule array effort is flagged^{"rules":[{"when":"opencode work","use":[{"harness":"codex","effort":"high"},{"harness":"opencode","model":"openai/gpt-5.1-codex","effort":"xhigh"}]}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:xhigh
+opencode unsupported default array effort is flagged^{"default":[{"harness":"codex","effort":"high"},{"harness":"opencode","model":"openai/gpt-5.1-codex","effort":"xhigh"}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:xhigh
+opencode unsupported sonnet effort is flagged^{"default":{"harness":"opencode","model":"anthropic/claude-sonnet-4-5","effort":"medium"}}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:medium
+opencode unverified model is flagged^{"rules":[{"when":"opencode work","use":{"harness":"opencode","model":"openai/unverified","effort":"high"}}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:high
+opencode missing model is flagged^{"default":[{"harness":"opencode","effort":"high"}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: opencode:high
 kimi model profile is accepted^{"rules":[{"when":"kimi work","use":{"harness":"kimi","model":"kimi-code/k3"}}]}^empty^
 unsupported kimi effort is flagged^{"rules":[{"when":"kimi work","use":{"harness":"kimi","model":"kimi-code/k3","effort":"high"}}]}^exact^CREW_DISPATCH: invalid config/crew-dispatch.json - invalid effort: kimi:high
 cursor model profile is accepted^{"rules":[{"when":"cursor work","use":{"harness":"cursor","model":"cursor-grok-4.5-high"}}]}^empty^
@@ -1175,4 +1225,5 @@ test_network_sweeps_recheck_lock_ownership
 test_network_phases_record_per_step_elapsed_times
 test_tasks_axi_verdict_handoff_is_consumed_once
 test_crew_dispatch_active_rules_are_verbose_bootstrap_info
+test_crew_dispatch_support_data_failures_are_visible
 test_crew_dispatch_validation

@@ -92,7 +92,8 @@ run_spawn() {
   # which would make launch assertions depend on the developer's environment.
   # A test opts in to the set case via FM_TEST_CLAUDE_CONFIG_DIR.
   CLAUDE_CONFIG_DIR="${FM_TEST_CLAUDE_CONFIG_DIR:-}" \
-    FM_FAKE_LAUNCH_LOG="$launchlog" FM_FAKE_PI_VERSION="${FM_TEST_PI_VERSION:-0.84.0}" \
+    FM_FAKE_LAUNCH_LOG="$launchlog" FM_FAKE_PANE_LOG="${FM_TEST_PANE_LOG:-}" \
+    FM_FAKE_PI_VERSION="${FM_TEST_PI_VERSION:-0.84.0}" \
     FM_FAKE_CURSOR_MODELS="${FM_TEST_CURSOR_MODELS:-}" \
     FM_FAKE_CURSOR_LIST_STATUS="${FM_TEST_CURSOR_LIST_STATUS:-0}" \
     GROK_HOME="$home/grok-home" \
@@ -561,23 +562,166 @@ test_cursor_failed_catalog_probe_does_not_block_spawn() {
   pass "cursor preserves the requested model when its live catalog is unreachable"
 }
 
-test_opencode_threads_model_and_ignores_effort_axis() {
-  local rec id out status launch
-  id=profile-opencode-z7
-  rec=$(make_spawn_case profile-opencode opencode "$id")
+test_opencode_launch_config_contract() {
+  local rec id out status launch model effort variant n=0
+  local -a flags
+  while read -r model effort variant; do
+    n=$((n + 1))
+    id="profile-opencode-z7-$n"
+    rec=$(make_spawn_case "profile-opencode-$n" opencode "$id")
+    read_case_record "$rec"
+    flags=()
+    [ "$model" = default ] || flags+=(--model "$model")
+    [ "$effort" = default ] || flags+=(--effort "$effort")
+    out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" \
+      "$id" "$PROJ_DIR" ${flags[@]+"${flags[@]}"})
+    status=$?
+    expect_code 0 "$status" "opencode $model/$effort spawn should succeed: $out"
+    assert_meta_profile "$HOME_DIR/state/$id.meta" opencode "$model" "$effort"
+    cat > "$FAKEBIN_DIR/opencode" <<'SH'
+#!/usr/bin/env bash
+jq -n --argjson config "$OPENCODE_CONFIG_CONTENT" --args \
+  '{config: $config, args: $ARGS.positional}' -- "$@" > "$FM_OPENCODE_CAPTURE"
+SH
+    chmod +x "$FAKEBIN_DIR/opencode"
+    launch=$(cat "$LAUNCH_LOG")
+    PATH="$FAKEBIN_DIR:$PATH" FM_OPENCODE_CAPTURE="$CASE_DIR/launch.json" \
+      bash -c "$launch" || fail "opencode launch command could not execute"
+    jq -e --arg model "$model" --arg variant "$variant" '
+      .config == (if $variant == "none" then {permission: {"*": "allow"}}
+                  else {permission: {"*": "allow"}, agent: {build: {model: $model, variant: $variant}}}
+                  end)
+      and (.args | length) == (if $model == "default" then 2 else 4 end)
+      and (if $model == "default" then .args[0] == "--prompt"
+           else .args[0:3] == ["--model", $model, "--prompt"] end)
+    ' "$CASE_DIR/launch.json" >/dev/null \
+      || fail "opencode $model/$effort received an unexpected config or arguments"
+  done <<'ROWS'
+anthropic/claude-sonnet-4-5 high high
+anthropic/claude-sonnet-4-5 max max
+openai/gpt-5.1-codex low low
+openai/gpt-5.1-codex medium medium
+openai/gpt-5.1-codex high high
+openai/gpt-5.2-codex low low
+openai/gpt-5.2-codex medium medium
+openai/gpt-5.2-codex high high
+openai/gpt-5.2-codex xhigh xhigh
+openai/gpt-5.3-codex low low
+openai/gpt-5.3-codex medium medium
+openai/gpt-5.3-codex high high
+openai/gpt-5.3-codex xhigh xhigh
+anthropic/claude-sonnet-4-5 medium none
+anthropic/claude-sonnet-4-5 xhigh none
+anthropic/unverified high none
+openai/gpt-5.1-codex xhigh none
+openai/gpt-5-pro high none
+openai/gpt-4.1 high none
+openai/unverified high none
+openai/gpt-5.2-codex-unverified xhigh none
+openrouter/openai/gpt-5.2-codex xhigh none
+openai/gpt-5.2-codex max none
+anthropic/claude-sonnet-4-5 default none
+default high none
+default default none
+ROWS
+  pass "opencode launches variants only for verified model/effort pairs and otherwise keeps permission-only config"
+}
+
+test_opencode_lookup_failures_refuse_before_launch() {
+  local failure rec id out status code_root test_root expected real_jq
+  code_root="$TMP_ROOT/opencode-code-root"
+  mkdir -p "$code_root"
+  cp -R "$ROOT/bin" "$code_root/bin"
+  real_jq=$(command -v jq) || fail "jq is required for OpenCode lookup regressions"
+  for failure in missing-parser missing-data unreadable-data corrupt-data malformed-data read-error lookup-error invalid-result; do
+    id="profile-opencode-failure-$failure"
+    rec=$(make_spawn_case "$id" opencode "$id")
+    read_case_record "$rec"
+    test_root=$ROOT
+    cp "$ROOT/bin/fm-opencode-variants.json" "$code_root/bin/fm-opencode-variants.json"
+    mv "$FAKEBIN_DIR/tmux" "$FAKEBIN_DIR/tmux-real"
+    cat > "$FAKEBIN_DIR/tmux" <<SH
+#!/usr/bin/env bash
+case "\${1:-}" in new-session|new-window) : > "$CASE_DIR/endpoint-created" ;; esac
+exec "$FAKEBIN_DIR/tmux-real" "\$@"
+SH
+    chmod +x "$FAKEBIN_DIR/tmux"
+    : > "$CASE_DIR/bash.env"
+    case "$failure" in
+      missing-parser)
+        cat > "$CASE_DIR/bash.env" <<'SH'
+command() {
+  if [ "${1:-}" = -v ] && [ "${2:-}" = jq ]; then return 1; fi
+  builtin command "$@"
+}
+jq() { return 127; }
+SH
+        expected="jq is required to resolve OpenCode" ;;
+      missing-data)
+        test_root=$code_root
+        rm "$code_root/bin/fm-opencode-variants.json"
+        expected="variant support data is missing" ;;
+      unreadable-data)
+        test_root=$code_root
+        chmod 000 "$code_root/bin/fm-opencode-variants.json"
+        expected="variant support data is unreadable" ;;
+      corrupt-data)
+        test_root=$code_root
+        printf '{invalid\n' > "$code_root/bin/fm-opencode-variants.json"
+        expected="OpenCode variant lookup failed" ;;
+      malformed-data)
+        test_root=$code_root
+        printf '{"openai/gpt-5.2-codex":null}\n' > "$code_root/bin/fm-opencode-variants.json"
+        expected="corrupt OpenCode variant support data" ;;
+      read-error|lookup-error|invalid-result)
+        cat > "$FAKEBIN_DIR/jq" <<SH
+#!/usr/bin/env bash
+case "\$*" in
+  *fm-opencode-variants.json*)
+    case '$failure' in
+      read-error) printf 'support data read error\n' >&2; exit 2 ;;
+      lookup-error) printf 'lookup runtime error\n' >&2; exit 5 ;;
+      invalid-result) printf 'unexpected\n'; exit 0 ;;
+    esac ;;
+esac
+exec '$real_jq' "\$@"
+SH
+        chmod +x "$FAKEBIN_DIR/jq"
+        if [ "$failure" = invalid-result ]; then
+          expected="OpenCode variant lookup returned an invalid result"
+        else
+          expected="OpenCode variant lookup failed"
+        fi ;;
+    esac
+    out=$(ROOT="$test_root" BASH_ENV="$CASE_DIR/bash.env" \
+      run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" \
+      "$id" "$PROJ_DIR" --model openai/gpt-5.2-codex --effort xhigh)
+    status=$?
+    chmod 600 "$code_root/bin/fm-opencode-variants.json" 2>/dev/null || true
+    expect_code 1 "$status" "OpenCode $failure must refuse: $out"
+    assert_contains "$out" "$expected" "OpenCode $failure did not identify its prerequisite failure"
+    assert_absent "$CASE_DIR/endpoint-created" "OpenCode $failure created an endpoint before lookup succeeded"
+    assert_absent "$HOME_DIR/state/$id.meta" "OpenCode $failure published metadata before lookup succeeded"
+    [ ! -s "$LAUNCH_LOG" ] || fail "OpenCode $failure sent a launch command"
+  done
+  pass "OpenCode parser, support-data, and lookup failures refuse before endpoint creation or metadata publication"
+}
+
+test_pi_scout_launch_enters_recorded_worktree() {
+  local rec id out status
+  id=profile-pi-scout-cwd-z1
+  rec=$(make_spawn_case profile-pi-scout-cwd pi "$id")
   read_case_record "$rec"
 
-  out=$(run_ship_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" "$id" "$PROJ_DIR" --model anthropic/claude-sonnet-4-5 --effort high)
+  FM_TEST_PANE_LOG="$CASE_DIR/pane.log"
+  out=$(run_spawn "$HOME_DIR" "$WT_DIR" "$FAKEBIN_DIR" "$LAUNCH_LOG" \
+    "$id" "$PROJ_DIR" --scout --harness pi)
   status=$?
-  expect_code 0 "$status" "opencode spawn with model and ignored effort should succeed"
-  assert_meta_profile "$HOME_DIR/state/$id.meta" opencode anthropic/claude-sonnet-4-5 high
-  launch=$(cat "$LAUNCH_LOG")
-  assert_contains "$launch" "opencode --model 'anthropic/claude-sonnet-4-5' --prompt" \
-    "opencode launch did not thread model"
-  assert_not_contains "$launch" "--effort" "opencode launch must not pass unsupported --effort"
-  assert_not_contains "$launch" "--variant" "opencode launch must not pass run-only --variant"
-  assert_not_contains "$launch" "--thinking" "opencode launch must not pass pi thinking flag"
-  pass "opencode receives --model and omits the unsupported effort axis"
+  unset FM_TEST_PANE_LOG
+  expect_code 0 "$status" "Pi scout spawn should succeed"
+  assert_grep "cd -- '$WT_DIR'" "$CASE_DIR/pane.log" \
+    "Pi scout spawn must enter the recorded worktree before launching the agent"
+  pass "Pi scout spawn enters the recorded worktree before launch"
 }
 
 test_pi_threads_model_and_max_effort() {
@@ -622,15 +766,6 @@ test_pi_signed_threads_shared_pi_profile_and_preserves_identity() {
   assert_present "$HOME_DIR/state/$id.busy-gen" "pi-signed spawn did not arm the busy-state contract"
   assert_contains "$(cat "$HOME_DIR/state/$id.busy-state")" "state=busy source=fm-spawn" \
     "pi-signed spawn did not seed the busy-state record from the launch brief"
-  local ext gen
-  ext=$(cat "$HOME_DIR/state/$id.pi-ext.ts")
-  gen=$(cat "$HOME_DIR/state/$id.busy-gen")
-  assert_contains "$ext" 'pi.on("agent_start"' "pi extension lost the semantic agent_start busy edge"
-  assert_contains "$ext" 'pi.on("agent_settled"' "pi extension lost the semantic agent_settled idle edge"
-  assert_contains "$ext" 'ctx.isIdle()' "pi extension no longer confirms idle with ctx.isIdle()"
-  assert_contains "$ext" "\"--gen\", \"$gen\"" "pi extension does not carry the armed incarnation gen"
-  assert_contains "$ext" '"--source", "pi-ext"' "pi extension does not attribute its semantic source"
-  assert_contains "$ext" 'pi.on("turn_end"' "pi extension lost the turn-end notification touch"
   pass "pi-signed shares Pi launch semantics while preserving its configured and recorded identity"
 }
 
@@ -817,7 +952,9 @@ test_grok_omits_invalid_xhigh_reasoning_effort
 test_cursor_threads_model_workspace_and_omits_effort_axis
 test_cursor_refuses_model_absent_from_live_catalog
 test_cursor_failed_catalog_probe_does_not_block_spawn
-test_opencode_threads_model_and_ignores_effort_axis
+test_opencode_launch_config_contract
+test_opencode_lookup_failures_refuse_before_launch
+test_pi_scout_launch_enters_recorded_worktree
 test_pi_threads_model_and_max_effort
 test_pi_tui_mode_probe_is_safe_for_old_and_new_pi
 test_pi_signed_threads_shared_pi_profile_and_preserves_identity

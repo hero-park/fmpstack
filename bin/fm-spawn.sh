@@ -29,15 +29,17 @@
 #   model, and effort may change, which is what makes a harness switch one
 #   ordinary relaunch. It refuses unless the recorded endpoint is positively
 #   agent-free on a backend with a recovery-grade agent-state classifier (tmux
-#   or herdr), refuses unless the endpoint's shell is sitting in the recorded
-#   worktree, and clears the previous harness's per-task wiring before arming
-#   the new incarnation.
+#   or herdr), refuses unless its shell is already in the recorded worktree, and
+#   clears the previous harness's per-task wiring before arming the new incarnation.
+#   Every fresh or replacement ship/scout launch explicitly enters the recorded
+#   worktree before harness setup, then rechecks cwd where the backend has a
+#   current-path probe, refusing a mismatch or unreadable path.
 #   --harness <name> is the explicit per-spawn harness/profile adapter. The old
 #   positional harness arg still works for back-compat.
 #   --model <name> and --effort <low|medium|high|xhigh|max> are concrete profile
-#   axes chosen by firstmate at intake. They are only threaded into harnesses whose
-#   installed CLIs were verified to support that axis; unsupported axes are omitted
-#   from that harness's launch rather than guessed.
+#   axes chosen by firstmate at intake. Adapter-specific effort delivery,
+#   unsupported-profile handling, and lookup prerequisites are owned by
+#   docs/configuration.md "Crew dispatch profiles".
 #   --backend <name> is the explicit runtime session-provider backend for this
 #   exact task only (docs/configuration.md "Runtime backend" owns when that flag
 #   is authorized). Without it, the script resolves FM_BACKEND, then
@@ -1242,7 +1244,7 @@ launch_template() {
         printf '%s' 'codex __MODELFLAG____EFFORTFLAG__--dangerously-bypass-approvals-and-sandbox --disable hooks -c "notify=[\"bash\",\"-c\",\"touch __TURNEND__\"]" "$(__OPINPUT__ encode launch-brief < __BRIEF__)"'
       fi
       ;;
-    opencode) printf '%s' 'OPENCODE_CONFIG_CONTENT='\''{"permission":{"*":"allow"}}'\'' opencode __MODELFLAG__--prompt "$(__OPINPUT__ encode launch-brief < __BRIEF__)"' ;;
+    opencode) printf '%s' 'OPENCODE_CONFIG_CONTENT='\''{"permission":{"*":"allow"}__EFFORTFLAG__}'\'' opencode __MODELFLAG__--prompt "$(__OPINPUT__ encode launch-brief < __BRIEF__)"' ;;
     pi|pi-signed)
       printf '%s' '__PIBIN____PITUIMODE__'
       if [ "$kind" = secondmate ]; then
@@ -1491,7 +1493,7 @@ model_flag_for_harness() {
 }
 
 effort_flag_for_harness() {
-  local harness=$1 effort=$2
+  local harness=$1 effort=$2 model=${3:-}
   [ -n "$effort" ] && [ "$effort" != default ] || return 0
   case "$harness" in
     claude)
@@ -1523,6 +1525,41 @@ effort_flag_for_harness() {
         low|medium|high|xhigh|max) printf -- '--thinking %s ' "$(shell_quote "$effort")" ;;
       esac
       ;;
+    opencode)
+      [ -n "$model" ] && [ "$model" != default ] || return 0
+      local variants="$SCRIPT_DIR/fm-opencode-variants.json" supported
+      command -v jq >/dev/null 2>&1 || {
+        echo "error: jq is required to resolve OpenCode model/effort variants" >&2
+        return 1
+      }
+      [ -f "$variants" ] || {
+        echo "error: OpenCode variant support data is missing: $variants" >&2
+        return 1
+      }
+      [ -r "$variants" ] || {
+        echo "error: OpenCode variant support data is unreadable: $variants" >&2
+        return 1
+      }
+      if ! supported=$(jq -rs --arg model "$model" --arg effort "$effort" '
+        if length != 1 or (.[0] | type) != "object"
+          or (.[0] | any(.[]; type != "array" or any(.[]; type != "string")))
+        then error("corrupt OpenCode variant support data")
+        else (.[0][$model] // []) | index($effort) != null
+        end
+      ' "$variants" 2>&1); then
+        echo "error: OpenCode variant lookup failed for $variants: $supported" >&2
+        return 1
+      fi
+      case "$supported" in
+        true) ;;
+        false) return 0 ;;
+        *) echo "error: OpenCode variant lookup returned an invalid result: $supported" >&2; return 1 ;;
+      esac
+      local model_json
+      model_json=$(json_escape "$model")
+      model_json=${model_json//\'/\'\\\'\'}
+      printf ',"agent":{"build":{"model":"%s","variant":"%s"}}' "$model_json" "$effort"
+      ;;
     muse)
       # muse 0.1.0-R708.1 --reasoning-effort accepts none|minimal|low|medium|
       # high|xhigh|ultra and defaults to high, so low..xhigh map straight across.
@@ -1537,9 +1574,6 @@ effort_flag_for_harness() {
         max) printf -- '--reasoning-effort %s ' "$(shell_quote ultra)" ;;
       esac
       ;;
-    # opencode's interactive `opencode --prompt` launch has a verified --model
-    # flag but no verified effort flag. Its `opencode run --variant` flag belongs
-    # to a different, non-interactive launch mode, so fm-spawn does not pass it.
     # kimi likewise has no reasoning-effort flag; the requested axis stays in
     # task metadata but never reaches the launch command. Cursor encodes effort
     # in model ids such as cursor-grok-4.5-high, so it also receives no separate
@@ -1583,6 +1617,11 @@ esac
 json_escape() {
   printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
+
+EFFORTFLAG=
+case "$LAUNCH" in
+  *__EFFORTFLAG__*) EFFORTFLAG=$(effort_flag_for_harness "$HARNESS" "$EFFORT" "$MODEL") || exit 1 ;;
+esac
 
 resolved_existing_dir() {
   local path=$1
@@ -2348,6 +2387,35 @@ spawn_send_key() {  # <target> <key>
   esac
 }
 
+# Enter the exact copy recorded for this task immediately before harness setup.
+# A restored session can retain its host directory after a worker restart, so the
+# explicit cd makes every backend cross the same launch boundary.
+spawn_enter_recorded_worktree() {
+  [ "$KIND" = secondmate ] && return 0
+  spawn_send_text_line "$WT_TARGET" "cd -- $(shell_quote "$WT")" || {
+    echo "error: task $ID's endpoint could not be moved into its recorded worktree '$WT'; refusing to launch outside the copy holding its work" >&2
+    exit 1
+  }
+}
+
+# Verify the endpoint cwd after the explicit handoff and before any harness
+# starts. Orca owns the terminal's worktree and has no current-path probe.
+spawn_assert_agent_worktree() {
+  local expected seen i
+  [ "$KIND" = secondmate ] && return 0
+  [ "$BACKEND" = orca ] && return 0
+  expected=$(real_path_or_raw "$WT")
+  for i in $(seq 1 20); do
+    seen=$(spawn_current_path "$WT_TARGET" || true)
+    if [ -n "$seen" ] && [ "$(real_path_or_raw "$seen")" = "$expected" ]; then
+      return 0
+    fi
+    [ "$i" -ge 20 ] || sleep 0.5
+  done
+  echo "error: task $ID's worker started in '${seen:-unknown}', not its recorded worktree '$WT'; refusing to continue outside the copy holding its work" >&2
+  exit 1
+}
+
 kimi_capture() {
   fm_backend_capture "$BACKEND" "$T" 120 "$W" 2>/dev/null || true
 }
@@ -2475,6 +2543,11 @@ fi
 if [ "$RELAUNCH" -eq 0 ] && [ "$KIND" != secondmate ]; then
   freshen_spawn_worktree_base "$WT" || exit 1
 fi
+
+# Re-assert the durable task copy after either treehouse acquisition or endpoint
+# adoption, before trust setup or any harness starts.
+spawn_enter_recorded_worktree
+spawn_assert_agent_worktree
 
 # Per-task temp root: /tmp/fm-<id>/ with Go's build temp nested at gotmp/. Go won't
 # create GOTMPDIR, so mkdir before it is used; fm-teardown removes the whole root.
@@ -2959,7 +3032,6 @@ sq_piwatch=$(shell_quote "$PROJ_ABS/.pi/extensions/fm-primary-pi-watch.ts")
 sq_opinput=$(shell_quote "$FM_ROOT/bin/fm-operational-input.sh")
 sq_worktree=$(shell_quote "$WT")
 MODELFLAG=$(model_flag_for_harness "$HARNESS" "$MODEL")
-EFFORTFLAG=$(effort_flag_for_harness "$HARNESS" "$EFFORT")
 LAUNCH=${LAUNCH//__MODELFLAG__/$MODELFLAG}
 LAUNCH=${LAUNCH//__EFFORTFLAG__/$EFFORTFLAG}
 LAUNCH=${LAUNCH//__BRIEF__/$sq_brief}

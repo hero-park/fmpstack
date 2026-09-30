@@ -91,7 +91,10 @@ test_gate_common_dir_is_silent() {
   printf 'gate-test\n' > "$root/.fm-secondmate-home"
   expect_silent_zero "gate common-dir nudge" env FM_GATE_REFUSE_BYPASS=0 \
     FM_ROOT_OVERRIDE="$root" FM_HOME="$root" "$NUDGE"
-  pass "fm-sessionstart-nudge: .no-mistakes gate common-dir is silent"
+  rmdir "$root/state"
+  expect_silent_zero "fresh gate common-dir run" run_hook "$root" --source startup
+  assert_absent "$root/state" "a marked gate copy acquired primary state through the run wrapper"
+  pass "session-open wrappers: .no-mistakes gate common-dir stays silent and never creates primary state"
 }
 
 test_unmarked_linked_worktree_is_silent() {
@@ -990,6 +993,10 @@ test_run_gate_and_scope_are_silent() {
     "$RUN" --source startup --pi-prerequisite 2>&1) || status=$?
   expect_code 3 "$status" "gate env Pi prerequisite stand-down"
   [ -z "$out" ] || fail "gate env Pi prerequisite stand-down must be silent, got: $out"
+  rmdir "$root/state"
+  expect_silent_zero "fresh gate env run" env NO_MISTAKES_GATE=1 FM_GATE_REFUSE_BYPASS=0 \
+    FM_ROOT_OVERRIDE="$root" FM_HOME="$root" PATH="$RUN_PATH" "$RUN" --source startup
+  assert_absent "$root/state" "a fresh gate primary acquired a state directory before refusing the gate"
 
   fm_git_worktree "$base" "$linked" fm/run-linked
   mkdir -p "$linked/bin" "$linked/state"
@@ -1001,6 +1008,97 @@ test_run_gate_and_scope_are_silent() {
   [ -z "$out" ] || fail "linked worktree Pi prerequisite stand-down must be silent, got: $out"
   assert_absent "$linked/state/.lock" "an unmarked task worktree still took the fleet lock"
   pass "run wrapper: ordinary ineligible opens stay silent-zero and Pi preflight gets an explicit silent stand-down"
+}
+
+test_run_creates_missing_state_on_a_fresh_primary() {
+  local root="$TMP_ROOT/run-fresh-primary" base="$TMP_ROOT/run-fresh-linked-base"
+  local linked="$TMP_ROOT/run-fresh-linked" out status=0
+  make_run_primary "$root"
+  rmdir "$root/state"
+  assert_absent "$root/state" "the fixture still had a state dir before the assertion began"
+
+  out=$(run_hook "$root" --source startup </dev/null) || status=$?
+  expect_code 0 "$status" "run wrapper startup on a fresh primary with no state dir"
+  assert_present "$root/state" "a fresh primary root did not get its state dir created"
+  assert_contains "$out" "$FULL_BANNER$root" \
+    "creating the state dir did not let a fresh primary's session start run"
+  assert_contains "$out" "lock acquired: harness pid" \
+    "creating the state dir did not let a fresh primary take the fleet lock"
+  assert_not_contains "$out" "$REEMIT_BANNER" \
+    "a fresh primary's first session was misrouted to a context re-emit"
+  assert_contains "$out" "NEXT STEP" "a fresh primary did not receive the complete digest"
+
+  # An unmarked linked task worktree stays ineligible: it must not have a state
+  # dir manufactured for it, so the existing scope refusal is unchanged.
+  fm_git_worktree "$base" "$linked" fm/run-fresh-linked
+  mkdir -p "$linked/bin"
+  : > "$linked/AGENTS.md"
+  assert_absent "$linked/state" "the linked fixture already had a state dir before the assertion began"
+  expect_silent_zero "linked worktree fresh state run" run_hook "$linked" --source startup
+  assert_absent "$linked/state" "an unmarked linked task worktree got a state dir created for it"
+
+  # The same linked copy becomes eligible only with the existing secondmate
+  # marker, and may then create state on its own first session.
+  printf 'fresh-secondmate\n' > "$linked/.fm-secondmate-home"
+  mkdir -p "$linked/data" "$linked/config"
+  status=0
+  out=$(run_hook "$linked" --source startup </dev/null) || status=$?
+  expect_code 0 "$status" "run wrapper startup on a fresh marked secondmate"
+  assert_present "$linked/state" "a fresh marked secondmate did not get its state dir"
+  assert_contains "$out" "$FULL_BANNER$linked" "a fresh marked secondmate did not run the full digest"
+  assert_contains "$out" "NEXT STEP" "a fresh marked secondmate did not receive the complete digest"
+  pass "run wrapper: only fresh primary roots and marked secondmate homes acquire missing state"
+}
+
+test_run_reports_a_state_dir_it_cannot_create() {
+  local root="$TMP_ROOT/run-fresh-readonly" out pi_out cursor_out prerequisite_out duplicate_out
+  local status=0 pi_status=0 cursor_status=0 prerequisite_status=0 duplicate_status=0
+  local err_file="$TMP_ROOT/run-fresh-readonly.err" expected
+  make_run_primary "$root"
+  rmdir "$root/state"
+  expected="fm-sessionstart-run: startup could not create the state directory $root/state: Permission denied"
+  chmod 0500 "$root"
+  out=$(run_hook "$root" --source startup </dev/null 2>"$err_file") || status=$?
+  prerequisite_out=$(run_hook_pi "$root" --source startup --pi-prerequisite </dev/null) || prerequisite_status=$?
+  duplicate_out=$(printf '{"cursor_version":"test","source":"startup"}' | \
+    RUN_PATH="$(dirname "$(command -v jq)"):$RUN_PATH" run_hook "$root") || duplicate_status=$?
+  cursor_out=$(FM_GATE_REFUSE_BYPASS=0 FM_ROOT_OVERRIDE="$root" FM_HOME="$root" \
+    "$ROOT/bin/fm-sessionstart-cursor.sh" --source startup </dev/null) || cursor_status=$?
+  pi_out=$(EXT="$ROOT/.pi/extensions/fm-primary-turnend-guard.ts" \
+    FM_ROOT_OVERRIDE="$root" FM_HOME="$root" FM_GATE_REFUSE_BYPASS=0 EXPECTED="$expected" \
+    node --input-type=module 2>&1 <<'JS'
+import { pathToFileURL } from "node:url";
+const handlers = new Map();
+const extension = await import(pathToFileURL(process.env.EXT).href);
+extension.default({
+  on(event, handler) { handlers.set(event, handler); },
+  sendMessage() { throw new Error("startup must use provider preflight"); },
+});
+const ctx = { sessionManager: { getSessionId: () => "state-creation-failure" } };
+handlers.get("session_start")({ reason: "startup" }, ctx);
+const result = await handlers.get("before_agent_start")({ prompt: "test" }, ctx);
+const content = result?.message?.content ?? "";
+if (!content.includes(process.env.EXPECTED)) throw new Error(`failure was not delivered: ${content}`);
+if (!content.includes("FIRSTMATE_OP: v1 session-start:")) throw new Error("failure lost its operational provenance");
+if (await handlers.get("before_agent_start")({ prompt: "again" }, ctx)) throw new Error("failure was delivered twice");
+await handlers.get("session_shutdown")({}, ctx);
+JS
+  ) || pi_status=$?
+  chmod 0700 "$root"
+  expect_code 0 "$status" "ordinary state-directory creation failure"
+  expect_code 0 "$prerequisite_status" "eligible Pi prerequisite creation failure must not be ineligible"
+  expect_code 0 "$cursor_status" "Cursor state-directory creation failure"
+  expect_code 0 "$duplicate_status" "Cursor-delivered duplicate creation failure"
+  [ -z "$duplicate_out" ] || fail "Cursor's duplicate hook emitted a creation failure: $duplicate_out"
+  expect_code 0 "$pi_status" "Pi state-directory creation failure delivery: $pi_out"
+  [ -z "$pi_out" ] || fail "Pi failure delivery printed unexpected output: $pi_out"
+  [ "$out" = "$expected" ] || fail "ordinary hook did not emit its creation failure: $out"
+  [ "$prerequisite_out" = "$expected" ] || fail "Pi prerequisite did not emit its creation failure: $prerequisite_out"
+  printf '%s\n' "$cursor_out" | jq -e --arg expected "$expected" \
+    '.additional_context == $expected' >/dev/null || fail "Cursor did not deliver its creation failure: $cursor_out"
+  [ ! -s "$err_file" ] || fail "creation failure still relies on stderr: $(cat "$err_file")"
+  assert_absent "$root/state" "a read-only fresh primary somehow got a state dir"
+  pass "run wrapper: state creation failures reach hook stdout, Cursor context, and Pi preflight without blocking startup"
 }
 
 test_run_reports_a_failed_session_start_as_digest_text() {
@@ -1032,6 +1130,8 @@ test_run_resume_delegates_to_the_nudge
 test_run_reads_source_from_the_hook_payload
 test_run_unknown_source_takes_the_helm
 test_run_gate_and_scope_are_silent
+test_run_creates_missing_state_on_a_fresh_primary
+test_run_reports_a_state_dir_it_cannot_create
 test_run_reports_a_failed_session_start_as_digest_text
 test_pi_startup_classifies_cli_continuations
 test_pi_sessionstart_generation_prerequisite

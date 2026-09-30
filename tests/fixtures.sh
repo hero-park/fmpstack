@@ -94,7 +94,8 @@ fm_test_fake_gh_axi() {
 # fm_test_fake_tmux_spawn <fakebin>
 # Spawn-world tmux: pane_current_path from FM_FAKE_PANE_PATH, session named
 # firstmate, window ops succeed, send-keys succeed. When FM_FAKE_LAUNCH_LOG is
-# set, each send-keys -l payload is appended one per line. Optional
+# set, each non-cd send-keys -l payload is appended one per line. When
+# FM_FAKE_PANE_LOG is set, cd handoffs are logged there. Optional
 # FM_FAKE_DUPLICATE_WINDOW is printed from list-windows.
 #
 # The pane path defaults to empty when FM_FAKE_PANE_PATH is unset. Window
@@ -118,15 +119,20 @@ case "${1:-}" in
     ;;
   has-session|new-session|new-window|kill-window|set-window-option) exit 0 ;;
   send-keys)
-    if [ -n "${FM_FAKE_LAUNCH_LOG:-}" ]; then
-      prev=
-      for a in "$@"; do
-        if [ "$prev" = "-l" ]; then
-          printf '%s\n' "$a" >> "$FM_FAKE_LAUNCH_LOG"
-        fi
-        prev=$a
-      done
-    fi
+    expect_literal=0
+    for a in "$@"; do
+      if [ "$expect_literal" -eq 1 ]; then
+        expect_literal=0
+        [ -n "${FM_FAKE_LAUNCH_LOG:-}" ] && printf '%s\n' "$a" >> "$FM_FAKE_LAUNCH_LOG"
+        continue
+      fi
+      case "$a" in
+        -l) expect_literal=1 ;;
+        cd\ --\ *)
+          [ -n "${FM_FAKE_PANE_LOG:-}" ] && printf '%s\n' "$a" >> "$FM_FAKE_PANE_LOG"
+          ;;
+      esac
+    done
     exit 0
     ;;
 esac
