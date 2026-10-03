@@ -584,6 +584,38 @@ _fm_composer_pi_separator_row() {  # <trimmed-row>
   return 1
 }
 
+# _fm_composer_titled_rule_row: 0 when a trimmed row is a Claude composer rule
+# with a named session title burned into it, proven by collapsing to exactly the
+# column width of the matching plain separator.
+_fm_composer_titled_rule_row() {  # <trimmed-row> <plain-rule-spaces>
+  local row=$1 expected=$2 spaces
+  case "$row" in
+    ────────*) ;;
+    *) return 1 ;;
+  esac
+  spaces=${row//─/ }
+  spaces=$(printf '%s' "$spaces" | LC_ALL=C sed 's/[!-~]/ /g')
+  case "$spaces" in
+    *[![:space:]]*) return 1 ;;
+  esac
+  [ "$spaces" = "$expected" ]
+}
+
+# _fm_composer_bare_rule_sandwich: 0 when a bare agent glyph sits between a
+# titled top rule and the screen's only unmatched separator directly below it.
+# Adjacency on both edges preserves the cursorless staleness rule elsewhere.
+_fm_composer_bare_rule_sandwich() {  # <plain-screen> <row>
+  local plain=$1 row=$2 above below
+  [ "$row" -ge 1 ] || return 1
+  [ "$FM_COMPOSER_SCAN_PI_LAST_SEPARATOR" -eq "$((row + 1))" ] || return 1
+  below=$(_fm_composer_screen_row "$((row + 1))" "$plain")
+  fm_composer_normalize_trim_var below
+  _fm_composer_pi_separator_row "$below" || return 1
+  above=$(_fm_composer_screen_row "$((row - 1))" "$plain")
+  fm_composer_normalize_trim_var above
+  _fm_composer_titled_rule_row "$above" "${below//─/ }"
+}
+
 # Row-scan results are returned through FM_COMPOSER_SCAN_* globals (bash 3.2
 # has no nameref); they are internal to this owner.
 _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
@@ -1062,8 +1094,15 @@ _fm_composer_select_cursorless() {
   fi
   if [ "$FM_COMPOSER_SCAN_PI_PAIR_FOUND" = 0 ] \
      && [ "$FM_COMPOSER_SCAN_PI_LAST_SEPARATOR" -gt "$generic" ]; then
-    FM_COMPOSER_SELECTED_KIND=
-    return 1
+    # A named Claude session can title the top rule without opening a Pi pair.
+    # Spare only a bare glyph in its own adjacent titled-rule sandwich; every
+    # other unmatched separator remains a stale-scrollback refusal.
+    if ! { [ "$FM_COMPOSER_SELECTED_KIND" = bare ] \
+           && [ "$generic" = "$FM_COMPOSER_SCAN_BARE_ROW" ] \
+           && _fm_composer_bare_rule_sandwich "$plain" "$FM_COMPOSER_SCAN_BARE_ROW"; }; then
+      FM_COMPOSER_SELECTED_KIND=
+      return 1
+    fi
   fi
   if [ "$FM_COMPOSER_SCAN_SHELL_ROW" -gt "$generic" ]; then
     FM_COMPOSER_SELECTED_KIND=

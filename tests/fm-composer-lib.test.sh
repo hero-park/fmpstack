@@ -188,6 +188,30 @@ test_matrix_claude_bare_nbsp_row() {
   pass "matrix: claude's ❯+NBSP row reads empty on every profile in both locales (#1988)"
 }
 
+test_matrix_claude_titled_top_rule() {
+  local rule title top bottom screen typed scrollback short nonascii
+  rule='────────────────────────────────────────────────────────────'
+  title=' Firstmate operational input 1790546042 '
+  top="${rule}───${title}─"
+  bottom="${rule}────────────────────────────────────────────"
+  screen="recap: earlier work"$'\n'"$top"$'\n❯'$NBSP$'\n'"$bottom"$'\n'"  ⏵⏵ bypass permissions on (shift+tab to cycle)"
+  assert_screen "titled Claude idle on Herdr" empty "$CAPS_STYLED" "$screen" '' $'claude\tidle'
+  typed="$top"$'\n❯ fix the login bug\n'"$bottom"
+  assert_screen "titled Claude typed on Herdr" pending "$CAPS_STYLED" "$typed" '' $'claude\tidle'
+
+  # A titled sandwich stranded in scrollback stays unknown because the lower
+  # separator is no longer adjacent to the candidate glyph.
+  scrollback="$top"$'\n❯'$NBSP$'\n'"$bottom"$'\nlater transcript output\n'"$bottom"$'\nmore output'
+  assert_screen "titled sandwich in scrollback" unknown "$CAPS_STYLED_NOID" "$scrollback"
+
+  short="${rule}${title}─"$'\n❯'$NBSP$'\n'"$bottom"
+  assert_screen "mismatched titled rule width" unknown "$CAPS_STYLED_NOID" "$short"
+  nonascii="${rule}─── ✳ Firstmate operational input 1790546042 ─"$'\n❯'$NBSP$'\n'"$bottom"
+  assert_screen "non-ASCII titled rule" unknown "$CAPS_STYLED_NOID" "$nonascii"
+  assert_screen "titled Claude idle on plain capture" empty "$CAPS_PLAIN" "$screen"
+  pass "matrix: Claude's titled top rule proves its adjacent idle and typed composer safely"
+}
+
 test_matrix_codex_dim_hint_row() {
   # Real idle codex: bold `›`, reset, then an SGR-2 dim hint. Styled captures
   # strip the ghost and prove empty; plain captures must defer as unknown -
@@ -613,6 +637,7 @@ test_idle_placeholder_is_empty
 test_idle_placeholder_case_mode_is_explicit
 test_real_text_is_pending
 test_matrix_claude_bare_nbsp_row
+test_matrix_claude_titled_top_rule
 test_matrix_codex_dim_hint_row
 test_matrix_muse_truecolor_glyph_survives_signal_loss
 test_matrix_cursor_reverse_video_placeholder_remnant

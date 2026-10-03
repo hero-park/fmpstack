@@ -115,6 +115,8 @@ test_engineering_inner_loop_is_worker_only_and_harness_neutral() {
       "worker brief did not require a visible reason for skipping the walk"
     assert_grep "prove the result against the real artifact" "$brief" \
       "worker brief lost real-artifact verification"
+    assert_grep "For a measured performance or evaluation claim, state what limits the result" "$brief" \
+      "worker brief lost measured-result validation"
     assert_grep "put evidence or an explicit inferred/guess label beside each claim" "$brief" \
       "emitted worker contract lost evidence-labelled reporting"
     assert_grep "Run available safe checks yourself and name what remains unverified" "$brief" \
