@@ -247,6 +247,9 @@ A blocked Pi is parked on an interactive prompt, so its blank composer region is
 A working Pi, pending middle row, missing identity, incomplete separator pair, or over-tall candidate remains unknown or pending.
 Identity stays a lazy second read, consulted only when a separator pair could change the verdict.
 
+A named Claude session can title its top rule while retaining a bare `❯` composer rather than a Pi separator region.
+The shared `_fm_composer_bare_rule_sandwich` guard in [`bin/fm-composer-lib.sh`](../bin/fm-composer-lib.sh) owns the titled-rule width, wrapped-input boundary, and stale-scrollback proof; [runtime verification](verification/runtime-backends.md#composer-classification-matrix) distinguishes portable coverage from live evidence.
+
 ANSI capture preserves de-emphasized placeholder style.
 `bin/fm-composer-lib.sh` is the fleet-wide owner that strips dim or faint runs and dark truecolor placeholders while retaining bright typed input.
 If the ANSI capture ever fails, the plain fallback declares itself unstyled and the classifier degrades a glyph row carrying trailing text to `unknown` instead of misreading ghost suggestions as typed input, which safely defers injection and eventually raises the wedge alarm.

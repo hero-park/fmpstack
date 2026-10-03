@@ -52,11 +52,9 @@
 # Every scaffold also carries the steering-inbox receive-and-ack section:
 # process state/<id>.inbox/*.msg in order and acknowledge each by moving it to
 # handled/ (record, doorbell, and ladder owned by bin/fm-task-inbox-lib.sh).
-# Ship and scout briefs include one harness-neutral engineering inner loop:
-# Firstmate remains the only router, workers subtract before adding, walk the
-# subsystem only when a boundary or diagnosis warrants it, prove the real
-# artifact before done, label claims with evidence or an explicit inferred or
-# guess marker, run available safe checks, and name unverified gaps. Secondmate
+# Ship and scout briefs include one harness-neutral engineering inner loop.
+# The emitted Engineering inner loop section below owns the worker procedure;
+# it is task-local, never a second router or review gate. Persistent secondmate
 # charters deliberately omit this worker play.
 # Ship tasks include a project-memory section so durable project-intrinsic
 # learnings can be committed to AGENTS.md through the project's delivery path;
