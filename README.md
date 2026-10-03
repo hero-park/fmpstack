@@ -51,13 +51,7 @@ It is an agent distro: a portable directory of instructions, skills, scripts, po
 Firstmate remains the outer control plane.
 fmpstack adds one engineering inner loop to generated ship and scout briefs, and nowhere else.
 
-Each worker must:
-
-1. **Subtract before adding.** Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
-2. **Name the shape and blast radius.** Before code, identify the input, state, output, files, and boundaries likely to change.
-3. **Walk only when needed.** Trace architecture for an unfamiliar area, a shared boundary, or diagnosis. Skip ordinary local work with a one-line reason instead of turning every task into research.
-4. **Reproduce defects first.** Exercise the affected surface and trace the root cause before changing code. Name the gap when access, cost, or safety prevents reproduction.
-5. **Prove and label the result.** Finish with a live command, user flow, record, or focused local verifier, label each claim with evidence or an explicit inference/guess, run available safe checks, and name what remains unverified.
+The [worker engineering contract in `bin/fm-brief.sh`](bin/fm-brief.sh) owns the procedure, including conditional checks for measured performance or evaluation claims.
 
 Scout reports also name every material verification gap so inference cannot masquerade as evidence.
 The selected Firstmate delivery mode remains the only owner of review and shipping.

@@ -236,6 +236,10 @@ This guard is the refresh command after an upgrade to any matrix-covered harness
 Known staleness: on 2026-08-23 the steering-inbox doorbell run observed grok 1.0.5's idle composer classifying `unknown` (and sometimes pending-family), never `empty`, so the grok row above is stale for 1.0.5 and owes a refresh; steering is unaffected because the send path's composer check is advisory, but empty-requiring consumers (away-daemon injection, spawn readiness, and [lifecycle exit/relaunch](../agent-control.md#verbs)) should not trust the 1.0.0 grok result.
 Cursor is deliberately outside this cursor-anchored empty-composer matrix because its terminal cursor is parked outside the composer; tmux's Cursor-specific, process-identity-gated cursorless fallback is covered by the [Cursor Agent CLI](#cursor-agent-cli) section's separate live evidence and drift guard.
 
+Titled Claude top rules and wrapped input have constructed-fixture coverage in `tests/fm-composer-lib.test.sh`, including content extraction, ghost text, width mismatch, stale boundaries, and plain-capture ambiguity under both locale profiles.
+Those fixtures are not refreshed live proof: the recorded Claude Code 2.1.260 / Herdr 0.9.1 probe did not observe titled top-rule text.
+The [Herdr submit-confirmation record](#submit-confirmation) owns the separate live delivery-proof gap.
+
 `zellij action dump-screen --pane-id <id> --ansi` was verified at zellij 0.44.0 to preserve ANSI styling (real Claude Code rendered inside a zellij pane dumped `ESC[m` `❯` U+00A0 for its idle composer row), which is the capability the zellij composer classifier reads.
 
 ## Steering-inbox doorbell
@@ -320,6 +324,9 @@ Observed 2026-08-19:
 ```text
 ok - live Herdr submit confirm: Claude Code (2.1.236 (Claude Code)) on herdr 0.8.0 reports empty for a landed idle steer
 ```
+
+The recorded guard attempt with Claude Code 2.1.260 / Herdr 0.9.1 failed to render its bounded reply, so it does not refresh the older live submit-confirmation proof above.
+Portable classifier regressions do not close that live delivery gap.
 
 ### Prune and respawn
 

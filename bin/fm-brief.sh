@@ -52,11 +52,9 @@
 # Every scaffold also carries the steering-inbox receive-and-ack section:
 # process state/<id>.inbox/*.msg in order and acknowledge each by moving it to
 # handled/ (record, doorbell, and ladder owned by bin/fm-task-inbox-lib.sh).
-# Ship and scout briefs include one harness-neutral engineering inner loop:
-# Firstmate remains the only router, workers subtract before adding, walk the
-# subsystem only when a boundary or diagnosis warrants it, prove the real
-# artifact before done, label claims with evidence or an explicit inferred or
-# guess marker, run available safe checks, and name unverified gaps. Secondmate
+# Ship and scout briefs include one harness-neutral engineering inner loop.
+# The emitted Engineering inner loop section below owns the worker procedure;
+# it is task-local, never a second router or review gate. Persistent secondmate
 # charters deliberately omit this worker play.
 # Ship tasks include a project-memory section so durable project-intrinsic
 # learnings can be committed to AGENTS.md through the project's delivery path;
@@ -308,7 +306,8 @@ Firstmate owns task routing, isolation, supervision, and delivery. Do not start 
 3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
 4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
 5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
-6. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
+6. For a measured performance or evaluation claim, state what limits the result, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on it.
+7. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
 The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
 EOF
 INNER_LOOP_SECTION=${INNER_LOOP_SECTION%$'\n'}

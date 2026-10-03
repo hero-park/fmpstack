@@ -283,7 +283,8 @@ The `data/secondmates.md` line contract is owned by the [`secondmate-provisionin
 
 Firstmate is the outer control plane: it routes work, creates isolation, supervises execution, and owns delivery.
 `bin/fm-brief.sh` puts one small harness-neutral engineering play inside ship and scout briefs, which every verified worker harness already receives through its normal launch path.
-The play tells workers to subtract before adding, name the data shape and blast radius before code, trace architecture only for unfamiliar areas, shared boundaries, or diagnosis, reproduce defects before changing them, prove the real artifact before done, label each claim with evidence or an explicit inferred/guess marker, run available safe checks, and name what remains unverified.
+The emitted `Engineering inner loop` section in [`bin/fm-brief.sh`](../bin/fm-brief.sh) owns the worker procedure, with generated-interface coverage in `tests/fm-brief.test.sh`.
+For measured performance or evaluation claims, workers identify limiting factors, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on the result.
 A skipped architecture walk gets a one-line reason in the worker's own response rather than a supervisor status event, and a scout report names every material verification gap.
 Secondmate charters and the primary supervisor omit the play, so it cannot become a competing task router or fleet policy.
 The play adds no review gate; the selected delivery mode remains the only owner of review and shipping.

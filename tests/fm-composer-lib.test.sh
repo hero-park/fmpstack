@@ -188,6 +188,85 @@ test_matrix_claude_bare_nbsp_row() {
   pass "matrix: claude's ❯+NBSP row reads empty on every profile in both locales (#1988)"
 }
 
+test_matrix_claude_titled_top_rule() {
+  local rule title top bottom screen typed scrollback short nonascii
+  rule='────────────────────────────────────────────────────────────'
+  title=' Firstmate operational input 1790546042 '
+  top="${rule}───${title}─"
+  bottom="${rule}────────────────────────────────────────────"
+  screen="recap: earlier work"$'\n'"$top"$'\n❯'$NBSP$'\n'"$bottom"$'\n'"  ⏵⏵ bypass permissions on (shift+tab to cycle)"
+  assert_screen "titled Claude idle on Herdr" empty "$CAPS_STYLED" "$screen" '' $'claude\tidle'
+  typed="$top"$'\n❯ fix the login bug\n'"$bottom"
+  assert_screen "titled Claude typed on Herdr" pending "$CAPS_STYLED" "$typed" '' $'claude\tidle'
+
+  # A titled sandwich stranded in scrollback stays unknown because the lower
+  # separator is no longer adjacent to the candidate glyph.
+  scrollback="$top"$'\n❯'$NBSP$'\n'"$bottom"$'\nlater transcript output\n'"$bottom"$'\nmore output'
+  assert_screen "titled sandwich in scrollback" unknown "$CAPS_STYLED_NOID" "$scrollback"
+
+  short="${rule}${title}─"$'\n❯'$NBSP$'\n'"$bottom"
+  assert_screen "mismatched titled rule width" unknown "$CAPS_STYLED_NOID" "$short"
+  nonascii="${rule}─── ✳ Firstmate operational input 1790546042 ─"$'\n❯'$NBSP$'\n'"$bottom"
+  assert_screen "non-ASCII titled rule" unknown "$CAPS_STYLED_NOID" "$nonascii"
+  assert_screen "titled Claude idle on plain capture" empty "$CAPS_PLAIN" "$screen"
+  pass "matrix: Claude's titled top rule proves its adjacent idle and typed composer safely"
+}
+
+test_matrix_claude_titled_wrap_region() {
+  local top='──────── named ─' bottom='────────────────'
+  local screen continuation expected caps out ghost invalid cursor=2
+  for continuation in 'and its regression' $'and its regression\nbefore shipping'; do
+    screen="$top"$'\n❯ fix the login bug\n'"$continuation"$'\n'"$bottom"$'\n  Claude status'
+    expected="fix the login bug ${continuation//$'\n'/ }"
+    for caps in "$CAPS_STYLED" "$CAPS_STYLED_NOID"; do
+      assert_screen "titled Claude wrapped input" pending "$caps" "$screen"
+      out=$(fm_composer_extract_selected_content "$caps" "$screen") \
+        || fail "titled Claude wrapped input must be extractable"
+      [ "$out" = "$expected" ] \
+        || fail "titled Claude extraction must include all wraps and exclude rules/footer, got '$out'"
+      out=$(LC_ALL=C fm_composer_extract_selected_content "$caps" "$screen") \
+        || fail "titled Claude wrapped input must be extractable under LC_ALL=C"
+      [ "$out" = "$expected" ] \
+        || fail "titled Claude wrapped extraction under LC_ALL=C, got '$out'"
+    done
+    assert_screen "titled Claude wrapped input with glyph cursor" pending "$CAPS_TMUX" "$screen" 1
+    assert_screen "titled Claude wrapped input with continuation cursor" pending "$CAPS_TMUX" "$screen" "$cursor"
+    assert_screen "titled Claude wrapped input without styling" unknown "$CAPS_PLAIN" "$screen"
+    cursor=$((cursor + 1))
+  done
+
+  ghost="$top"$'\n❯ '"${ESC}[2ma rotating suggestion${ESC}[0m"$'\n'"${ESC}[2mcontinued hint${ESC}[0m"$'\n'"$bottom"
+  for caps in "$CAPS_STYLED" "$CAPS_STYLED_NOID"; do
+    assert_screen "titled Claude wrapped ghost" empty "$caps" "$ghost"
+    out=$(fm_composer_extract_selected_content "$caps" "$ghost") \
+      || fail "titled Claude wrapped ghost must be extractable"
+    [ -z "$out" ] || fail "titled Claude wrapped ghost must extract no user text, got '$out'"
+    out=$(LC_ALL=C fm_composer_extract_selected_content "$caps" "$ghost") \
+      || fail "titled Claude wrapped ghost must be extractable under LC_ALL=C"
+    [ -z "$out" ] || fail "titled Claude wrapped ghost under LC_ALL=C must extract no user text, got '$out'"
+  done
+  assert_screen "titled Claude wrapped ghost with continuation cursor" empty "$CAPS_TMUX" "$ghost" 2
+  assert_screen "titled Claude wrapped ghost without styling" unknown "$CAPS_PLAIN" "$ghost"
+
+  for invalid in \
+    "$top"$'\n❯ text\n\ncontinuation\n'"$bottom" \
+    "$top"$'\n❯ text\n▀▀▀▀▀▀▀▀\ncontinuation\n'"$bottom" \
+    "$top"$'\n❯ text\n$ live shell\ncontinuation\n'"$bottom" \
+    "$top"$'\n❯ text\ncontinuation\n────────' \
+    $'──────── naïve ─\n❯ text\ncontinuation\n'"$bottom"; do
+    for caps in "$CAPS_STYLED" "$CAPS_STYLED_NOID" "$CAPS_PLAIN"; do
+      assert_screen "invalid titled Claude wrap boundary" unknown "$caps" "$invalid"
+      if out=$(fm_composer_extract_selected_content "$caps" "$invalid"); then
+        fail "invalid titled Claude wrap boundary must refuse extraction, got '$out'"
+      fi
+      if out=$(LC_ALL=C fm_composer_extract_selected_content "$caps" "$invalid"); then
+        fail "invalid titled Claude wrap boundary must refuse extraction under LC_ALL=C, got '$out'"
+      fi
+    done
+  done
+  pass "matrix: titled Claude wrap boundaries preserve content, ghost, width, and staleness proofs"
+}
+
 test_matrix_codex_dim_hint_row() {
   # Real idle codex: bold `›`, reset, then an SGR-2 dim hint. Styled captures
   # strip the ghost and prove empty; plain captures must defer as unknown -
@@ -613,6 +692,8 @@ test_idle_placeholder_is_empty
 test_idle_placeholder_case_mode_is_explicit
 test_real_text_is_pending
 test_matrix_claude_bare_nbsp_row
+test_matrix_claude_titled_top_rule
+test_matrix_claude_titled_wrap_region
 test_matrix_codex_dim_hint_row
 test_matrix_muse_truecolor_glyph_survives_signal_loss
 test_matrix_cursor_reverse_video_placeholder_remnant
