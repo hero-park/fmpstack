@@ -1,0 +1,214 @@
+Controlled damaged terminal: mismatched-width
+$ bin/fm-peek.sh guards:mismatched-width 30
+──────── named ─
+❯ text
+continuation
+────────
+  status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real captured-screen guard outputs:
+tmux=unknown
+injection-deferred=true
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+
+Controlled damaged terminal: stale-scrollback
+$ bin/fm-peek.sh guards:stale-scrollback 30
+──────── named ─
+❯
+
+later transcript output
+────────────────
+more output
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real captured-screen guard outputs:
+tmux=unknown
+injection-deferred=true
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+
+Controlled damaged terminal: blank-break
+$ bin/fm-peek.sh guards:blank-break 30
+──────── named ─
+❯ text
+
+continuation
+────────────────
+  status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real captured-screen guard outputs:
+tmux=unknown
+injection-deferred=true
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+
+Controlled damaged terminal: halfblock-break
+$ bin/fm-peek.sh guards:halfblock-break 30
+──────── named ─
+❯ text
+▀▀▀▀▀▀▀▀
+continuation
+────────────────
+  status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real captured-screen guard outputs:
+tmux=unknown
+injection-deferred=true
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+
+Controlled damaged terminal: shell-break
+$ bin/fm-peek.sh guards:shell-break 30
+──────── named ─
+❯ text
+$ live shell
+continuation
+────────────────
+  status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Real captured-screen guard outputs:
+tmux=unknown
+injection-deferred=true
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused
+cursorless=unknown
+extraction=refused

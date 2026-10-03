@@ -1,0 +1,4 @@
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/fm-composer-lib-selected.sh
+Selectors: test_matrix_claude_titled_top_rule, test_matrix_claude_titled_wrap_region
+ok - matrix: Claude's titled top rule proves its adjacent idle and typed composer safely
+ok - matrix: titled Claude wrap boundaries preserve content, ghost, width, and staleness proofs

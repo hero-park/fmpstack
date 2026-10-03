@@ -1,0 +1,118 @@
+$ bash -c cd "$1" && pwd -P _ /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/projects/caseclone
+/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/projects/caseclone
+[exit 0]
+
+case alias: git root=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/projects/CaseClone
+physical cwd=/Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/projects/caseclone
+same directory=True
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-fleet-sync.sh /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/projects/caseclone
+caseclone: synced 2d62155..4e8f3d7
+[exit 0]
+
+clone before=2d6215574606bc6dd03d0b83d02415d1f43c60ae
+clone after=4e8f3d747e68f7bf3a288ce76e41540bc717c716
+local origin cutoff=4e8f3d747e68f7bf3a288ce76e41540bc717c716
+file.txt=case update
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-fleet-sync.sh clone-link
+clone-link: synced 4e8f3d7..de1131a
+[exit 0]
+
+symlink clone after=de1131ac8fea88f5529e341cfffe1610c1eea94e
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-fleet-sync.sh clone-link
+clone-link: STUCK: on branch main with uncommitted changes, 1 commits behind origin/main - needs attention
+[exit 0]
+
+dirty guard preserved HEAD=de1131ac8fea88f5529e341cfffe1610c1eea94e and file.txt=private uncommitted work; origin=60d88a10af691ac3aa4a6703cc53d9d11fc75ab8
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-fleet-sync.sh
+stranded: skipped: not a clone root (git would act on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/enclosing)
+[exit 0]
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-fleet-sync.sh stranded
+stranded: skipped: not a clone root (git would act on /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/enclosing)
+[exit 0]
+
+enclosing HEAD unchanged=60d88a10af691ac3aa4a6703cc53d9d11fc75ab8; origin/main unchanged=60d88a10af691ac3aa4a6703cc53d9d11fc75ab8; must-survive branch preserved
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh ship-no-mistakes disposable-project --mode no-mistakes
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/ship-no-mistakes/brief.md (ship, mode=no-mistakes; replace {TASK})
+[exit 0]
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh ship-direct-PR disposable-project --mode direct-PR
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/ship-direct-PR/brief.md (ship, mode=direct-PR; replace {TASK})
+[exit 0]
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh ship-local-only disposable-project --mode local-only
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/ship-local-only/brief.md (ship, mode=local-only; replace {TASK})
+[exit 0]
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh scout disposable-project --scout
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/scout/brief.md (scout; replace {TASK})
+[exit 0]
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh mate --secondmate --no-projects
+scaffolded: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/mate/brief.md (secondmate charter)
+[exit 0]
+
+Generated interface ship-no-mistakes:
+# Engineering inner loop
+Firstmate owns task routing, isolation, supervision, and delivery. Do not start a competing task router or take over fleet operations.
+1. Subtract before adding. Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. Before writing code, name the input, state, and output shape plus the blast radius: files and boundaries likely affected.
+3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
+4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
+5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+6. For a measured performance or evaluation claim, state what limits the result, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on it.
+7. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
+The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
+
+
+Generated interface ship-direct-PR:
+# Engineering inner loop
+Firstmate owns task routing, isolation, supervision, and delivery. Do not start a competing task router or take over fleet operations.
+1. Subtract before adding. Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. Before writing code, name the input, state, and output shape plus the blast radius: files and boundaries likely affected.
+3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
+4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
+5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+6. For a measured performance or evaluation claim, state what limits the result, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on it.
+7. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
+The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
+
+
+Generated interface ship-local-only:
+# Engineering inner loop
+Firstmate owns task routing, isolation, supervision, and delivery. Do not start a competing task router or take over fleet operations.
+1. Subtract before adding. Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. Before writing code, name the input, state, and output shape plus the blast radius: files and boundaries likely affected.
+3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
+4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
+5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+6. For a measured performance or evaluation claim, state what limits the result, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on it.
+7. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
+The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
+
+
+Generated interface scout:
+# Engineering inner loop
+Firstmate owns task routing, isolation, supervision, and delivery. Do not start a competing task router or take over fleet operations.
+1. Subtract before adding. Use the smallest logical change or investigation that meets the task, reuse existing paths, and avoid unrequested abstractions.
+2. Before writing code, name the input, state, and output shape plus the blast radius: files and boundaries likely affected.
+3. Walk the subsystem first only for an unfamiliar area, a shared boundary, or diagnosis. Trace how it works, and inspect rationale or history only when that could change the decision. For an ordinary local task in a known area, state `Walk skipped: <reason>` in your own response and continue; do not append that note to the status file.
+4. For a reported defect, reproduce it on the affected surface and trace the root cause before changing code. If access, cost, or safety prevents reproduction, record that gap instead of implying proof.
+5. Before done, prove the result against the real artifact with a live command, user flow, record, or focused local verifier. Compilation or the presence of tests is not proof unless it exercises the changed behavior.
+6. For a measured performance or evaluation claim, state what limits the result, rule out skipped, failed, cached, or untuned work, and record the run count and spread before reporting or acting on it.
+7. When reporting results, put evidence or an explicit inferred/guess label beside each claim. Run available safe checks yourself and name what remains unverified rather than handing off a check you could perform.
+The selected Firstmate delivery contract still owns review and shipping. Do not add a second review ceremony.
+
+
+Generated secondmate charter: no worker-only engineering inner loop or measured-claim rule.
+
+$ bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/bin/fm-brief.sh scout disposable-project --scout
+error: /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/cli/home/data/scout/brief.md already exists
+[exit 1]
+
+Existing brief refusal preserved the generated worker instructions byte-for-byte.

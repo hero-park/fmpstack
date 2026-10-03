@@ -1,0 +1,26 @@
+ok - detached clean ancestor is re-attached and fast-forwarded (recovered)
+ok - detached HEAD with unique commits is reported STUCK and left untouched
+ok - detached clean ancestor with diverged local default is reported STUCK and left untouched
+ok - dirty working tree is reported STUCK and left untouched
+ok - non-default named branch is reported STUCK and left untouched
+ok - diverged default branch is reported STUCK and left untouched
+ok - on-default clean behind clone still fast-forwards
+ok - already-current clone is reported unchanged
+ok - no-origin clone is skipped (benign), not flagged STUCK
+ok - local-only clone is skipped (benign), not flagged STUCK
+ok - single-project form accepts a bare project name
+ok - single-project bare name resolution is not cwd-sensitive
+ok - single-project form accepts a projects/<name> relative name
+ok - single-project projects/<name> resolution is not cwd-sensitive
+ok - single-project form leaves a genuinely bad name unresolved
+ok - whole-fleet form processes every clone under projects/
+ok - bootstrap relays recovered: and STUCK: fleet-sync outcomes
+ok - orphaned provably-stale packed-refs.lock is cleared and the clone syncs
+ok - a live packed-refs.lock is never removed and the sync fails loudly
+ok - a live process holding the clone worktree dir blocks lock removal (clone-dir liveness)
+ok - a transient packed-refs.lock that self-clears is retried without a force-remove
+ok - a non-packed-refs.lock fetch failure keeps today's behavior (no retry)
+ok - a non-repo directory under projects/ never fast-forwards the enclosing repo
+ok - the single-project form also refuses a directory that is not its own clone root
+ok - the clone-root guard accepts a symlinked clone directory
+ok - the clone-root guard accepts a root named by a different spelling of the same directory

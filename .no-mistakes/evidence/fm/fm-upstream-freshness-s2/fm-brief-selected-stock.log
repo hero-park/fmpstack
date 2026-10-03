@@ -1,0 +1,6 @@
+$ /bin/bash /Users/andrewpark/.no-mistakes/worktrees/6df33f9edf6e/01M41VPXFNFNPV4ERYKTT7VP9N/.test-phase/fm-brief-selected.sh
+Selectors: test_ship_modes_generate_clean_briefs, test_engineering_inner_loop_is_worker_only_and_harness_neutral, test_scout_and_secondmate_scaffold, test_secondmate_no_projects_charter
+ok - fm-brief.sh: no-mistakes/direct-PR/local-only briefs generate cleanly
+ok - fm-brief.sh: engineering inner loop reaches worker briefs without a second router
+ok - fm-brief: scout and secondmate code paths still scaffold well-formed briefs
+ok - fm-brief.sh: --no-projects scaffolds a project-less charter and guards misuse
