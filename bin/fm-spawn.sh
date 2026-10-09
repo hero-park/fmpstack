@@ -134,8 +134,9 @@
 #   provisioned firstmate home; the default is kind=ship.
 #   Before a secondmate launch, the home is locally fast-forwarded to the primary
 #   default-branch commit when safe; skipped syncs warn and launch unchanged.
-#   Ship/scout spawns refuse to launch unless the resolved task path is a real
-#   git worktree root distinct from the primary project checkout.
+#   Ship/scout spawns and relaunches refuse to launch unless the resolved task
+#   path is a real git worktree root that is not the primary project checkout,
+#   judged by device and inode so no symlink or letter-case alias can pass.
 #   Before a fresh ship or scout worker starts, its clean task worktree fetches
 #   origin, resolves the current remote default branch, and resets to its tip.
 #   An unreachable origin, unresolved default branch, or non-clean worktree
@@ -1846,18 +1847,16 @@ fi
 BRIEF_DIR_REAL=$(cd "$(dirname "$BRIEF")" && pwd -P)
 BRIEF_REAL="$BRIEF_DIR_REAL/$(basename "$BRIEF")"
 
-# PROJ_ABS can still carry a symlinked path component (e.g. macOS's /tmp ->
-# /private/tmp) when it came from the ship/scout branch's logical `pwd` above.
-# Every backend's own current-path read (tmux's pane_current_path, herdr's
-# foreground_cwd, zellij/cmux's active pwd probe against the live shell) can
-# report the OS-level, physically-resolved cwd, so comparing it against a
-# still-symlinked PROJ_ABS can misfire both ways: false-negative (the poll
-# below never notices the pane left the project) or false-positive (the
-# isolation guard refuses a spawn that never actually tangled). Canonicalize
-# once here so every downstream comparison uses the same physical form
-# (docs/herdr-backend.md "Known gaps").
-PROJ_ABS_REAL=$(cd "$PROJ_ABS" 2>/dev/null && pwd -P) || PROJ_ABS_REAL="$PROJ_ABS"
-
+# PROJ_ABS keeps the caller's spelling, and a backend's current-path read
+# (tmux's pane_current_path, herdr's foreground_cwd, zellij/cmux's pwd probe)
+# reports the kernel's spelling of the same directory. The two can differ by a
+# symlinked component (macOS's /tmp -> /private/tmp) or, on a case-insensitive
+# filesystem, by letter case alone - and bash's `pwd -P` resolves symlinks but
+# keeps the caller's case. So every "is this the same directory" decision below
+# (still in the project, the primary checkout, the recorded worktree) compares
+# device and inode with `-ef`, never path strings: a spelling-only mismatch
+# once let the poll accept the primary checkout as the task worktree and the
+# isolation guard wave it through.
 real_path_or_raw() {  # <path>
   local path=$1 real
   if real=$(cd "$path" 2>/dev/null && pwd -P); then
@@ -1876,18 +1875,10 @@ real_path_or_raw() {  # <path>
 # that every downstream operation (send/capture/kill) already treats as opaque
 # per-backend routing (fm_backend_resolve_selector).
 validate_spawn_worktree() {  # <source> <inspect-target>
-  local source=$1 inspect_target=$2 wt_real proj_real wt_top wt_top_real
-  wt_real=
-  if ! wt_real=$(cd "$WT" 2>/dev/null && pwd -P); then
-    wt_real=
-  fi
-  proj_real=$PROJ_ABS_REAL
+  local source=$1 inspect_target=$2 wt_top primary_top
   wt_top=$(git -C "$WT" rev-parse --show-toplevel 2>/dev/null || true)
-  wt_top_real=
-  if ! wt_top_real=$(cd "$wt_top" 2>/dev/null && pwd -P); then
-    wt_top_real=
-  fi
-  if [ -z "$wt_real" ] || [ -z "$wt_top_real" ] || [ "$wt_real" != "$wt_top_real" ] || [ "$wt_real" = "$proj_real" ]; then
+  primary_top=$(git -C "$PROJ_ABS" rev-parse --show-toplevel 2>/dev/null || true)
+  if ! [ "$WT" -ef "$wt_top" ] || [ "$WT" -ef "$PROJ_ABS" ] || [ "$WT" -ef "$primary_top" ]; then
     echo "error: $source did not yield an isolated worktree (resolved '$WT'; worktree root '${wt_top:-none}'; primary '$PROJ_ABS'); refusing to launch to avoid tangling the primary checkout. Inspect target $inspect_target" >&2
     exit 1
   fi
@@ -2401,13 +2392,12 @@ spawn_enter_recorded_worktree() {
 # Verify the endpoint cwd after the explicit handoff and before any harness
 # starts. Orca owns the terminal's worktree and has no current-path probe.
 spawn_assert_agent_worktree() {
-  local expected seen i
+  local seen i
   [ "$KIND" = secondmate ] && return 0
   [ "$BACKEND" = orca ] && return 0
-  expected=$(real_path_or_raw "$WT")
   for i in $(seq 1 20); do
     seen=$(spawn_current_path "$WT_TARGET" || true)
-    if [ -n "$seen" ] && [ "$(real_path_or_raw "$seen")" = "$expected" ]; then
+    if [ -n "$seen" ] && [ "$seen" -ef "$WT" ]; then
       return 0
     fi
     [ "$i" -ge 20 ] || sleep 0.5
@@ -2479,14 +2469,13 @@ if [ "$RELAUNCH" -eq 1 ]; then
   # proven instead is that the adopted endpoint's shell is actually sitting in
   # that worktree, so the replacement agent starts where the work is rather
   # than wherever the pane happened to drift.
-  relaunch_wt_real=$(real_path_or_raw "$WT")
   relaunch_seen=
   for _ in $(seq 1 10); do
     relaunch_seen=$(spawn_current_path "$WT_TARGET" || true)
-    [ -z "$relaunch_seen" ] || [ "$(real_path_or_raw "$relaunch_seen")" != "$relaunch_wt_real" ] || break
+    [ -n "$relaunch_seen" ] && [ "$relaunch_seen" -ef "$WT" ] && break
     sleep 0.5
   done
-  if [ -z "$relaunch_seen" ] || [ "$(real_path_or_raw "$relaunch_seen")" != "$relaunch_wt_real" ]; then
+  if [ -z "$relaunch_seen" ] || ! [ "$relaunch_seen" -ef "$WT" ]; then
     echo "error: task $ID's endpoint is in '${relaunch_seen:-unknown}', not its recorded worktree '$WT'; refusing to relaunch an agent outside the copy holding its work" >&2
     exit 1
   fi
@@ -2499,15 +2488,15 @@ elif [ "$KIND" != secondmate ] && [ "$BACKEND" != orca ]; then
   # automatic-rename slips through), display-message -t <bad-name> falls back to the
   # active client's window, which would misread firstmate's OWN pane path as the
   # worktree and tangle a hook into the primary checkout. The window id never lies.
-  # Compare against PROJ_ABS_REAL (physical), not PROJ_ABS: a symlinked project
-  # prefix would otherwise make the pane's OS-level cwd read differ from
-  # PROJ_ABS on the very first poll, before the pane has actually moved.
+  # "Still in the project" is a device-and-inode test against PROJ_ABS, so the
+  # pane's kernel-spelled cwd still counts as the project before it has moved
+  # (see the identity note above real_path_or_raw).
   #
-  # A single read that already differs from PROJ_ABS_REAL is not proof the pane
+  # A single read that is already outside the project is not proof the pane
   # settled there: on some tmux/WSL setups a brand-new window's pane_current_path
   # transiently reports an unrelated stale path (seen live as another real git
   # checkout entirely) before the shell catches up with treehouse get's cd. That
-  # stale path still passes the PROJ_ABS_REAL comparison and validate_spawn_worktree
+  # stale path still passes the project comparison and validate_spawn_worktree
   # below (it resolves to a real, distinct worktree top-level too), so accepting it
   # on one read alone silently records the wrong worktree= in state/<id>.meta. Require
   # two consecutive reads to agree on the same non-project path before accepting it;
@@ -2519,7 +2508,7 @@ elif [ "$KIND" != secondmate ] && [ "$BACKEND" != orca ]; then
     p=$(spawn_current_path "$WT_TARGET" || true)
     if [ -n "$p" ]; then
       p_real=$(real_path_or_raw "$p")
-      if [ "$p_real" != "$PROJ_ABS_REAL" ]; then
+      if ! [ "$p" -ef "$PROJ_ABS" ]; then
         if [ -n "$candidate" ] && [ "$p_real" = "$candidate" ]; then
           WT="$p"
           break
