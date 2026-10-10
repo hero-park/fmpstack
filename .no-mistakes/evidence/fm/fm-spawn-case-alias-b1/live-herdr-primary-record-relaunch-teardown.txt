@@ -1,0 +1,32 @@
+canonical project: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles
+caller spelling:   /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/projects/dotfiles (same dir: yes)
++ (cd /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home && FM_HOME=$PWD bin/fm-spawn.sh cs1 $PWD/projects/dotfiles "sh -c 'echo CWD=$(pwd -P)'" --mode no-mistakes --yolo off --backend herdr)
+exit=0
+--- stdout
+spawned cs1 harness=sh kind=ship mode=no-mistakes yolo=off window=fm-lab-case-alias-base-24939:w1:p2 worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles
+--- stderr
+warning: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/data/cs1/brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+--- meta
+worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles
+project=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/projects/dotfiles
+VERDICT: worktree IS the primary checkout (BUG)
+.git
+--- herdr pane cwd
+{"cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles","foreground_cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/pool/.treehouse/Dotfiles-3e99e4/1/Dotfiles"}
+--- pane capture
+sh -c 'echo CWD=$(pwd -P); echo TOP=$(git rev-parse --show-toplevel)'
+=== fixed fm-spawn --relaunch on this record (caller spelling FM_HOME)
+warning: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/data/cs1/brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: relaunch did not yield an isolated worktree (resolved '/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles'; worktree root '/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles'; primary '/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/projects/dotfiles'); refusing to launch to avoid tangling the primary checkout. Inspect target fm-lab-case-alias-base-24939:w1:p2
+relaunch exit=1
+=== fixed fm-teardown.sh cs1 
+REFUSED: task cs1's recorded worktree /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles is the primary checkout of /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/projects/dotfiles, not an isolated task copy; --force does not override this. Correct the record's worktree= to the task's isolated copy before cleanup.
+teardown exit=1
+=== fixed fm-teardown.sh cs1 --force
+REFUSED: task cs1's recorded worktree /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/Home/projects/Dotfiles is the primary checkout of /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/home/projects/dotfiles, not an isolated task copy; --force does not override this. Correct the record's worktree= to the task's isolated copy before cleanup.
+teardown exit=1
+record still present: yes
+primary still a normal checkout: .git branch=main
+--- hook log
+post-checkout slow hook in /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.iLSCjJ/pool/.treehouse/Dotfiles-3e99e4/1/Dotfiles
+--- primary HEAD/branch after: main status: 0 dirty files

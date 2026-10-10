@@ -1,0 +1,5 @@
+ok - a single transient stale pane_current_path read is not accepted as the worktree
+ok - an already-settled pane confirms via the existing inter-poll sleep, not an extra full cycle
+ok - pane reads of the primary through a symlink project alias are never accepted as the worktree
+ok - pane reads of the primary through a case project alias are never accepted as the worktree
+# all fm-spawn-worktree-settle tests passed

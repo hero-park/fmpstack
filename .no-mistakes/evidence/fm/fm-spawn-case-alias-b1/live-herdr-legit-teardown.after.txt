@@ -1,0 +1,29 @@
+canonical project: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/Home/projects/Dotfiles
+caller spelling:   /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home/projects/dotfiles (same dir: yes)
++ (cd /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home && FM_HOME=$PWD bin/fm-spawn.sh cs1 $PWD/projects/dotfiles "sh -c 'echo CWD=$(pwd -P)'" --mode no-mistakes --yolo off --backend herdr)
+exit=0
+--- stdout
+spawned cs1 harness=sh kind=ship mode=no-mistakes yolo=off window=fm-lab-case-alias-fixed-27956:w1:p2 worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfiles
+--- stderr
+warning: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home/data/cs1/brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+--- meta
+worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfiles
+project=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home/projects/dotfiles
+VERDICT: worktree is distinct from primary
+/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/Home/projects/Dotfiles/.git/worktrees/Dotfiles
+--- herdr pane cwd
+{"cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/Home/projects/Dotfiles","foreground_cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfiles"}
+--- pane capture
+❯ sh -c 'echo CWD=$(pwd -P); echo TOP=$(git rev-parse --show-toplevel)'
+CWD=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfi
+TOP=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfi
+=== fixed fm-teardown.sh cs1 --force on a legit pool-worktree record
+🌳 Worktree returned to pool.
+dotfiles: already current
+teardown cs1 complete (window fm-lab-case-alias-fixed-27956:w1:p2, worktree /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/pool/.treehouse/Dotfiles-9fad5e/1/Dotfiles)
+Backlog: cs1 just finished (this home keeps no backlog at /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home/data/backlog.md). Update /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.GtukYu/home/data/backlog.md - move cs1 to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+teardown exit=0
+record removed: yes
+treehouse status:
+not in a git or jj repository: git rev-parse --show-toplevel: fatal: not a git repository (or any of the parent directories): .git
+--- primary HEAD/branch after: main status: 0 dirty files

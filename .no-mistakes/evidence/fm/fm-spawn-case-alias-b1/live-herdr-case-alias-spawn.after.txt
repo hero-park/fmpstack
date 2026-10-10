@@ -1,0 +1,22 @@
+canonical project: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/Home/projects/Dotfiles
+caller spelling:   /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/home/projects/dotfiles (same dir: yes)
++ (cd /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/home && FM_HOME=$PWD bin/fm-spawn.sh cs1 $PWD/projects/dotfiles "sh -c 'echo CWD=$(pwd -P)'" --mode no-mistakes --yolo off --backend herdr)
+exit=0
+--- stdout
+spawned cs1 harness=sh kind=ship mode=no-mistakes yolo=off window=fm-lab-case-alias-fixed-21724:w1:p2 worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfiles
+--- stderr
+warning: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/home/data/cs1/brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+--- meta
+worktree=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfiles
+project=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/home/projects/dotfiles
+VERDICT: worktree is distinct from primary
+/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/Home/projects/Dotfiles/.git/worktrees/Dotfiles
+--- herdr pane cwd
+{"cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/Home/projects/Dotfiles","foreground_cwd":"/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfiles"}
+--- pane capture
+❯ sh -c 'echo CWD=$(pwd -P); echo TOP=$(git rev-parse --show-toplevel)'
+CWD=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfi
+TOP=/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfi
+--- hook log
+post-checkout slow hook in /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-live-case.xO9IPG/pool/.treehouse/Dotfiles-03112d/1/Dotfiles
+--- primary HEAD/branch after: main status: 0 dirty files

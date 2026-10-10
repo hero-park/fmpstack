@@ -1,0 +1,6 @@
+ok - a single transient stale pane_current_path read is not accepted as the worktree
+ok - an already-settled pane confirms via the existing inter-poll sleep, not an extra full cycle
+ok - pane reads of the primary through a symlink project alias are never accepted as the worktree
+not ok - spawn through a case project alias should succeed once the pane settles
+warning: /private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-spawn-worktree-settle.5yAlJI/settle-alias-case/home/data/settle-alias-case-z3/brief.md records no delivery contract line (scaffolded before ship briefs recorded one); launching on the explicit --mode no-mistakes - confirm its definition of done matches
+error: task settle-alias-case-z3's worker started in '/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-spawn-worktree-settle.5yAlJI/settle-alias-case/wt', not its recorded worktree '/private/var/folders/cf/y3bcjpfn70v7dv_dfrb2gvzc0000gn/T/fm-spawn-worktree-settle.5yAlJI/settle-alias-case/project'; refusing to continue outside the copy holding its work: expected exit 0, got 1
