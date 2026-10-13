@@ -229,6 +229,17 @@ fm_git_add_origin() {
   git -C "$repo" remote add origin "file://$remote_abs"
 }
 
+# fm_test_case_alias <existing-path>: echo <path> with its final component's
+# letter case swapped when the filesystem resolves that spelling to the same
+# directory (case-insensitive, like default macOS APFS). Returns 1 on a
+# case-sensitive filesystem, where callers report the alias case as skipped.
+fm_test_case_alias() {
+  local path=$1 alias
+  alias="$(dirname "$path")/$(basename "$path" | tr 'a-zA-Z' 'A-Za-z')"
+  [ "$alias" != "$path" ] && [ "$alias" -ef "$path" ] || return 1
+  printf '%s\n' "$alias"
+}
+
 # fm_git_worktree <repo> <worktree> <branch>: initialize <repo> with one commit
 # and a local bare origin, then add a worktree on a fresh branch.
 fm_git_worktree() {

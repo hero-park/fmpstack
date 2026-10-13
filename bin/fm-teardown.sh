@@ -82,6 +82,9 @@
 #   Without that override, a reported endpoint-close failure preserves task
 #   records for retry, although earlier worktree cleanup may already have run.
 #   Only use --force when the captain has explicitly said to discard the work.
+#   No flag lets a ship or scout record whose worktree is the project's primary
+#   checkout (same directory by device and inode, whatever its spelling) reach
+#   cleanup; teardown refuses it before touching anything.
 #
 # Transient / stale worktree git lock recovery (teardown-lock-race): a crew process
 # killed mid-git-operation can leave a .git/worktrees/<wt>/index.lock (or, for a
@@ -730,6 +733,19 @@ BACKEND=$FM_BACKEND_VALIDATED_BACKEND
 T=$FM_BACKEND_VALIDATED_TARGET
 WT=$(fm_meta_get "$META" worktree)
 PROJ=$(fm_meta_get "$META" project)
+# A recorded worktree that is the project's primary checkout is never a task
+# copy: every cleanup step below would detach, reset, return, or reap processes
+# in the primary itself. Compare device and inode (`-ef`), never spellings, so a
+# case-insensitive alias or symlinked prefix cannot slip past; --force
+# authorizes discarding task work only and does not override this.
+if [ "$TEARDOWN_META_KIND" != secondmate ] && [ -d "$WT" ] && [ -d "$PROJ" ]; then
+  teardown_wt_top=$(git -C "$WT" rev-parse --show-toplevel 2>/dev/null) || teardown_wt_top=$WT
+  teardown_proj_top=$(git -C "$PROJ" rev-parse --show-toplevel 2>/dev/null) || teardown_proj_top=$PROJ
+  if [ "$teardown_wt_top" -ef "$teardown_proj_top" ]; then
+    echo "REFUSED: task $ID's recorded worktree $WT is the primary checkout of $PROJ, not an isolated task copy; --force does not override this. Correct the record's worktree= to the task's isolated copy before cleanup." >&2
+    exit 1
+  fi
+fi
 T_ORCA=
 [ "$BACKEND" != orca ] || T_ORCA=$T
 if [ "${FM_TEARDOWN_GUARD_DONE:-0}" != 1 ]; then

@@ -15,8 +15,8 @@
 #   5. A launch failure after the agent is stopped keeps the prior record,
 #      reports the concrete state, and preserves the work.
 #   6. fm-spawn --relaunch refuses on its own: a live agent, a contradicting
-#      flag, an extra positional, or a backend that cannot prove the previous
-#      agent exited.
+#      flag, an extra positional, a backend that cannot prove the previous
+#      agent exited, or a record whose worktree is the primary checkout.
 set -u
 
 # shellcheck source=tests/lib.sh
@@ -1482,6 +1482,37 @@ test_spawn_relaunch_refuses_a_pane_outside_the_worktree() {
   pass "fm-spawn --relaunch: refuses to start a replacement outside the copy holding the work"
 }
 
+# A record whose worktree= is the primary checkout must never get an agent,
+# however its project= spells that same directory: identically, through a
+# symlink, or by letter case on a case-insensitive filesystem.
+test_spawn_relaunch_refuses_a_primary_checkout_record() {  # <exact|symlink|case>
+  local kind=$1 dir out rc proj alias meta
+  dir=$(new_case "primary-$kind" rl46)
+  add_ship_task "$dir" rl46 claude
+  proj="$dir/proj"
+  case "$kind" in
+    exact) alias=$proj ;;
+    symlink) alias="$dir/proj-link"; ln -s "$proj" "$alias" ;;
+    case)
+      alias=$(fm_test_case_alias "$proj") || {
+        pass "skipped: case-sensitive filesystem, so no letter-case project alias exists here"
+        return 0
+      }
+      ;;
+  esac
+  meta="$dir/home/state/rl46.meta"
+  grep -v -e '^worktree=' -e '^project=' "$meta" > "$meta.tmp"
+  printf 'worktree=%s\nproject=%s\n' "$proj" "$alias" >> "$meta.tmp"
+  mv "$meta.tmp" "$meta"
+  printf 'zsh' > "$dir/fake/command"
+  printf '%s' "$proj" > "$dir/fake/cwd"
+  out=$(run_spawn "$dir" rl46 --relaunch --harness claude); rc=$?
+  expect_code 1 "$rc" "relaunching a $kind-spelled primary checkout record should refuse"$'\n'"$out"
+  assert_contains "$out" "did not yield an isolated worktree" "the refusal should name the missing isolation"
+  assert_no_grep 'encode launch-brief' "$dir/fake/literal" "an agent was launched into the primary checkout"
+  pass "fm-spawn --relaunch: refuses a record whose worktree is the primary checkout ($kind project spelling)"
+}
+
 test_relaunch_reverifies_an_already_in_flight_item_instead_of_rewriting_it() {
   local dir out rc=0
   command -v tasks-axi >/dev/null 2>&1 || {
@@ -1567,5 +1598,8 @@ test_spawn_relaunch_refuses_a_pending_authoritative_close
 test_spawn_relaunch_refuses_contradicting_flags
 test_spawn_relaunch_refuses_an_unrecorded_task
 test_spawn_relaunch_refuses_a_pane_outside_the_worktree
+test_spawn_relaunch_refuses_a_primary_checkout_record exact
+test_spawn_relaunch_refuses_a_primary_checkout_record symlink
+test_spawn_relaunch_refuses_a_primary_checkout_record case
 test_relaunch_reverifies_an_already_in_flight_item_instead_of_rewriting_it
 test_relaunch_moves_a_drifted_item_back_in_flight

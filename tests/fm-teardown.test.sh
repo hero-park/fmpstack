@@ -1319,6 +1319,51 @@ test_local_only_force_overrides_unpushed() {
   pass "local-only worktree with unpushed work is torn down under --force (escape hatch)"
 }
 
+# A record whose worktree= is the primary checkout is never a task copy, however
+# its project= spells that directory: identically, through a symlink, or by
+# letter case on a case-insensitive filesystem. Teardown refuses before any
+# cleanup step, and --force does not override it.
+test_primary_checkout_record_refuses_even_with_force() {  # <exact|symlink|case>
+  local kind=$1 case_dir proj alias rc force
+  case_dir=$(make_case "primary-record-$kind")
+  proj="$case_dir/project"
+  case "$kind" in
+    exact) alias=$proj ;;
+    symlink) alias="$case_dir/project-link"; ln -s "$proj" "$alias" ;;
+    case)
+      alias=$(fm_test_case_alias "$proj") || {
+        pass "skipped: case-sensitive filesystem, so no letter-case project alias exists here"
+        return 0
+      }
+      ;;
+  esac
+  fm_write_meta "$case_dir/state/task-x1.meta" \
+    "window=firstmate:fm-task-x1" \
+    "endpoint_task_id=task-x1" \
+    "worktree=$proj" \
+    "project=$alias" \
+    "kind=ship" \
+    "mode=no-mistakes" \
+    "spawn_gen=teardown-test-task-x1"
+  cat > "$case_dir/fakebin/treehouse" <<SH
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "$case_dir/treehouse.log"
+SH
+
+  for force in '' --force; do
+    rc=0
+    run_teardown "$case_dir" ${force:+"$force"} > "$case_dir/stdout" 2> "$case_dir/stderr" || rc=$?
+    expect_code 1 "$rc" "primary-record-$kind${force:+ $force}: teardown should refuse"
+    assert_grep "is the primary checkout" "$case_dir/stderr" \
+      "primary-record-$kind${force:+ $force}: the refusal should name the primary checkout"
+  done
+  assert_present "$case_dir/state/task-x1.meta" "primary-record-$kind: the task record was removed"
+  assert_absent "$case_dir/treehouse.log" "primary-record-$kind: treehouse was asked to return the primary checkout"
+  [ "$(git -C "$proj" branch --show-current)" = main ] \
+    || fail "primary-record-$kind: the primary checkout left its default branch"
+  pass "a record whose worktree is the primary checkout is refused even with --force ($kind project spelling)"
+}
+
 test_teardown_missing_busy_sidecar_completes() {
   local case_dir gen rc
   case_dir=$(make_case missing-busy-sidecar)
@@ -2613,6 +2658,9 @@ test_local_only_merged_to_local_main_allows
 test_no_mistakes_origin_remote_allows
 test_no_mistakes_truly_unpushed_refuses
 test_local_only_force_overrides_unpushed
+test_primary_checkout_record_refuses_even_with_force exact
+test_primary_checkout_record_refuses_even_with_force symlink
+test_primary_checkout_record_refuses_even_with_force case
 test_teardown_missing_busy_sidecar_completes
 test_herdr_teardown_clears_escalation_marker
 test_herdr_flat_teardown_refuses_orphaning_records_then_retry_completes

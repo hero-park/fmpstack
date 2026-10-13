@@ -141,7 +141,46 @@ test_already_settled_pane_costs_one_confirm_sleep() {
   pass "an already-settled pane confirms via the existing inter-poll sleep, not an extra full cycle"
 }
 
+# The project argument can name the primary checkout through an alias - a
+# symlinked prefix, or a letter-case variant on a case-insensitive filesystem -
+# while the pane reports the kernel's spelling of the same directory. Until
+# treehouse get moves the pane, those reads are still the primary checkout and
+# must never be accepted as the task worktree; a lowercase project spelling once
+# recorded the primary as worktree= and launched the worker there.
+test_project_alias_reads_still_count_as_the_primary() {  # <symlink|case>
+  local kind=$1 rec id out status alias
+  id=settle-alias-$kind-z3
+  rec=$(make_settle_case "settle-alias-$kind" "$id" 2)
+  read_settle_record "$rec"
+  case "$kind" in
+    symlink)
+      alias="$(dirname "$PROJ_DIR")/project-link"
+      ln -s "$PROJ_DIR" "$alias"
+      ;;
+    case)
+      alias=$(fm_test_case_alias "$PROJ_DIR") || {
+        pass "skipped: case-sensitive filesystem, so no letter-case project alias exists here"
+        return 0
+      }
+      ;;
+  esac
+  # The pane first reports the primary in its canonical spelling, then settles.
+  STALE_DIR=$PROJ_DIR
+  PROJ_DIR=$alias
+
+  out=$(run_settle_spawn "$id")
+  status=$?
+  expect_code 0 "$status" "spawn through a $kind project alias should succeed once the pane settles"$'\n'"$out"
+  assert_grep "worktree=$WT_DIR" "$HOME_DIR/state/$id.meta" \
+    "meta did not record the settled worktree for a $kind project alias"
+  assert_no_grep "worktree=$STALE_DIR" "$HOME_DIR/state/$id.meta" \
+    "a $kind project alias let the primary checkout be recorded as the worktree"
+  pass "pane reads of the primary through a $kind project alias are never accepted as the worktree"
+}
+
 test_single_stale_first_read_is_not_accepted
 test_already_settled_pane_costs_one_confirm_sleep
+test_project_alias_reads_still_count_as_the_primary symlink
+test_project_alias_reads_still_count_as_the_primary case
 
 echo "# all fm-spawn-worktree-settle tests passed"
